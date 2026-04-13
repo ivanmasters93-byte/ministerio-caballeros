@@ -27,11 +27,11 @@ export function Header({ user, title, onMenuToggle }: HeaderProps) {
       }}
     >
       {/* Left: Hamburger (mobile) + Page title */}
-      <div className="flex items-center gap-3 min-w-0">
+      <div className="flex items-center gap-2 min-w-0 overflow-hidden">
         {/* Hamburger — mobile only */}
         <button
           onClick={onMenuToggle}
-          className="lg:hidden p-2 -ml-2 rounded-lg transition-colors duration-200 cursor-pointer"
+          className="lg:hidden flex items-center justify-center w-11 h-11 -ml-2 rounded-lg transition-colors duration-200 cursor-pointer"
           style={{ color: 'var(--color-text-secondary)' }}
           aria-label="Abrir menu"
         >

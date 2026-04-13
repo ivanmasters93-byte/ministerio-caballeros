@@ -184,7 +184,7 @@ export default function DashboardPage() {
   /* ---- Loading skeleton ---- */
   if (loading) {
     return (
-      <div className="space-y-8">
+      <div className="space-y-6 sm:space-y-8">
         {/* Greeting - renders immediately */}
         <GreetingBar greeting={greeting} todayLabel={todayLabel} />
 
@@ -262,7 +262,7 @@ export default function DashboardPage() {
     : []
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 sm:space-y-8">
       {/* ========== SECTION 1: GREETING ========== */}
       <div className="slide-up">
         <GreetingBar greeting={greeting} todayLabel={todayLabel} />
@@ -276,29 +276,29 @@ export default function DashboardPage() {
               className="stat-card slide-up"
               style={{ animationDelay: `${(i + 1) * 80}ms` }}
             >
-              <div className="flex items-start justify-between mb-4">
+              <div className="flex items-start justify-between gap-2 mb-4">
                 <div
-                  className="flex items-center justify-center w-9 h-9 rounded-lg"
+                  className="flex items-center justify-center w-9 h-9 rounded-lg shrink-0"
                   style={{ background: card.accentSoft }}
                 >
                   <card.icon size={18} style={{ color: card.accentColor }} />
                 </div>
                 <span
-                  className="text-[13px] font-medium"
+                  className="text-[12px] sm:text-[13px] font-medium text-right leading-tight"
                   style={{ color: 'var(--color-text-secondary)' }}
                 >
                   {card.label}
                 </span>
               </div>
-              <div className="flex items-end justify-between">
+              <div className="flex items-end justify-between gap-2">
                 <span
-                  className="text-[32px] font-bold leading-none tracking-tight"
+                  className="text-[28px] sm:text-[32px] font-bold leading-none tracking-tight"
                   style={{ color: 'var(--color-text-primary)' }}
                 >
                   {card.value}
                 </span>
                 <span
-                  className="text-[12px] pb-0.5"
+                  className="text-[11px] sm:text-[12px] pb-0.5 text-right"
                   style={{ color: 'var(--color-text-muted)' }}
                 >
                   {card.subtitle}
@@ -386,11 +386,11 @@ export default function DashboardPage() {
 
       {/* ========== SECTION 4: EVENTS + ANNOUNCEMENTS ========== */}
       <div
-        className="grid grid-cols-1 lg:grid-cols-5 gap-6 slide-up"
+        className="grid grid-cols-1 lg:grid-cols-5 gap-4 sm:gap-6 slide-up"
         style={{ animationDelay: '500ms' }}
       >
         {/* Left: Proximos Eventos (3/5 = 60%) */}
-        <div className="lg:col-span-3 dark-card p-6">
+        <div className="lg:col-span-3 dark-card p-4 sm:p-6">
           <div className="flex items-center justify-between mb-5">
             <h3
               className="text-[16px] font-semibold"
@@ -525,7 +525,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Right: Anuncios Recientes (2/5 = 40%) */}
-        <div className="lg:col-span-2 dark-card p-6">
+        <div className="lg:col-span-2 dark-card p-4 sm:p-6">
           <div className="flex items-center justify-between mb-5">
             <h3
               className="text-[16px] font-semibold"
@@ -617,7 +617,7 @@ export default function DashboardPage() {
           >
             Gedeones 2.0
           </h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             <GedeoneFeatureCard
               href="/biblia"
               icon={BookOpen}
@@ -676,7 +676,7 @@ export default function DashboardPage() {
             </Link>
           </div>
 
-          <div className="flex gap-4 overflow-x-auto pb-2 -mx-1 px-1">
+          <div className="flex gap-3 sm:gap-4 overflow-x-auto pb-2 -mx-1 px-1">
             {casosAbiertos.map((caso) => {
               const estadoClass = CASO_ESTADO_BADGE[caso.estado] ?? 'badge-ghost'
               const initial = caso.hermano?.user?.name?.charAt(0)?.toUpperCase() ?? '?'
@@ -684,7 +684,7 @@ export default function DashboardPage() {
                 <Link
                   key={caso.id}
                   href="/seguimiento"
-                  className="dark-card-hover p-4 min-w-[280px] max-w-[320px] shrink-0"
+                  className="dark-card-hover p-4 min-w-[240px] sm:min-w-[280px] max-w-[320px] shrink-0"
                 >
                   <div className="flex items-center gap-3 mb-3">
                     <div
@@ -746,7 +746,7 @@ export default function DashboardPage() {
           Acciones Rapidas
         </h3>
 
-        <div className="grid grid-cols-3 sm:grid-cols-3 lg:grid-cols-9 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-9 gap-3">
           {quickActions.map((action) => (
             <Link
               key={action.label}
@@ -952,11 +952,26 @@ function GreetingBar({
   greeting: string
   todayLabel: string
 }) {
+  const [dropdownOpen, setDropdownOpen] = useState(false)
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    if (!dropdownOpen) return
+    const handler = (e: MouseEvent) => {
+      const target = e.target as HTMLElement
+      if (!target.closest('[data-nuevo-dropdown]')) {
+        setDropdownOpen(false)
+      }
+    }
+    document.addEventListener('click', handler)
+    return () => document.removeEventListener('click', handler)
+  }, [dropdownOpen])
+
   return (
-    <div className="flex items-start sm:items-center justify-between flex-col sm:flex-row gap-4">
-      <div>
+    <div className="flex items-start sm:items-center justify-between flex-col sm:flex-row gap-3">
+      <div className="min-w-0">
         <h2
-          className="text-[24px] font-bold tracking-tight"
+          className="text-[20px] sm:text-[24px] font-bold tracking-tight"
           style={{
             color: 'var(--color-text-primary)',
             fontFamily: 'var(--font-display)',
@@ -966,74 +981,82 @@ function GreetingBar({
           <span className="gold-text">Lider</span>
         </h2>
         <p
-          className="text-[13px] mt-0.5 capitalize"
+          className="text-[12px] sm:text-[13px] mt-0.5 capitalize truncate"
           style={{ color: 'var(--color-text-secondary)' }}
         >
           {todayLabel}
         </p>
       </div>
 
-      <div className="relative group">
-        <button className="btn-primary flex items-center gap-2 text-[13px]">
+      <div className="relative shrink-0" data-nuevo-dropdown>
+        <button
+          className="btn-primary flex items-center gap-2 text-[13px]"
+          onClick={() => setDropdownOpen((prev) => !prev)}
+        >
           <Plus size={16} />
           Nuevo
         </button>
 
-        {/* Dropdown */}
-        <div
-          className="absolute right-0 top-full mt-2 w-48 rounded-xl p-1.5 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-200 z-50"
-          style={{
-            background: 'var(--color-bg-elevated)',
-            border: '1px solid var(--color-border-default)',
-            boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
-          }}
-        >
-          <Link
-            href="/hermanos"
-            className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] transition-colors"
-            style={{ color: 'var(--color-text-secondary)' }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'var(--color-bg-surface)'
-              e.currentTarget.style.color = 'var(--color-text-primary)'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'transparent'
-              e.currentTarget.style.color = 'var(--color-text-secondary)'
+        {/* Dropdown — click/tap to open */}
+        {dropdownOpen && (
+          <div
+            className="absolute right-0 top-full mt-2 w-48 rounded-xl p-1.5 z-50 fade-in"
+            style={{
+              background: 'var(--color-bg-elevated)',
+              border: '1px solid var(--color-border-default)',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
             }}
           >
-            <UserPlus size={14} /> Nuevo Hermano
-          </Link>
-          <Link
-            href="/agenda"
-            className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] transition-colors"
-            style={{ color: 'var(--color-text-secondary)' }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'var(--color-bg-surface)'
-              e.currentTarget.style.color = 'var(--color-text-primary)'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'transparent'
-              e.currentTarget.style.color = 'var(--color-text-secondary)'
-            }}
-          >
-            <CalendarPlus size={14} /> Crear Evento
-          </Link>
-          <Link
-            href="/anuncios"
-            className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] transition-colors"
-            style={{ color: 'var(--color-text-secondary)' }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'var(--color-bg-surface)'
-              e.currentTarget.style.color = 'var(--color-text-primary)'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'transparent'
-              e.currentTarget.style.color = 'var(--color-text-secondary)'
-            }}
-          >
-            <Megaphone size={14} /> Publicar Anuncio
-          </Link>
-        </div>
+            <Link
+              href="/hermanos"
+              onClick={() => setDropdownOpen(false)}
+              className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-[13px] transition-colors"
+              style={{ color: 'var(--color-text-secondary)' }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'var(--color-bg-surface)'
+                e.currentTarget.style.color = 'var(--color-text-primary)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'transparent'
+                e.currentTarget.style.color = 'var(--color-text-secondary)'
+              }}
+            >
+              <UserPlus size={14} /> Nuevo Hermano
+            </Link>
+            <Link
+              href="/agenda"
+              onClick={() => setDropdownOpen(false)}
+              className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-[13px] transition-colors"
+              style={{ color: 'var(--color-text-secondary)' }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'var(--color-bg-surface)'
+                e.currentTarget.style.color = 'var(--color-text-primary)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'transparent'
+                e.currentTarget.style.color = 'var(--color-text-secondary)'
+              }}
+            >
+              <CalendarPlus size={14} /> Crear Evento
+            </Link>
+            <Link
+              href="/anuncios"
+              onClick={() => setDropdownOpen(false)}
+              className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-[13px] transition-colors"
+              style={{ color: 'var(--color-text-secondary)' }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'var(--color-bg-surface)'
+                e.currentTarget.style.color = 'var(--color-text-primary)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'transparent'
+                e.currentTarget.style.color = 'var(--color-text-secondary)'
+              }}
+            >
+              <Megaphone size={14} /> Publicar Anuncio
+            </Link>
+          </div>
+        )}
       </div>
     </div>
   )

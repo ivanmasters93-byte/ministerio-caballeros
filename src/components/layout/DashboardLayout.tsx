@@ -44,8 +44,6 @@ export function DashboardLayout({ children, user, title }: DashboardLayoutProps)
     })
   }
 
-  const desktopMargin = mounted ? (sidebarCollapsed ? 72 : 256) : 256
-
   return (
     <div className="min-h-screen" style={{ background: 'var(--color-bg-base)' }}>
       <a href="#main-content" className="skip-link">Saltar al contenido</a>
@@ -60,32 +58,31 @@ export function DashboardLayout({ children, user, title }: DashboardLayoutProps)
 
       {/*
         Mobile: ml-0, full width
-        Desktop (lg+): ml = sidebar width via inline style
+        Desktop (lg+): ml = sidebar width via Tailwind responsive class
       */}
       <div
-        className="flex flex-col min-h-screen transition-[margin] duration-300 ease-in-out"
-        style={{ marginLeft: 0 }}
+        className={`flex flex-col min-h-screen w-full transition-[margin] duration-300 ease-in-out ml-0 ${
+          mounted
+            ? sidebarCollapsed
+              ? 'lg:ml-[72px]'
+              : 'lg:ml-[256px]'
+            : 'lg:ml-[256px]'
+        }`}
       >
-        {/* This div applies desktop margin only — hidden from mobile via media query in CSS */}
-        <div
-          className="desktop-offset flex flex-col min-h-screen"
-          style={{ '--sidebar-w': `${desktopMargin}px` } as React.CSSProperties}
-        >
-          <Header
-            user={user}
-            title={title}
-            onMenuToggle={() => setMobileOpen((prev) => !prev)}
-          />
+        <Header
+          user={user}
+          title={title}
+          onMenuToggle={() => setMobileOpen((prev) => !prev)}
+        />
 
-          <main
-            id="main-content"
-            className="flex-1 overflow-auto relative p-4 sm:p-6"
-          >
-            <div className="relative z-10 max-w-7xl mx-auto">
-              {children}
-            </div>
-          </main>
-        </div>
+        <main
+          id="main-content"
+          className="flex-1 overflow-x-hidden relative p-4 sm:p-6"
+        >
+          <div className="relative z-10 max-w-7xl mx-auto">
+            {children}
+          </div>
+        </main>
       </div>
 
       <InstallPrompt />
