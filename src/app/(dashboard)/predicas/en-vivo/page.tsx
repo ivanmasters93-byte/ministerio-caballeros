@@ -68,6 +68,11 @@ export default function PredicaEnVivoPage() {
   const reconocimientoRef = useRef<any>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
+  // YouTube transcript extraction
+  const [extrayendo, setExtrayendo] = useState(false)
+  const [errorExtraer, setErrorExtraer] = useState('')
+  const [metodo, setMetodo] = useState<'youtube' | 'mic'>('youtube')
+
   // Summary
   const [resumen, setResumen] = useState('')
   const [generandoResumen, setGenerandoResumen] = useState(false)
@@ -204,6 +209,30 @@ export default function PredicaEnVivoPage() {
       setTimeout(() => setCopiado(false), 2000)
     } catch {
       // ignore
+    }
+  }
+
+  /* ---- Extract YouTube transcript (subtitles) ---- */
+  const extraerDeYoutube = async () => {
+    if (!videoId) return
+    setExtrayendo(true)
+    setErrorExtraer('')
+    try {
+      const res = await fetch(`/api/youtube/transcript?videoId=${videoId}`)
+      if (res.ok) {
+        const data = await res.json()
+        if (data.transcript) {
+          setTranscripcion(data.transcript)
+          setErrorExtraer('')
+        }
+      } else {
+        const data = await res.json().catch(() => ({}))
+        setErrorExtraer(data.error || 'No se pudo extraer la transcripcion. El video debe tener subtitulos activados.')
+      }
+    } catch {
+      setErrorExtraer('Error de conexion al extraer subtitulos')
+    } finally {
+      setExtrayendo(false)
     }
   }
 
@@ -369,15 +398,68 @@ ${transcripcion.trim()}`
         </CardContent>
       </Card>
 
-      {/* ===== SECTION 2: Live Transcription ===== */}
+      {/* ===== SECTION 2: Transcription ===== */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base flex items-center gap-2">
-            <Mic size={16} style={{ color: 'var(--color-accent-green)' }} />
-            Transcripción en Vivo
-          </CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-base flex items-center gap-2">
+              <Mic size={16} style={{ color: 'var(--color-accent-green)' }} />
+              Obtener Transcripcion
+            </CardTitle>
+          </div>
+          {/* Method tabs */}
+          <div className="flex gap-1 mt-3">
+            <button
+              onClick={() => setMetodo('youtube')}
+              className="px-4 py-2 rounded-lg text-sm font-medium transition-all"
+              style={{
+                background: metodo === 'youtube' ? 'rgba(239,68,68,0.1)' : 'transparent',
+                color: metodo === 'youtube' ? '#ef4444' : 'var(--color-text-muted)',
+                border: metodo === 'youtube' ? '1px solid rgba(239,68,68,0.3)' : '1px solid var(--color-border-subtle)',
+              }}
+            >
+              YouTube Subtitulos
+            </button>
+            <button
+              onClick={() => setMetodo('mic')}
+              className="px-4 py-2 rounded-lg text-sm font-medium transition-all"
+              style={{
+                background: metodo === 'mic' ? 'rgba(34,197,94,0.1)' : 'transparent',
+                color: metodo === 'mic' ? '#22c55e' : 'var(--color-text-muted)',
+                border: metodo === 'mic' ? '1px solid rgba(34,197,94,0.3)' : '1px solid var(--color-border-subtle)',
+              }}
+            >
+              Microfono
+            </button>
+          </div>
         </CardHeader>
         <CardContent className="space-y-4">
+          {/* YouTube subtitle extraction */}
+          {metodo === 'youtube' && (
+            <div className="space-y-3">
+              <p className="text-sm" style={{ color: 'var(--color-text-muted)' }}>
+                Extrae automaticamente los subtitulos del video de YouTube. Sin ruido, sin microfono. Funciona con videos que tienen subtitulos activados.
+              </p>
+              <Button
+                onClick={extraerDeYoutube}
+                disabled={!videoId || extrayendo}
+                className="flex items-center gap-2 w-full justify-center py-3"
+                style={{ background: videoId ? '#ef4444' : 'var(--color-border-default)', color: '#fff' }}
+              >
+                <ExternalLink size={16} />
+                {extrayendo ? 'Extrayendo subtitulos...' : videoId ? 'Extraer Transcripcion de YouTube' : 'Pega un link de YouTube arriba'}
+              </Button>
+              {errorExtraer && (
+                <p className="text-sm px-3 py-2 rounded-lg" style={{ color: '#f87171', background: 'rgba(248,113,113,0.08)' }}>
+                  {errorExtraer}
+                </p>
+              )}
+            </div>
+          )}
+
+          {/* Mic transcription */}
+          {metodo === 'mic' && (
+          <>
           {!soportado ? (
             <div
               className="rounded-lg px-4 py-3 text-sm"
@@ -387,10 +469,13 @@ ${transcripcion.trim()}`
                 color: 'var(--color-text-muted)',
               }}
             >
-              Tu navegador no soporta reconocimiento de voz en tiempo real. Usa Chrome, Edge o Safari para esta función.
+              Tu navegador no soporta reconocimiento de voz. Usa Chrome o Edge.
             </div>
           ) : (
             <>
+              <p className="text-sm" style={{ color: 'var(--color-text-muted)' }}>
+                Usa el microfono del dispositivo para transcribir en tiempo real. Ideal si estas cerca del altavoz.
+              </p>
               {/* Controls */}
               <div className="flex flex-wrap items-center gap-2">
                 {!grabando && !pausado && (
@@ -400,7 +485,7 @@ ${transcripcion.trim()}`
                     style={{ background: 'var(--color-accent-green)', color: '#fff' }}
                   >
                     <Mic size={16} />
-                    Iniciar Escucha Activa
+                    Iniciar Escucha
                   </Button>
                 )}
 
@@ -541,6 +626,8 @@ ${transcripcion.trim()}`
                 <strong>Consejo:</strong> Asegúrate de que el audio de la transmisión llegue al micrófono de tu dispositivo. En computadoras, puedes usar auriculares cerca del parlante.
               </div>
             </>
+          )}
+          </>
           )}
         </CardContent>
       </Card>

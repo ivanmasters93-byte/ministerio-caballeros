@@ -541,100 +541,42 @@ export default function RegistroHermanos() {
                 </p>
               </div>
 
-              {/* PWA install card */}
+              {/* WhatsApp info — hermanos interact via WhatsApp, not the app */}
               <div
-                className="w-full max-w-sm mx-auto rounded-2xl p-5 space-y-4"
+                className="w-full max-w-sm mx-auto rounded-2xl p-6 text-center"
                 style={{
-                  background: 'linear-gradient(160deg, rgba(201,168,76,0.08) 0%, rgba(201,168,76,0.03) 100%)',
-                  border: '1px solid rgba(201,168,76,0.25)',
+                  background: 'linear-gradient(160deg, rgba(37,211,102,0.08) 0%, rgba(37,211,102,0.02) 100%)',
+                  border: '1px solid rgba(37,211,102,0.2)',
                 }}
               >
-                <div className="flex items-center gap-3">
-                  {/* Cross icon */}
-                  <div
-                    className="flex-shrink-0 flex items-center justify-center rounded-xl"
-                    style={{
-                      width: 44,
-                      height: 44,
-                      background: 'rgba(201,168,76,0.12)',
-                      border: '1px solid rgba(201,168,76,0.3)',
-                    }}
-                  >
-                    <svg width="22" height="22" viewBox="0 0 28 28" fill="none" aria-hidden="true">
-                      <rect x="12" y="2" width="4" height="24" rx="2" fill="#c9a84c" />
-                      <rect x="4" y="10" width="20" height="4" rx="2" fill="#c9a84c" />
-                    </svg>
-                  </div>
-                  <div>
-                    <p
-                      className="font-bold leading-tight"
-                      style={{ color: '#c9a84c', fontSize: 15 }}
-                    >
-                      Agrega GEDEONES a tu pantalla
-                    </p>
-                    <p
-                      className="leading-snug mt-0.5"
-                      style={{ color: 'rgba(255,255,255,0.6)', fontSize: 13 }}
-                    >
-                      Accede con un solo toque, sin buscar
-                    </p>
-                  </div>
-                </div>
-
-                {/* iOS instructions */}
-                <div className="space-y-2 text-left">
-                  <p
-                    className="font-semibold"
-                    style={{ color: 'rgba(255,255,255,0.9)', fontSize: 14 }}
-                  >
-                    En iPhone / iPad (Safari):
-                  </p>
-                  <ol className="space-y-1.5 list-none">
-                    {[
-                      <>Toca el boton <span style={{ color: '#c9a84c' }}>⬆ Compartir</span> en la barra de Safari</>,
-                      <>Selecciona <span style={{ color: '#c9a84c', fontWeight: 600 }}>&ldquo;Agregar a pantalla de inicio&rdquo;</span></>,
-                      <>Toca <span style={{ color: '#c9a84c', fontWeight: 600 }}>&ldquo;Agregar&rdquo;</span> para confirmar</>,
-                    ].map((text, i) => (
-                      <li key={i} className="flex items-start gap-2">
-                        <span
-                          className="flex-shrink-0 flex items-center justify-center rounded-full font-bold"
-                          style={{
-                            width: 22, height: 22,
-                            background: 'rgba(201,168,76,0.15)',
-                            border: '1px solid rgba(201,168,76,0.3)',
-                            color: '#c9a84c',
-                            fontSize: 12,
-                            marginTop: 1,
-                          }}
-                        >
-                          {i + 1}
-                        </span>
-                        <span style={{ color: 'rgba(255,255,255,0.75)', fontSize: 13, lineHeight: '1.5' }}>
-                          {text}
-                        </span>
-                      </li>
-                    ))}
-                  </ol>
-                </div>
-
                 <div
-                  className="text-center py-1 rounded-xl"
-                  style={{
-                    background: 'rgba(255,255,255,0.04)',
-                    border: '1px solid rgba(255,255,255,0.06)',
-                    color: 'rgba(255,255,255,0.4)',
-                    fontSize: 12,
-                  }}
+                  className="w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-3"
+                  style={{ background: 'rgba(37,211,102,0.15)' }}
                 >
-                  En Android: toca el aviso de instalacion que aparece automaticamente
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="#25D366">
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+                    <path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2 22l4.832-1.438A9.955 9.955 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm0 18a8 8 0 01-4.243-1.21l-.304-.18-2.867.852.852-2.867-.18-.304A8 8 0 1112 20z"/>
+                  </svg>
                 </div>
+                <p
+                  className="text-[15px] font-semibold mb-1"
+                  style={{ color: '#25D366' }}
+                >
+                  Tu lider te contactara por WhatsApp
+                </p>
+                <p
+                  className="text-[13px] leading-relaxed"
+                  style={{ color: 'rgba(255,255,255,0.5)' }}
+                >
+                  Toda la informacion del ministerio la recibiras por WhatsApp. No necesitas descargar nada mas.
+                </p>
               </div>
 
               <p
                 className="text-[12px]"
-                style={{ color: 'var(--color-text-muted, rgba(255,255,255,0.25))' }}
+                style={{ color: 'rgba(255,255,255,0.25)' }}
               >
-                Recibiras un email con tu acceso
+                Ya puedes cerrar esta pagina
               </p>
             </div>
           </div>
