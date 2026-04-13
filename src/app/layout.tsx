@@ -25,7 +25,7 @@ export const metadata: Metadata = {
 }
 
 export const viewport: Viewport = {
-  themeColor: '#1e40af',
+  themeColor: '#0c0e14',
   width: 'device-width',
   initialScale: 1,
   minimumScale: 1,
@@ -44,7 +44,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="apple-touch-icon" sizes="144x144" href="/icons/icon-144x144.png" />
         <link rel="apple-touch-icon" sizes="128x128" href="/icons/icon-128x128.png" />
         <meta name="msapplication-TileImage" content="/icons/icon-144x144.png" />
-        <meta name="msapplication-TileColor" content="#1e40af" />
+        <meta name="msapplication-TileColor" content="#0c0e14" />
       </head>
       <body className="antialiased">
         {children}

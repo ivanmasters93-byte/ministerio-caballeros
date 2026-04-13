@@ -568,6 +568,19 @@
 /* --- Labels --- */
 label { color: var(--color-text-secondary); }
 
+/* --- Responsive layout: desktop sidebar offset --- */
+@media (min-width: 1024px) {
+  .desktop-offset {
+    margin-left: var(--sidebar-w, 256px);
+    transition: margin-left 0.3s ease-in-out;
+  }
+}
+@media (max-width: 1023px) {
+  .desktop-offset {
+    margin-left: 0 !important;
+  }
+}
+
 @layer utilities {
   .fade-in {
     animation: var(--animate-fade-in);

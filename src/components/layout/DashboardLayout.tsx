@@ -20,22 +20,19 @@ interface DashboardLayoutProps {
 export function DashboardLayout({ children, user, title }: DashboardLayoutProps) {
   const [redes, setRedes] = useState<RedSummary[]>([])
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const [mobileOpen, setMobileOpen] = useState(false)
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
     fetch('/api/redes')
       .then((r) => r.json())
-      .then((data) => {
-        if (Array.isArray(data)) setRedes(data)
-      })
+      .then((data) => { if (Array.isArray(data)) setRedes(data) })
       .catch(() => {})
   }, [])
 
   useEffect(() => {
     const saved = localStorage.getItem('sidebar-collapsed')
-    if (saved !== null) {
-      setSidebarCollapsed(JSON.parse(saved))
-    }
+    if (saved !== null) setSidebarCollapsed(JSON.parse(saved))
     setMounted(true)
   }, [])
 
@@ -47,50 +44,48 @@ export function DashboardLayout({ children, user, title }: DashboardLayoutProps)
     })
   }
 
-  const sidebarWidth = sidebarCollapsed ? 72 : 256
+  const desktopMargin = mounted ? (sidebarCollapsed ? 72 : 256) : 256
 
   return (
-    <div
-      className="flex min-h-screen"
-      style={{ background: 'var(--color-bg-base)' }}
-    >
-      {/* Skip to content for keyboard users (UI-UX-Pro-Max: skip-links) */}
-      <a href="#main-content" className="skip-link">
-        Saltar al contenido
-      </a>
+    <div className="min-h-screen" style={{ background: 'var(--color-bg-base)' }}>
+      <a href="#main-content" className="skip-link">Saltar al contenido</a>
 
       <Sidebar
         redes={redes}
         collapsed={sidebarCollapsed}
+        mobileOpen={mobileOpen}
         onToggle={toggleSidebar}
+        onMobileClose={() => setMobileOpen(false)}
       />
 
+      {/*
+        Mobile: ml-0, full width
+        Desktop (lg+): ml = sidebar width via inline style
+      */}
       <div
-        className="flex-1 flex flex-col min-h-screen transition-all duration-300 ease-in-out"
-        style={{
-          marginLeft: mounted ? sidebarWidth : 256,
-        }}
+        className="flex flex-col min-h-screen transition-[margin] duration-300 ease-in-out"
+        style={{ marginLeft: 0 }}
       >
-        <Header user={user} title={title} />
-
-        <main
-          id="main-content"
-          className="flex-1 overflow-auto relative"
-          style={{ padding: 'var(--spacing-content)' }}
+        {/* This div applies desktop margin only — hidden from mobile via media query in CSS */}
+        <div
+          className="desktop-offset flex flex-col min-h-screen"
+          style={{ '--sidebar-w': `${desktopMargin}px` } as React.CSSProperties}
         >
-          {/* Subtle radial gradient for depth */}
-          <div
-            className="pointer-events-none fixed inset-0 z-0"
-            style={{
-              marginLeft: sidebarWidth,
-              background: 'radial-gradient(ellipse at 50% 0%, rgba(201, 168, 76, 0.03) 0%, transparent 60%)',
-            }}
+          <Header
+            user={user}
+            title={title}
+            onMenuToggle={() => setMobileOpen((prev) => !prev)}
           />
 
-          <div className="relative z-10">
-            {children}
-          </div>
-        </main>
+          <main
+            id="main-content"
+            className="flex-1 overflow-auto relative p-4 sm:p-6"
+          >
+            <div className="relative z-10 max-w-7xl mx-auto">
+              {children}
+            </div>
+          </main>
+        </div>
       </div>
 
       <InstallPrompt />

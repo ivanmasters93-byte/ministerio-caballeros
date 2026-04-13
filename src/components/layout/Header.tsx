@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Bell, LogOut, Search, X } from 'lucide-react'
+import { Bell, LogOut, Menu, Search, X } from 'lucide-react'
 import { signOut } from 'next-auth/react'
 import { Avatar } from '@/components/ui/avatar'
 import { getRoleLabel } from '@/lib/utils'
@@ -9,14 +9,15 @@ import { getRoleLabel } from '@/lib/utils'
 interface HeaderProps {
   user?: { name?: string | null; email?: string | null; role?: string }
   title?: string
+  onMenuToggle?: () => void
 }
 
-export function Header({ user, title }: HeaderProps) {
+export function Header({ user, title, onMenuToggle }: HeaderProps) {
   const [searchOpen, setSearchOpen] = useState(false)
 
   return (
     <header
-      className="sticky top-0 z-30 flex items-center justify-between px-6 flex-shrink-0"
+      className="sticky top-0 z-30 flex items-center justify-between px-4 sm:px-6 flex-shrink-0"
       style={{
         height: 'var(--spacing-header)',
         background: 'rgba(12, 14, 20, 0.7)',
@@ -25,8 +26,18 @@ export function Header({ user, title }: HeaderProps) {
         borderBottom: '1px solid var(--color-border-subtle)',
       }}
     >
-      {/* Left: Page title */}
+      {/* Left: Hamburger (mobile) + Page title */}
       <div className="flex items-center gap-3 min-w-0">
+        {/* Hamburger — mobile only */}
+        <button
+          onClick={onMenuToggle}
+          className="lg:hidden p-2 -ml-2 rounded-lg transition-colors duration-200 cursor-pointer"
+          style={{ color: 'var(--color-text-secondary)' }}
+          aria-label="Abrir menu"
+        >
+          <Menu size={22} />
+        </button>
+
         <h1
           className="text-lg font-semibold truncate"
           style={{
@@ -39,9 +50,9 @@ export function Header({ user, title }: HeaderProps) {
       </div>
 
       {/* Right: Actions */}
-      <div className="flex items-center gap-2">
-        {/* Search */}
-        <div className="relative flex items-center">
+      <div className="flex items-center gap-1 sm:gap-2">
+        {/* Search — hidden on very small screens */}
+        <div className="relative flex items-center hidden sm:flex">
           {searchOpen && (
             <div className="flex items-center mr-2 fade-in">
               <input
@@ -54,22 +65,14 @@ export function Header({ user, title }: HeaderProps) {
                   border: '1px solid var(--color-border-default)',
                   color: 'var(--color-text-primary)',
                 }}
-                onFocus={(e) => {
-                  e.currentTarget.style.borderColor = 'var(--color-accent-gold)'
-                }}
-                onBlur={(e) => {
-                  e.currentTarget.style.borderColor = 'var(--color-border-default)'
-                }}
-                onKeyDown={(e) => {
-                  if (e.key === 'Escape') setSearchOpen(false)
-                }}
+                onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--color-accent-gold)' }}
+                onBlur={(e) => { e.currentTarget.style.borderColor = 'var(--color-border-default)' }}
+                onKeyDown={(e) => { if (e.key === 'Escape') setSearchOpen(false) }}
               />
               <button
                 onClick={() => setSearchOpen(false)}
-                className="ml-1 p-1 rounded transition-colors duration-200"
+                className="ml-1 p-1 rounded transition-colors duration-200 cursor-pointer"
                 style={{ color: 'var(--color-text-muted)' }}
-                onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--color-text-primary)' }}
-                onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--color-text-muted)' }}
               >
                 <X size={14} />
               </button>
@@ -78,10 +81,8 @@ export function Header({ user, title }: HeaderProps) {
           {!searchOpen && (
             <button
               onClick={() => setSearchOpen(true)}
-              className="p-2 rounded-lg transition-colors duration-200"
+              className="p-2 rounded-lg transition-colors duration-200 cursor-pointer"
               style={{ color: 'var(--color-text-muted)' }}
-              onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--color-text-primary)' }}
-              onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--color-text-muted)' }}
               title="Buscar"
               aria-label="Buscar en el sistema"
             >
@@ -92,66 +93,46 @@ export function Header({ user, title }: HeaderProps) {
 
         {/* Notification bell */}
         <button
-          className="relative p-2 rounded-lg transition-colors duration-200"
+          className="relative p-2 rounded-lg transition-colors duration-200 cursor-pointer"
           style={{ color: 'var(--color-text-muted)' }}
-          onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--color-text-primary)' }}
-          onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--color-text-muted)' }}
           title="Notificaciones"
           aria-label="3 notificaciones pendientes"
         >
           <Bell size={18} />
           <span
             className="absolute top-1 right-1 flex items-center justify-center rounded-full text-[9px] font-bold"
-            style={{
-              width: 16,
-              height: 16,
-              background: 'var(--color-accent-red)',
-              color: '#ffffff',
-            }}
+            style={{ width: 16, height: 16, background: 'var(--color-accent-red)', color: '#ffffff' }}
           >
             3
           </span>
         </button>
 
-        {/* Divider */}
+        {/* Divider — hidden on mobile */}
         <div
-          className="h-6 mx-2"
-          style={{
-            width: 1,
-            background: 'var(--color-border-default)',
-          }}
+          className="h-6 mx-1 sm:mx-2 hidden sm:block"
+          style={{ width: 1, background: 'var(--color-border-default)' }}
         />
 
         {/* User section */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           <div
             className="rounded-full p-0.5"
-            style={{
-              background: 'linear-gradient(135deg, var(--color-accent-gold), rgba(201, 168, 76, 0.3))',
-            }}
+            style={{ background: 'linear-gradient(135deg, var(--color-accent-gold), rgba(201, 168, 76, 0.3))' }}
           >
-            <Avatar name={user?.name || 'Usuario'} size="sm" className="ring-2 ring-transparent" />
+            <Avatar name={user?.name || 'Usuario'} size="sm" />
           </div>
-          <div className="hidden sm:block min-w-0">
-            <p
-              className="text-sm font-medium truncate leading-tight"
-              style={{ color: 'var(--color-text-primary)' }}
-            >
+          <div className="hidden md:block min-w-0">
+            <p className="text-sm font-medium truncate leading-tight" style={{ color: 'var(--color-text-primary)' }}>
               {user?.name || 'Usuario'}
             </p>
-            <p
-              className="text-[11px] truncate leading-tight"
-              style={{ color: 'var(--color-text-secondary)' }}
-            >
+            <p className="text-[11px] truncate leading-tight" style={{ color: 'var(--color-text-secondary)' }}>
               {getRoleLabel(user?.role || '')}
             </p>
           </div>
           <button
             onClick={() => signOut({ callbackUrl: '/login' })}
-            className="p-2 rounded-lg transition-colors duration-200"
+            className="p-2 rounded-lg transition-colors duration-200 hidden sm:block cursor-pointer"
             style={{ color: 'var(--color-text-muted)' }}
-            onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--color-accent-red)' }}
-            onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--color-text-muted)' }}
             title="Cerrar sesion"
             aria-label="Cerrar sesion"
           >
