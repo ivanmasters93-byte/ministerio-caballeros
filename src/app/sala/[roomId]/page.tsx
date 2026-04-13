@@ -1,0 +1,128 @@
+'use client'
+
+import { useState } from 'react'
+import { useParams } from 'next/navigation'
+import { Video, Mic, MicOff, Camera, CameraOff, ArrowRight, Cross, Wifi, Shield } from 'lucide-react'
+import { buildJitsiEmbedUrl } from '@/lib/jitsi/config'
+
+export default function SalaPublica() {
+  const { roomId } = useParams()
+  const [nombre, setNombre] = useState('')
+  const [joined, setJoined] = useState(false)
+  const [micMuted, setMicMuted] = useState(true)
+  const [camOn, setCamOn] = useState(true)
+
+  const room = typeof roomId === 'string' ? roomId : ''
+
+  if (joined) {
+    const url = buildJitsiEmbedUrl(room, {
+      displayName: nombre,
+      audioMuted: micMuted,
+      videoMuted: !camOn,
+    })
+
+    return (
+      <div className="fixed inset-0 bg-[#0a0e1a]">
+        <iframe
+          src={url}
+          allow="camera; microphone; fullscreen; display-capture; autoplay; clipboard-write"
+          className="w-full h-full border-0"
+          title={`Reunion GEDEONES`}
+        />
+      </div>
+    )
+  }
+
+  return (
+    <div className="min-h-screen bg-[#0a0e1a] text-white flex items-center justify-center p-4">
+      <div className="fixed inset-0 pointer-events-none">
+        <div className="absolute top-[-200px] left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-amber-500/[0.02] rounded-full blur-[150px]" />
+      </div>
+
+      <div className="relative z-10 w-full max-w-sm space-y-6">
+        {/* Logo */}
+        <div className="text-center space-y-1">
+          <div className="w-11 h-11 rounded-xl mx-auto flex items-center justify-center" style={{ background: 'rgba(201,168,76,0.12)', border: '1px solid rgba(201,168,76,0.15)' }}>
+            <Cross size={18} style={{ color: '#c9a84c' }} />
+          </div>
+          <h1 className="text-xl font-light tracking-wide mt-3">GEDEONES</h1>
+          <p className="text-white/25 text-[10px] tracking-[0.3em] uppercase">Reunion en Vivo</p>
+        </div>
+
+        {/* Main card */}
+        <div className="rounded-2xl overflow-hidden" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)' }}>
+          {/* Preview */}
+          <div className="aspect-[16/10] bg-[#0d1117] flex items-center justify-center relative">
+            <div className={`w-16 h-16 rounded-full flex items-center justify-center ${camOn ? 'bg-white/[0.08]' : 'bg-red-500/10'}`}>
+              {camOn ? <Camera size={24} className="text-white/30" /> : <CameraOff size={24} className="text-red-400/50" />}
+            </div>
+            {nombre && (
+              <p className="absolute bottom-2.5 left-3 text-[11px] text-white/25 bg-black/30 px-2 py-0.5 rounded">{nombre}</p>
+            )}
+          </div>
+
+          <div className="p-5 space-y-4">
+            {/* Name */}
+            <input
+              type="text"
+              value={nombre}
+              onChange={e => setNombre(e.target.value)}
+              placeholder="Tu nombre"
+              className="w-full bg-white/[0.03] border border-white/[0.06] rounded-xl px-4 py-3 text-sm text-white placeholder:text-white/15 focus:outline-none focus:border-white/15 transition-all"
+              autoFocus
+              onKeyDown={e => { if (e.key === 'Enter' && nombre.trim()) setJoined(true) }}
+            />
+
+            {/* Controls */}
+            <div className="flex items-center justify-center gap-3">
+              <button
+                onClick={() => setMicMuted(!micMuted)}
+                className={`w-11 h-11 rounded-full flex items-center justify-center transition-all ${
+                  micMuted ? 'bg-red-500/15 text-red-400/80' : 'bg-white/[0.06] text-white/50'
+                }`}
+              >
+                {micMuted ? <MicOff size={18} /> : <Mic size={18} />}
+              </button>
+              <button
+                onClick={() => setCamOn(!camOn)}
+                className={`w-11 h-11 rounded-full flex items-center justify-center transition-all ${
+                  !camOn ? 'bg-red-500/15 text-red-400/80' : 'bg-white/[0.06] text-white/50'
+                }`}
+              >
+                {camOn ? <Camera size={18} /> : <CameraOff size={18} />}
+              </button>
+            </div>
+
+            {/* Join */}
+            <button
+              onClick={() => nombre.trim() && setJoined(true)}
+              disabled={!nombre.trim()}
+              className={`w-full py-3.5 rounded-xl text-sm font-medium tracking-wide transition-all flex items-center justify-center gap-2 ${
+                nombre.trim()
+                  ? 'bg-gradient-to-r from-amber-600/80 to-amber-500/70 text-white hover:from-amber-500 hover:to-amber-400 shadow-lg shadow-amber-900/20'
+                  : 'bg-white/[0.03] text-white/15 cursor-not-allowed'
+              }`}
+            >
+              <Video size={16} />
+              Unirme
+              {nombre.trim() && <ArrowRight size={14} className="opacity-40" />}
+            </button>
+          </div>
+        </div>
+
+        {/* Features */}
+        <div className="flex items-center justify-center gap-6 text-white/15">
+          <div className="flex items-center gap-1.5 text-[10px]">
+            <Wifi size={10} /> HD
+          </div>
+          <div className="flex items-center gap-1.5 text-[10px]">
+            <Shield size={10} /> Seguro
+          </div>
+          <div className="flex items-center gap-1.5 text-[10px]">
+            <Mic size={10} /> Anti-ruido
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}

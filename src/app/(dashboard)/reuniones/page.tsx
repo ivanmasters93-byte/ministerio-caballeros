@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Dialog } from '@/components/ui/dialog'
 import { JitsiMeet } from '@/components/video/JitsiMeet'
 import { getJitsiUrl } from '@/lib/jitsi/config'
-import { Video, ExternalLink, Plus, Clock, Radio, PlayCircle } from 'lucide-react'
+import { Video, ExternalLink, Plus, Clock, Radio, PlayCircle, Copy, Check, Share2 } from 'lucide-react'
 
 interface Reunion {
   id: string
@@ -234,16 +234,7 @@ export default function ReunionesPage() {
                     </div>
                     <div className="flex items-center gap-2 flex-shrink-0">
                       {r.jitsiRoomId && (
-                        <a
-                          href={getJitsiUrl(r.jitsiRoomId)}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          title="Abrir en nueva pestana"
-                        >
-                          <Button variant="ghost" size="sm">
-                            <ExternalLink size={14} />
-                          </Button>
-                        </a>
+                        <CopyLinkButton roomId={r.jitsiRoomId} />
                       )}
                       <Button
                         size="sm"
@@ -314,6 +305,24 @@ export default function ReunionesPage() {
         </div>
       )}
 
+      {/* Share link info */}
+      {activaRoomId && (
+        <Card>
+          <CardContent className="py-4">
+            <div className="flex items-center gap-3">
+              <Share2 size={16} style={{ color: 'var(--color-accent-gold)' }} />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>Comparte este link con los hermanos:</p>
+                <p className="text-xs truncate mt-0.5" style={{ color: 'var(--color-text-muted)' }}>
+                  {typeof window !== 'undefined' ? `${window.location.origin}/sala/${activaRoomId}` : `/sala/${activaRoomId}`}
+                </p>
+              </div>
+              <CopyLinkButton roomId={activaRoomId} />
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Create meeting dialog */}
       <Dialog
         open={showCrear}
@@ -367,5 +376,26 @@ export default function ReunionesPage() {
         </div>
       </Dialog>
     </div>
+  )
+}
+
+function CopyLinkButton({ roomId }: { roomId: string }) {
+  const [copied, setCopied] = useState(false)
+  const link = typeof window !== 'undefined' ? `${window.location.origin}/sala/${roomId}` : `/sala/${roomId}`
+
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(link)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch {
+      // fallback
+    }
+  }
+
+  return (
+    <Button variant="ghost" size="sm" onClick={copy} title="Copiar link de invitacion">
+      {copied ? <Check size={14} className="text-green-400" /> : <Copy size={14} />}
+    </Button>
   )
 }
