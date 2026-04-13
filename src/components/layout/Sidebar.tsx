@@ -144,7 +144,7 @@ export function Sidebar({ collapsed = false, mobileOpen = false, onToggle, onMob
     <>
       {/* Logo area */}
       <div className="relative flex-shrink-0" style={{ padding: collapsed ? '20px 8px' : '20px 16px' }}>
-        <div className={cn('flex items-center', collapsed ? 'justify-center' : 'gap-3')}>
+        <Link href="/" className={cn('flex items-center', collapsed ? 'justify-center' : 'gap-3')}>
           <div
             className="flex-shrink-0 flex items-center justify-center rounded-lg"
             style={{
@@ -169,7 +169,7 @@ export function Sidebar({ collapsed = false, mobileOpen = false, onToggle, onMob
               </p>
             </div>
           )}
-        </div>
+        </Link>
         <div
           className="absolute bottom-0 left-4 right-4 h-px"
           style={{ background: 'linear-gradient(90deg, var(--color-accent-gold), transparent)' }}
@@ -252,7 +252,7 @@ export function Sidebar({ collapsed = false, mobileOpen = false, onToggle, onMob
         {/* Reuse sidebar content but never collapsed on mobile */}
         {/* Logo area */}
         <div className="relative flex-shrink-0" style={{ padding: '20px 16px' }}>
-          <div className="flex items-center gap-3">
+          <Link href="/" onClick={onMobileClose} className="flex items-center gap-3">
             <div
               className="flex-shrink-0 flex items-center justify-center rounded-lg"
               style={{
@@ -271,7 +271,7 @@ export function Sidebar({ collapsed = false, mobileOpen = false, onToggle, onMob
                 Ministerio de Caballeros
               </p>
             </div>
-          </div>
+          </Link>
           <div className="absolute bottom-0 left-4 right-4 h-px" style={{ background: 'linear-gradient(90deg, var(--color-accent-gold), transparent)' }} />
         </div>
 
