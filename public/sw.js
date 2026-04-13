@@ -1,4 +1,4 @@
-const CACHE_NAME = 'gedeones-v1';
+const CACHE_NAME = 'gedeones-v3';
 const STATIC_ASSETS = [
   '/',
   '/manifest.json',
