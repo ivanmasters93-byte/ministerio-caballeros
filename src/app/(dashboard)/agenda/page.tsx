@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Dialog } from '@/components/ui/dialog'
-import { ChevronLeft, ChevronRight, Video, MonitorPlay, Plus } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Video, MonitorPlay, Plus, Megaphone } from 'lucide-react'
 import { getJitsiUrl } from '@/lib/jitsi/config'
 
 const TIPO_COLORS: Record<string, string> = {
@@ -37,6 +37,11 @@ export default function AgendaPage() {
   const [currentMonth, setCurrentMonth] = useState(new Date())
   const [showNuevo, setShowNuevo] = useState(false)
   const [guardando, setGuardando] = useState(false)
+
+  const [showAnuncio, setShowAnuncio] = useState(false)
+  const [anuncioForm, setAnuncioForm] = useState({ titulo: '', contenido: '', prioridad: 'NORMAL' })
+  const [guardandoAnuncio, setGuardandoAnuncio] = useState(false)
+  const [crearAnuncioAuto, setCrearAnuncioAuto] = useState(true)
 
   const [form, setForm] = useState({
     titulo: '',
@@ -116,6 +121,24 @@ export default function AgendaPage() {
         }),
       })
       if (res.ok) {
+        const evento = await res.json()
+        // Auto-create announcement if toggle is on
+        if (crearAnuncioAuto && form.titulo.trim()) {
+          const fechaStr = new Date(form.fecha).toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' })
+          const contenido = `${form.descripcion || form.titulo}${form.hora ? ` — ${form.hora}` : ''}${form.descripcion ? '' : ` — ${fechaStr}`}`
+          await fetch('/api/anuncios', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              titulo: form.titulo.trim(),
+              contenido,
+              tipo: 'EVENTO',
+              prioridad: 'NORMAL',
+              paraTodasRedes: true,
+              eventoId: evento.id,
+            }),
+          }).catch(() => {})
+        }
         setShowNuevo(false)
         resetForm()
         cargarEventos()
@@ -124,6 +147,30 @@ export default function AgendaPage() {
       // silently handle
     } finally {
       setGuardando(false)
+    }
+  }
+
+  const handleGuardarAnuncio = async () => {
+    if (!anuncioForm.titulo.trim() || !anuncioForm.contenido.trim()) return
+    setGuardandoAnuncio(true)
+    try {
+      const res = await fetch('/api/anuncios', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          titulo: anuncioForm.titulo.trim(),
+          contenido: anuncioForm.contenido.trim(),
+          tipo: 'GENERAL',
+          prioridad: anuncioForm.prioridad,
+          paraTodasRedes: true,
+        }),
+      })
+      if (res.ok) {
+        setShowAnuncio(false)
+        setAnuncioForm({ titulo: '', contenido: '', prioridad: 'NORMAL' })
+      }
+    } catch {} finally {
+      setGuardandoAnuncio(false)
     }
   }
 
@@ -207,8 +254,21 @@ export default function AgendaPage() {
           </CardHeader>
           <CardContent>
             {selectedDate ? (
-              selectedDayEventos.length === 0 ? (
-                <p className="text-gray-400 text-sm text-center py-6">Sin eventos este dia</p>
+              <>
+              {/* Quick action buttons for selected day */}
+              <div className="flex gap-2 mb-4">
+                <Button size="sm" onClick={() => {
+                  setForm(f => ({ ...f, fecha: selectedDate.toISOString().slice(0, 10) }))
+                  setShowNuevo(true)
+                }} className="flex-1 flex items-center justify-center gap-1.5 text-xs">
+                  <Plus size={12} /> Evento
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => setShowAnuncio(true)} className="flex-1 flex items-center justify-center gap-1.5 text-xs">
+                  <Plus size={12} /> Anuncio
+                </Button>
+              </div>
+              {selectedDayEventos.length === 0 ? (
+                <p className="text-gray-400 text-sm text-center py-4">Sin eventos este dia</p>
               ) : (
                 <div className="space-y-3">
                   {selectedDayEventos.map(e => (
@@ -229,7 +289,8 @@ export default function AgendaPage() {
                     </div>
                   ))}
                 </div>
-              )
+              )}
+            </>
             ) : (
               <p className="text-gray-400 text-sm text-center py-6">Haz clic en un dia para ver eventos</p>
             )}
@@ -372,6 +433,32 @@ export default function AgendaPage() {
             />
           </div>
 
+          {/* Auto-create announcement toggle */}
+          <div
+            className="flex items-center justify-between rounded-lg px-4 py-3"
+            style={{ background: 'var(--color-bg-elevated)', border: '1px solid var(--color-border-default)' }}
+          >
+            <div>
+              <p className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>
+                Crear anuncio automatico
+              </p>
+              <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
+                Publicar anuncio del evento para todos
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setCrearAnuncioAuto(!crearAnuncioAuto)}
+              className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer"
+              style={{ background: crearAnuncioAuto ? 'var(--color-accent-gold)' : 'var(--color-border-default)' }}
+            >
+              <span
+                className="inline-block h-4 w-4 transform rounded-full bg-white transition-transform"
+                style={{ transform: crearAnuncioAuto ? 'translateX(22px)' : 'translateX(4px)' }}
+              />
+            </button>
+          </div>
+
           <div className="flex justify-end gap-2 pt-2">
             <Button variant="ghost" onClick={() => { setShowNuevo(false); resetForm() }}>
               Cancelar
@@ -382,6 +469,58 @@ export default function AgendaPage() {
               className="flex items-center gap-2"
             >
               {guardando ? 'Guardando...' : 'Guardar evento'}
+            </Button>
+          </div>
+        </div>
+      </Dialog>
+
+      {/* Announcement creation dialog */}
+      <Dialog
+        open={showAnuncio}
+        onClose={() => { setShowAnuncio(false); setAnuncioForm({ titulo: '', contenido: '', prioridad: 'NORMAL' }) }}
+        title="Nuevo Anuncio"
+      >
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>Titulo *</label>
+            <input
+              type="text"
+              value={anuncioForm.titulo}
+              onChange={e => setAnuncioForm(f => ({ ...f, titulo: e.target.value }))}
+              placeholder="Titulo del anuncio"
+              className="w-full px-3 py-2 rounded-lg text-sm outline-none"
+              style={{ background: 'var(--color-bg-elevated)', border: '1px solid var(--color-border-default)', color: 'var(--color-text-primary)' }}
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>Contenido *</label>
+            <textarea
+              value={anuncioForm.contenido}
+              onChange={e => setAnuncioForm(f => ({ ...f, contenido: e.target.value }))}
+              placeholder="Escribe el anuncio..."
+              rows={3}
+              className="w-full px-3 py-2 rounded-lg text-sm outline-none resize-none"
+              style={{ background: 'var(--color-bg-elevated)', border: '1px solid var(--color-border-default)', color: 'var(--color-text-primary)' }}
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1" style={{ color: 'var(--color-text-secondary)' }}>Prioridad</label>
+            <select
+              value={anuncioForm.prioridad}
+              onChange={e => setAnuncioForm(f => ({ ...f, prioridad: e.target.value }))}
+              className="w-full px-3 py-2 rounded-lg text-sm outline-none"
+              style={{ background: 'var(--color-bg-elevated)', border: '1px solid var(--color-border-default)', color: 'var(--color-text-primary)' }}
+            >
+              <option value="BAJA">Baja</option>
+              <option value="NORMAL">Normal</option>
+              <option value="ALTA">Alta</option>
+              <option value="URGENTE">Urgente</option>
+            </select>
+          </div>
+          <div className="flex justify-end gap-2 pt-2">
+            <Button variant="ghost" onClick={() => setShowAnuncio(false)}>Cancelar</Button>
+            <Button onClick={handleGuardarAnuncio} disabled={guardandoAnuncio || !anuncioForm.titulo.trim() || !anuncioForm.contenido.trim()}>
+              {guardandoAnuncio ? 'Guardando...' : 'Publicar anuncio'}
             </Button>
           </div>
         </div>
