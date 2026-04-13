@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Bell, LogOut, Menu, Search, X } from 'lucide-react'
+import { LogOut, Menu, Search, X } from 'lucide-react'
 import { signOut } from 'next-auth/react'
 import { Avatar } from '@/components/ui/avatar'
 import { Logo } from '@/components/ui/logo'
@@ -28,9 +28,8 @@ export function Header({ user, title, onMenuToggle }: HeaderProps) {
         borderBottom: '1px solid var(--color-border-subtle)',
       }}
     >
-      {/* Left: Hamburger (mobile) + Page title */}
+      {/* Left: Hamburger (mobile) + Logo/Title */}
       <div className="flex items-center gap-2 min-w-0 overflow-hidden">
-        {/* Hamburger — mobile only (below md) */}
         <button
           onClick={onMenuToggle}
           className="md:hidden flex items-center justify-center w-11 h-11 -ml-2 rounded-lg transition-colors duration-200 cursor-pointer"
@@ -40,7 +39,7 @@ export function Header({ user, title, onMenuToggle }: HeaderProps) {
           <Menu size={22} />
         </button>
 
-        {/* Logo — mobile only, clickable */}
+        {/* Logo — mobile only */}
         <Link href="/" className="md:hidden flex items-center gap-2">
           <Logo size={32} animated />
           <span className="text-sm font-bold tracking-wide gold-text" style={{ fontFamily: 'var(--font-display)' }}>
@@ -51,10 +50,7 @@ export function Header({ user, title, onMenuToggle }: HeaderProps) {
         {/* Page title — tablet and desktop */}
         <h1
           className="text-lg font-semibold truncate hidden md:block"
-          style={{
-            fontFamily: 'var(--font-display)',
-            color: 'var(--color-text-primary)',
-          }}
+          style={{ fontFamily: 'var(--font-display)', color: 'var(--color-text-primary)' }}
         >
           {title || 'Dashboard'}
         </h1>
@@ -62,7 +58,7 @@ export function Header({ user, title, onMenuToggle }: HeaderProps) {
 
       {/* Right: Actions */}
       <div className="flex items-center gap-1 sm:gap-2">
-        {/* Search — hidden on very small screens */}
+        {/* Search — hidden on small screens */}
         <div className="relative flex items-center hidden sm:flex">
           {searchOpen && (
             <div className="flex items-center mr-2 fade-in">
@@ -101,22 +97,6 @@ export function Header({ user, title, onMenuToggle }: HeaderProps) {
             </button>
           )}
         </div>
-
-        {/* Notification bell */}
-        <button
-          className="relative p-2 rounded-lg transition-colors duration-200 cursor-pointer"
-          style={{ color: 'var(--color-text-muted)' }}
-          title="Notificaciones"
-          aria-label="3 notificaciones pendientes"
-        >
-          <Bell size={18} />
-          <span
-            className="absolute top-1 right-1 flex items-center justify-center rounded-full text-[9px] font-bold"
-            style={{ width: 16, height: 16, background: 'var(--color-accent-red)', color: '#ffffff' }}
-          >
-            3
-          </span>
-        </button>
 
         {/* Divider — hidden on mobile */}
         <div

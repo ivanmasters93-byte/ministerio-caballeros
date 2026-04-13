@@ -606,12 +606,24 @@ label { color: var(--color-text-secondary); }
 /* ============================================================= */
 
 @keyframes logo-glow {
-  0%, 100% { filter: drop-shadow(0 0 8px rgba(201, 168, 76, 0.3)); }
-  50% { filter: drop-shadow(0 0 22px rgba(201, 168, 76, 0.65)); }
+  0%, 100% {
+    filter: drop-shadow(0 0 6px rgba(201, 168, 76, 0.2));
+    transform: scale(1);
+  }
+  50% {
+    filter: drop-shadow(0 0 18px rgba(201, 168, 76, 0.6)) drop-shadow(0 0 40px rgba(201, 168, 76, 0.2));
+    transform: scale(1.03);
+  }
 }
 
 .logo-glow {
   animation: logo-glow 3s ease-in-out infinite;
+  transition: transform 0.3s ease;
+}
+
+.logo-glow:hover {
+  filter: drop-shadow(0 0 24px rgba(201, 168, 76, 0.8)) drop-shadow(0 0 48px rgba(201, 168, 76, 0.3));
+  transform: scale(1.08);
 }
 
 .logo-watermark {

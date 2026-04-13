@@ -146,16 +146,7 @@ export function Sidebar({ collapsed = false, mobileOpen = false, onToggle, onMob
       {/* Logo area */}
       <div className="relative flex-shrink-0" style={{ padding: collapsed ? '20px 8px' : '20px 16px' }}>
         <Link href="/" className={cn('flex items-center', collapsed ? 'justify-center' : 'gap-3')}>
-          <div
-            style={{
-              borderRadius: 12,
-              padding: 2,
-              background: 'linear-gradient(135deg, rgba(201,168,76,0.35), rgba(201,168,76,0.08))',
-              flexShrink: 0,
-            }}
-          >
             <Logo size={collapsed ? 36 : 52} animated />
-          </div>
           {!collapsed && (
             <div className="min-w-0">
               <p
@@ -253,16 +244,7 @@ export function Sidebar({ collapsed = false, mobileOpen = false, onToggle, onMob
         {/* Logo area */}
         <div className="relative flex-shrink-0" style={{ padding: '20px 16px' }}>
           <Link href="/" onClick={onMobileClose} className="flex items-center gap-3">
-            <div
-              style={{
-                borderRadius: 12,
-                padding: 2,
-                background: 'linear-gradient(135deg, rgba(201,168,76,0.35), rgba(201,168,76,0.08))',
-                flexShrink: 0,
-              }}
-            >
-              <Logo size={52} animated />
-            </div>
+                <Logo size={52} animated />
             <div className="min-w-0 flex-1">
               <p className="font-bold text-sm leading-tight tracking-wide gold-text" style={{ fontFamily: 'var(--font-display)' }}>
                 GEDEONES GP
