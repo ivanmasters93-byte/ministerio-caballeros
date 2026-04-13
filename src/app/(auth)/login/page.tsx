@@ -122,9 +122,6 @@ export default function LoginPage() {
             </Button>
           </form>
 
-          <p className="text-center text-xs mt-6" style={{ color: 'var(--color-text-muted)' }}>
-            Demo: admin@gedeones.com / admin123
-          </p>
         </div>
       </div>
     </div>

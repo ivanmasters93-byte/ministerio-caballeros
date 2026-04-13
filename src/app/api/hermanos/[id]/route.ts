@@ -11,7 +11,12 @@ export const GET = withErrorHandling(async (req: NextRequest, context: { params:
     where: { id },
     include: {
       user: {
-        include: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          phone: true,
+          role: true,
           redes: { include: { red: true } },
           permisos: true,
         },
@@ -75,7 +80,7 @@ export const DELETE = withErrorHandling(async (req: NextRequest, context: { para
 
   const hermano = await prisma.hermano.findUnique({
     where: { id },
-    include: { user: true },
+    include: { user: { select: { id: true, name: true, email: true, phone: true, role: true } } },
   })
 
   if (!hermano) return errorResponse('Hermano no encontrado', 404)

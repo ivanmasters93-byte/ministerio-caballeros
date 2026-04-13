@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import bcryptjs from 'bcryptjs';
+import { randomBytes } from 'crypto';
 import { sendWelcomeEmail } from '@/lib/mailgun';
 
 interface RegistroData {
@@ -95,8 +96,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Generar contraseña temporal
-    const temporalPassword = Math.random().toString(36).slice(-8);
+    // Generar contraseña temporal segura
+    const temporalPassword = randomBytes(12).toString('base64url').slice(0, 12);
     const hashedPassword = await bcryptjs.hash(temporalPassword, 10);
 
     // Crear usuario

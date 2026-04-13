@@ -22,7 +22,7 @@ export const GET = withErrorHandling(async (req: NextRequest) => {
       ],
       estado: { in: ['ACTIVO', 'NUEVO'] },
     },
-    include: { user: true },
+    include: { user: { select: { id: true, name: true, email: true, phone: true, role: true } } },
     take: 10,
   })
 
@@ -52,7 +52,7 @@ export const GET = withErrorHandling(async (req: NextRequest) => {
 
   const hermanosAusentes = await prisma.hermano.findMany({
     where: { id: { in: Object.keys(ausenciasPorHermano).filter((id) => ausenciasPorHermano[id] >= 2) } },
-    include: { user: true },
+    include: { user: { select: { id: true, name: true, email: true, phone: true, role: true } } },
   })
 
   // 3. Próximas citas de seguimiento
@@ -61,7 +61,7 @@ export const GET = withErrorHandling(async (req: NextRequest) => {
       proximoContacto: { gte: now, lte: proximoEventoDate },
       estado: { in: ['ABIERTO', 'EN_PROCESO'] },
     },
-    include: { hermano: { include: { user: true } } },
+    include: { hermano: { include: { user: { select: { id: true, name: true, email: true, phone: true, role: true } } } } },
     orderBy: { proximoContacto: 'asc' },
     take: 10,
   })
@@ -80,7 +80,7 @@ export const GET = withErrorHandling(async (req: NextRequest) => {
       prioridad: 'URGENTE',
       estado: { in: ['ACTIVA', 'EN_ORACION'] },
     },
-    include: { hermano: { include: { user: true } } },
+    include: { hermano: { include: { user: { select: { id: true, name: true, email: true, phone: true, role: true } } } } },
     orderBy: { createdAt: 'desc' },
     take: 5,
   })
@@ -99,7 +99,7 @@ export const GET = withErrorHandling(async (req: NextRequest) => {
   // 7. Cuotas pendientes
   const cuotasPendientes = await prisma.cuota.findMany({
     where: { estado: 'PENDIENTE' },
-    include: { hermano: { include: { user: true } } },
+    include: { hermano: { include: { user: { select: { id: true, name: true, email: true, phone: true, role: true } } } } },
     orderBy: { fecha: 'asc' },
     take: 10,
   })

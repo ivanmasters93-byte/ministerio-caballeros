@@ -14,7 +14,7 @@ export const GET = withErrorHandling(async (req: NextRequest) => {
       ...(hermanoId && { hermanoId }),
     },
     include: {
-      hermano: { include: { user: true } },
+      hermano: { include: { user: { select: { id: true, name: true, email: true, phone: true, role: true } } } },
     },
     orderBy: { fecha: 'desc' },
     take: 100,
@@ -41,7 +41,7 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
       notas: notas || null,
       realizadaPor: realizadaPor || 'Sistema',
     },
-    include: { hermano: { include: { user: true } } },
+    include: { hermano: { include: { user: { select: { id: true, name: true, email: true, phone: true, role: true } } } } },
   })
 
   return jsonResponse(visita, 201)

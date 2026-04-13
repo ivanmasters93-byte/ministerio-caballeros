@@ -36,13 +36,13 @@ export const GET = withErrorHandling(async (req: NextRequest) => {
     prisma.cuota.findMany({
       where: whereConditions,
       include: {
-        hermano: { include: { user: true } },
+        hermano: { include: { user: { select: { id: true, name: true, email: true, phone: true, role: true } } } },
       },
       orderBy: { fecha: 'desc' },
     }),
     prisma.hermano.findMany({
       where: { estado: { in: ['ACTIVO', 'NUEVO'] } },
-      include: { user: { include: { redes: { include: { red: true } } } } },
+      include: { user: { select: { id: true, name: true, email: true, phone: true, role: true, redes: { include: { red: true } } } } },
     }),
     prisma.metaFinanciera.findFirst({
       where: { mes: targetMes, anio: targetAnio, activa: true },
@@ -89,7 +89,7 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
       redId,
       creadoPor,
     },
-    include: { hermano: { include: { user: true } } },
+    include: { hermano: { include: { user: { select: { id: true, name: true, email: true, phone: true, role: true } } } } },
   })
 
   return jsonResponse(cuota, 201)

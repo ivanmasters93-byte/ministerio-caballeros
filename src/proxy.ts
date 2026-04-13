@@ -4,7 +4,7 @@ export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   // Public routes - no authentication required
-  const publicPaths = ['/login', '/registro-hermanos', '/api/registro-hermanos', '/api/auth', '/api/admin/', '/_next', '/favicon.ico', '/public', '/offline', '/manifest.json', '/sw.js', '/icons', '/sala']
+  const publicPaths = ['/login', '/registro-hermanos', '/api/registro-hermanos', '/api/auth', '/_next', '/favicon.ico', '/public', '/offline', '/manifest.json', '/sw.js', '/icons', '/sala']
   if (publicPaths.some((p) => pathname.startsWith(p))) {
     return NextResponse.next()
   }

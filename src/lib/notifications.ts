@@ -106,7 +106,7 @@ export async function checkUpcomingFollowUps(daysAhead: number = 7): Promise<Ale
         },
       },
       include: {
-        hermano: { include: { user: true } },
+        hermano: { include: { user: { select: { id: true, name: true, email: true, phone: true, role: true } } } },
       },
       orderBy: { proximoContacto: 'asc' },
     })
@@ -312,7 +312,7 @@ export async function checkPendingCuotas(daysOverdue: number = 30): Promise<Aler
         createdAt: { lt: cutoffDate },
       },
       include: {
-        hermano: { include: { user: true } },
+        hermano: { include: { user: { select: { id: true, name: true, email: true, phone: true, role: true } } } },
       },
       orderBy: { createdAt: 'asc' },
       take: 10,
@@ -364,7 +364,7 @@ export async function checkOldPrayerRequests(daysOld: number = 30): Promise<Aler
         createdAt: { lt: cutoffDate },
       },
       include: {
-        hermano: { include: { user: true } },
+        hermano: { include: { user: { select: { id: true, name: true, email: true, phone: true, role: true } } } },
       },
       orderBy: { createdAt: 'asc' },
       take: 10,

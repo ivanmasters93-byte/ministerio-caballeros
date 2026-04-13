@@ -9,7 +9,7 @@ export const GET = withErrorHandling(async (_req: NextRequest) => {
 
   const redes = await prisma.red.findMany({
     include: {
-      lideres: true,
+      lideres: { select: { id: true, name: true, email: true, phone: true, role: true } },
       _count: { select: { miembros: true, eventos: true } },
       eventos: {
         where: { fecha: { gte: new Date() } },
@@ -45,7 +45,7 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
       edadMax,
     },
     include: {
-      lideres: true,
+      lideres: { select: { id: true, name: true, email: true, phone: true, role: true } },
       miembros: true,
     },
   })

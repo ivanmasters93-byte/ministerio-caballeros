@@ -10,7 +10,7 @@ export const GET = withErrorHandling(async (req: NextRequest, context: { params:
   const seguimiento = await prisma.seguimiento.findUnique({
     where: { id },
     include: {
-      hermano: { include: { user: true } },
+      hermano: { include: { user: { select: { id: true, name: true, email: true, phone: true, role: true } } } },
     },
   })
 
@@ -35,7 +35,7 @@ export const PUT = withErrorHandling(async (req: NextRequest, context: { params:
       proximoContacto: proximoContacto ? new Date(proximoContacto) : undefined,
       privado: privado !== undefined ? privado : undefined,
     },
-    include: { hermano: { include: { user: true } } },
+    include: { hermano: { include: { user: { select: { id: true, name: true, email: true, phone: true, role: true } } } } },
   })
 
   return jsonResponse(seguimiento)

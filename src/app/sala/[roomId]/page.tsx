@@ -17,8 +17,6 @@ export default function SalaPublica() {
     if (!nombre.trim()) return
     const url = buildJitsiEmbedUrl(room, {
       displayName: nombre.trim(),
-      audioMuted: micMuted,
-      videoMuted: !camOn,
     })
     // Open directly — works perfectly on mobile and desktop
     window.location.href = url

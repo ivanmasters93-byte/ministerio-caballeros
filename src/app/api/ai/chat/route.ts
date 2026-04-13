@@ -34,18 +34,18 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
     }),
     prisma.hermano.findMany({
       where: { estado: 'ACTIVO' },
-      include: { user: true },
+      include: { user: { select: { id: true, name: true, email: true, phone: true, role: true } } },
       take: 20,
     }),
     prisma.seguimiento.findMany({
       where: { estado: { in: ['ABIERTO', 'EN_PROCESO'] } },
-      include: { hermano: { include: { user: true } } },
+      include: { hermano: { include: { user: { select: { id: true, name: true, email: true, phone: true, role: true } } } } },
       orderBy: { createdAt: 'desc' },
       take: 10,
     }),
     prisma.peticionOracion.findMany({
       where: { estado: { in: ['ACTIVA', 'EN_ORACION'] } },
-      include: { hermano: { include: { user: true } } },
+      include: { hermano: { include: { user: { select: { id: true, name: true, email: true, phone: true, role: true } } } } },
       orderBy: { createdAt: 'desc' },
       take: 10,
     }),

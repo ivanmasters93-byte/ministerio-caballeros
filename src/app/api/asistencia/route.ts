@@ -32,7 +32,7 @@ export const GET = withErrorHandling(async (req: NextRequest) => {
       include: {
         evento: true,
         red: true,
-        detalles: { include: { hermano: { include: { user: true } } } },
+        detalles: { include: { hermano: { include: { user: { select: { id: true, name: true, email: true, phone: true, role: true } } } } } },
       },
       orderBy: { fecha: 'desc' },
       skip,
@@ -71,7 +71,7 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
       },
     },
     include: {
-      detalles: { include: { hermano: true } },
+      detalles: { include: { hermano: { include: { user: { select: { id: true, name: true, email: true, phone: true, role: true } } } } } },
       evento: true,
       red: true,
     },

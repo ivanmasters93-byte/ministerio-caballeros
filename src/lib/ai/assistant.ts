@@ -62,7 +62,7 @@ export async function buildAssistantContext(): Promise<AssistantContext> {
       // Hermanos activos
       prisma.hermano.findMany({
         where: { estado: 'ACTIVO' },
-        include: { user: true },
+        include: { user: { select: { id: true, name: true, email: true, phone: true, role: true } } },
         take: 50,
       }),
 
@@ -72,7 +72,7 @@ export async function buildAssistantContext(): Promise<AssistantContext> {
           estado: { in: ['ABIERTO', 'EN_PROCESO'] },
           proximoContacto: { gte: now, lte: in7Days },
         },
-        include: { hermano: { include: { user: true } } },
+        include: { hermano: { include: { user: { select: { id: true, name: true, email: true, phone: true, role: true } } } } },
         orderBy: { proximoContacto: 'asc' },
         take: 10,
       }),

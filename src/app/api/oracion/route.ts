@@ -36,7 +36,7 @@ export const GET = withErrorHandling(async (req: NextRequest) => {
   const [peticiones, total] = await Promise.all([
     prisma.peticionOracion.findMany({
       where: whereConditions,
-      include: { hermano: { include: { user: true } } },
+      include: { hermano: { include: { user: { select: { id: true, name: true, email: true, phone: true, role: true } } } } },
       orderBy: [{ prioridad: 'desc' }, { createdAt: 'desc' }],
       skip,
       take: limit,
@@ -67,7 +67,7 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
       privada: privada || false,
       estado: 'ACTIVA',
     },
-    include: { hermano: { include: { user: true } } },
+    include: { hermano: { include: { user: { select: { id: true, name: true, email: true, phone: true, role: true } } } } },
   })
 
   return jsonResponse(peticion, 201)

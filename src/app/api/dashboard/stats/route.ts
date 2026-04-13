@@ -60,7 +60,7 @@ export const GET = withErrorHandling(async (req: NextRequest) => {
       where: { estado: { in: ['ABIERTO', 'EN_PROCESO'] } },
       orderBy: { createdAt: 'desc' },
       take: 5,
-      include: { hermano: { include: { user: true } } },
+      include: { hermano: { include: { user: { select: { id: true, name: true, email: true, phone: true, role: true } } } } },
     }),
     prisma.cuota.count({ where: { estado: 'PENDIENTE' } }),
     prisma.cuota.aggregate({

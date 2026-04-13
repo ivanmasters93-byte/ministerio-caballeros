@@ -34,7 +34,7 @@ export const GET = withErrorHandling(async (req: NextRequest) => {
   const [seguimientos, total] = await Promise.all([
     prisma.seguimiento.findMany({
       where: whereConditions,
-      include: { hermano: { include: { user: true } } },
+      include: { hermano: { include: { user: { select: { id: true, name: true, email: true, phone: true, role: true } } } } },
       orderBy: { createdAt: 'desc' },
       skip,
       take: limit,
@@ -66,7 +66,7 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
       proximoContacto: proximoContacto ? new Date(proximoContacto) : null,
       privado: privado || false,
     },
-    include: { hermano: { include: { user: true } } },
+    include: { hermano: { include: { user: { select: { id: true, name: true, email: true, phone: true, role: true } } } } },
   })
 
   // Update hermano state if needed

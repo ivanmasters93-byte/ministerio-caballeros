@@ -31,9 +31,9 @@ yarn-error.log*
 .pnpm-debug.log*
 
 # env files
-.env
-.env.local
-.env.production
+.env*
+!.env.example
+!.env.production.example
 
 # local database
 dev.db

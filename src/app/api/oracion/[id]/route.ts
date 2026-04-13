@@ -9,7 +9,7 @@ export const GET = withErrorHandling(async (req: NextRequest, context: { params:
 
   const peticion = await prisma.peticionOracion.findUnique({
     where: { id },
-    include: { hermano: { include: { user: true } } },
+    include: { hermano: { include: { user: { select: { id: true, name: true, email: true, phone: true, role: true } } } } },
   })
 
   if (!peticion) return errorResponse('Petición no encontrada', 404)
@@ -32,7 +32,7 @@ export const PUT = withErrorHandling(async (req: NextRequest, context: { params:
       responsable: responsable || undefined,
       privada: privada !== undefined ? privada : undefined,
     },
-    include: { hermano: { include: { user: true } } },
+    include: { hermano: { include: { user: { select: { id: true, name: true, email: true, phone: true, role: true } } } } },
   })
 
   return jsonResponse(peticion)

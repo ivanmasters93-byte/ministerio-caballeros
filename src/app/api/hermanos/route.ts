@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server'
 import prisma from '@/lib/prisma'
 import bcrypt from 'bcryptjs'
+import { randomBytes } from 'crypto'
 import { withErrorHandling, requirePermiso, jsonResponse, errorResponse, getPaginationParams, buildPaginatedResponse, getSearchParam } from '@/lib/api-helpers'
 import { RECURSOS, ACCIONES } from '@/lib/permissions'
 import { createHermanoSchema, validateBody } from '@/lib/validations'
@@ -42,7 +43,12 @@ export const GET = withErrorHandling(async (req: NextRequest) => {
       where: Object.keys(whereConditions).length > 0 ? whereConditions : undefined,
       include: {
         user: {
-          include: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            phone: true,
+            role: true,
             redes: { include: { red: true } },
           },
         },
@@ -68,7 +74,8 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
 
   const { name, email, phone, password, redId, fechaNacimiento, direccion, ocupacion, estadoCivil } = validation.data
 
-  const hashedPassword = await bcrypt.hash(password || 'hermano123', 10)
+  const defaultPassword = password || randomBytes(12).toString('base64url').slice(0, 12)
+  const hashedPassword = await bcrypt.hash(defaultPassword, 10)
 
   try {
     const user = await prisma.user.create({
@@ -89,7 +96,12 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
           },
         },
       },
-      include: {
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        phone: true,
+        role: true,
         hermano: true,
         redes: { include: { red: true } },
       },

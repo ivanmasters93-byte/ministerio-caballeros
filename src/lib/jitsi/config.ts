@@ -1,5 +1,5 @@
-// Free Jitsi server — NO login required, NO account needed
-export const JITSI_DOMAIN = 'meet.calyx.net'
+// Public Jitsi server — simple URL, no login required when accessed directly
+export const JITSI_DOMAIN = 'meet.jit.si'
 
 export interface JitsiConfig {
   roomName: string
@@ -15,27 +15,24 @@ export function generateRoomId(eventoId: string, titulo: string): string {
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-|-$/g, '')
-  return `gedeones-${slug}-${eventoId.slice(0, 8)}`
+  return `GedeonesSala${slug}-${eventoId.slice(0, 8)}`
 }
 
 export function getJitsiUrl(roomId: string): string {
   return `https://${JITSI_DOMAIN}/${roomId}`
 }
 
-// Build clean Jitsi URL — minimal params for maximum compatibility
+// SIMPLE URL — no config params = no login required on meet.jit.si
+// subject, audioMuted, videoMuted accepted for backward compatibility but not appended as params
 export function buildJitsiEmbedUrl(roomId: string, opts: {
   displayName?: string
   subject?: string
   audioMuted?: boolean
   videoMuted?: boolean
 } = {}): string {
-  const params = new URLSearchParams()
-
-  if (opts.displayName) params.set('userInfo.displayName', opts.displayName)
-  params.set('config.startWithAudioMuted', String(opts.audioMuted ?? true))
-  params.set('config.startWithVideoMuted', String(opts.videoMuted ?? false))
-  params.set('config.prejoinConfig.enabled', 'false')
-  params.set('config.disableDeepLinking', 'true')
-
-  return `https://${JITSI_DOMAIN}/${roomId}#${params.toString()}`
+  const base = `https://${JITSI_DOMAIN}/${roomId}`
+  if (opts.displayName) {
+    return `${base}#userInfo.displayName="${encodeURIComponent(opts.displayName)}"`
+  }
+  return base
 }
