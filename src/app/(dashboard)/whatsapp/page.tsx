@@ -224,7 +224,7 @@ export default function WhatsappPage() {
               </div>
             ) : connectionState === 'connecting' && qrDataURI ? (
               <div className="flex flex-col items-center space-y-4">
-                <div className="bg-white p-4 rounded-lg border-2 border-gray-200">
+                <div className="qr-container p-4 rounded-lg border-2 border-gray-200">
                   <img
                     src={qrDataURI}
                     alt="WhatsApp QR Code"

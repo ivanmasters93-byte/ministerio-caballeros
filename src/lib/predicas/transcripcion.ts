@@ -12,7 +12,10 @@ export async function transcribirAudio(audioBuffer: Buffer, fileName: string): P
 
   try {
     const formData = new FormData()
-    const blob = new Blob([audioBuffer], { type: detectMimeType(fileName) })
+    const rawBuffer = audioBuffer.buffer instanceof ArrayBuffer
+      ? audioBuffer.buffer
+      : audioBuffer.buffer.slice(0)
+    const blob = new Blob([rawBuffer as ArrayBuffer], { type: detectMimeType(fileName) })
     formData.append('file', blob, fileName)
     formData.append('model', 'whisper-large-v3')
     formData.append('language', 'es')

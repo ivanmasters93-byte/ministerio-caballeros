@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Cross } from 'lucide-react'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -33,24 +34,55 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-950 to-blue-900 flex items-center justify-center p-4">
+    <div
+      className="min-h-screen flex items-center justify-center p-4"
+      style={{
+        background: 'var(--color-bg-base)',
+        backgroundImage: 'radial-gradient(ellipse at 50% 0%, rgba(201,168,76,0.06) 0%, transparent 60%)',
+      }}
+    >
       <div className="w-full max-w-md">
         {/* Logo area */}
         <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4">
-            <span className="text-blue-900 font-bold text-3xl">✝</span>
+          <div
+            className="w-16 h-16 rounded-xl flex items-center justify-center mx-auto mb-4"
+            style={{
+              background: 'var(--color-accent-gold-soft)',
+              border: '1px solid rgba(201,168,76,0.2)',
+            }}
+          >
+            <Cross size={28} style={{ color: 'var(--color-accent-gold)' }} />
           </div>
-          <h1 className="text-3xl font-bold text-white">GEDEONES</h1>
-          <p className="text-blue-300 text-lg">Ministerio de Caballeros</p>
+          <h1
+            className="text-3xl font-bold gold-text"
+            style={{ fontFamily: 'var(--font-display)' }}
+          >
+            GEDEONES
+          </h1>
+          <p style={{ color: 'var(--color-text-secondary)' }} className="text-lg">
+            Ministerio de Caballeros
+          </p>
         </div>
 
         {/* Login card */}
-        <div className="bg-white rounded-2xl shadow-2xl p-8">
-          <h2 className="text-xl font-semibold text-gray-900 mb-6">Iniciar Sesión</h2>
+        <div
+          className="rounded-2xl p-8"
+          style={{
+            background: 'var(--color-bg-surface)',
+            border: '1px solid var(--color-border-subtle)',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
+          }}
+        >
+          <h2
+            className="text-xl font-semibold mb-6"
+            style={{ color: 'var(--color-text-primary)' }}
+          >
+            Iniciar Sesion
+          </h2>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <Label htmlFor="email">Correo electrónico</Label>
+              <Label htmlFor="email">Correo electronico</Label>
               <Input
                 id="email"
                 type="email"
@@ -61,7 +93,7 @@ export default function LoginPage() {
               />
             </div>
             <div>
-              <Label htmlFor="password">Contraseña</Label>
+              <Label htmlFor="password">Contrasena</Label>
               <Input
                 id="password"
                 type="password"
@@ -73,17 +105,24 @@ export default function LoginPage() {
             </div>
 
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+              <div
+                className="px-4 py-3 rounded-lg text-sm"
+                style={{
+                  background: 'var(--color-accent-red-soft)',
+                  border: '1px solid rgba(248,113,113,0.2)',
+                  color: 'var(--color-accent-red)',
+                }}
+              >
                 {error}
               </div>
             )}
 
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? 'Iniciando sesión...' : 'Entrar'}
+              {loading ? 'Iniciando sesion...' : 'Entrar'}
             </Button>
           </form>
 
-          <p className="text-center text-xs text-gray-400 mt-6">
+          <p className="text-center text-xs mt-6" style={{ color: 'var(--color-text-muted)' }}>
             Demo: admin@gedeones.com / admin123
           </p>
         </div>
