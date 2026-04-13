@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Cross } from 'lucide-react'
+import Image from 'next/image'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -44,20 +44,19 @@ export default function LoginPage() {
       <div className="w-full max-w-md">
         {/* Logo area */}
         <div className="text-center mb-8">
-          <div
-            className="w-16 h-16 rounded-xl flex items-center justify-center mx-auto mb-4"
-            style={{
-              background: 'var(--color-accent-gold-soft)',
-              border: '1px solid rgba(201,168,76,0.2)',
-            }}
-          >
-            <Cross size={28} style={{ color: 'var(--color-accent-gold)' }} />
-          </div>
+          <Image
+            src="/logo-gedeones.jpg"
+            alt="GEDEONES GP"
+            width={80}
+            height={80}
+            className="rounded-xl mx-auto mb-4"
+            priority
+          />
           <h1
             className="text-3xl font-bold gold-text"
             style={{ fontFamily: 'var(--font-display)' }}
           >
-            GEDEONES
+            GEDEONES GP
           </h1>
           <p style={{ color: 'var(--color-text-secondary)' }} className="text-lg">
             Ministerio de Caballeros

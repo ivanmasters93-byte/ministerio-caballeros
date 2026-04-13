@@ -1,9 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import { Bell, LogOut, Menu, Search, X, Cross } from 'lucide-react'
+import { Bell, LogOut, Menu, Search, X } from 'lucide-react'
 import { signOut } from 'next-auth/react'
 import { Avatar } from '@/components/ui/avatar'
+import { Logo } from '@/components/ui/logo'
 import { getRoleLabel } from '@/lib/utils'
 import Link from 'next/link'
 
@@ -41,18 +42,9 @@ export function Header({ user, title, onMenuToggle }: HeaderProps) {
 
         {/* Logo — mobile only, clickable */}
         <Link href="/" className="md:hidden flex items-center gap-2">
-          <div
-            className="flex-shrink-0 flex items-center justify-center rounded-md"
-            style={{
-              width: 28, height: 28,
-              background: 'var(--color-accent-gold-soft)',
-              border: '1px solid rgba(201, 168, 76, 0.2)',
-            }}
-          >
-            <Cross size={14} style={{ color: 'var(--color-accent-gold)' }} />
-          </div>
+          <Logo size={28} />
           <span className="text-sm font-bold tracking-wide" style={{ fontFamily: 'var(--font-display)', color: 'var(--color-text-primary)' }}>
-            GEDEONES
+            GEDEONES GP
           </span>
         </Link>
 

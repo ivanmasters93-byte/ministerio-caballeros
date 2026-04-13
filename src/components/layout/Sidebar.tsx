@@ -19,12 +19,13 @@ import {
   UserCheck,
   ChevronLeft,
   ChevronRight,
-  Cross,
   Palette,
   Video,
   Mic,
   Crown,
+  Cross,
 } from 'lucide-react'
+import { Logo } from '@/components/ui/logo'
 
 interface SidebarProps {
   redes?: Array<{ id: string; nombre: string; tipo: string }>
@@ -145,24 +146,14 @@ export function Sidebar({ collapsed = false, mobileOpen = false, onToggle, onMob
       {/* Logo area */}
       <div className="relative flex-shrink-0" style={{ padding: collapsed ? '20px 8px' : '20px 16px' }}>
         <Link href="/" className={cn('flex items-center', collapsed ? 'justify-center' : 'gap-3')}>
-          <div
-            className="flex-shrink-0 flex items-center justify-center rounded-lg"
-            style={{
-              width: 36,
-              height: 36,
-              background: 'var(--color-accent-gold-soft)',
-              border: '1px solid rgba(201, 168, 76, 0.2)',
-            }}
-          >
-            <Cross size={18} style={{ color: 'var(--color-accent-gold)' }} />
-          </div>
+          <Logo size={36} />
           {!collapsed && (
             <div className="min-w-0">
               <p
                 className="font-bold text-sm leading-tight tracking-wide"
                 style={{ fontFamily: 'var(--font-display)', color: 'var(--color-text-primary)' }}
               >
-                GEDEONES
+                GEDEONES GP
               </p>
               <p className="text-[11px] leading-tight" style={{ color: 'var(--color-text-muted)' }}>
                 Ministerio de Caballeros
@@ -253,19 +244,10 @@ export function Sidebar({ collapsed = false, mobileOpen = false, onToggle, onMob
         {/* Logo area */}
         <div className="relative flex-shrink-0" style={{ padding: '20px 16px' }}>
           <Link href="/" onClick={onMobileClose} className="flex items-center gap-3">
-            <div
-              className="flex-shrink-0 flex items-center justify-center rounded-lg"
-              style={{
-                width: 36, height: 36,
-                background: 'var(--color-accent-gold-soft)',
-                border: '1px solid rgba(201, 168, 76, 0.2)',
-              }}
-            >
-              <Cross size={18} style={{ color: 'var(--color-accent-gold)' }} />
-            </div>
+            <Logo size={36} />
             <div className="min-w-0 flex-1">
               <p className="font-bold text-sm leading-tight tracking-wide" style={{ fontFamily: 'var(--font-display)', color: 'var(--color-text-primary)' }}>
-                GEDEONES
+                GEDEONES GP
               </p>
               <p className="text-[11px] leading-tight" style={{ color: 'var(--color-text-muted)' }}>
                 Ministerio de Caballeros

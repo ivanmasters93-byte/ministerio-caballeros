@@ -84,15 +84,35 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Verificar si el email ya existe
-    const existingUser = await prisma.user.findUnique({
-      where: { email: body.email.toLowerCase() }
-    });
+    // Verificar duplicados: email Y telefono
+    const emailNorm = body.email.toLowerCase();
+    const phoneNorm = body.telefono.trim();
 
-    if (existingUser) {
+    const [existingEmail, existingPhone] = await Promise.all([
+      prisma.user.findUnique({ where: { email: emailNorm } }),
+      prisma.user.findFirst({ where: { phone: phoneNorm } }),
+    ]);
+
+    if (existingEmail) {
       return NextResponse.json(
-        { message: 'Este email ya está registrado' },
+        { message: 'Este email ya esta registrado' },
         { status: 409 }
+      );
+    }
+
+    if (existingPhone) {
+      return NextResponse.json(
+        { message: 'Este telefono ya esta registrado' },
+        { status: 409 }
+      );
+    }
+
+    // Verificar que la red existe ANTES de crear usuario
+    const red = await prisma.red.findFirst({ where: { tipo: body.red } });
+    if (!red) {
+      return NextResponse.json(
+        { message: `La red ${body.red} no existe. Contacta al administrador.` },
+        { status: 500 }
       );
     }
 
@@ -100,54 +120,39 @@ export async function POST(request: NextRequest) {
     const temporalPassword = randomBytes(12).toString('base64url').slice(0, 12);
     const hashedPassword = await bcryptjs.hash(temporalPassword, 10);
 
-    // Crear usuario
-    const user = await prisma.user.create({
-      data: {
-        name: body.nombre.trim(),
-        email: body.email.toLowerCase(),
-        phone: body.telefono.trim(),
-        password: hashedPassword,
-        role: 'HERMANO'
-      }
-    });
-
-    // Convertir edad a fecha de nacimiento (aproximada)
+    // Edad a fecha de nacimiento (aproximada)
     const birthYear = new Date().getFullYear() - edad;
     const birthDate = new Date(birthYear, 0, 1);
 
-    // Crear perfil de hermano
-    const hermano = await prisma.hermano.create({
-      data: {
-        userId: user.id,
-        fechaNacimiento: birthDate,
-        direccion: body.direccion.trim(),
-        ocupacion: body.ocupacion.trim(),
-        estadoCivil: body.estadoCivil.trim(),
-        estado: 'NUEVO'
-      }
-    });
+    // Transaccion atomica: User + Hermano + RedMember en una sola operacion
+    // Protege contra registros duplicados concurrentes
+    const { user, hermano } = await prisma.$transaction(async (tx) => {
+      const u = await tx.user.create({
+        data: {
+          name: body.nombre.trim(),
+          email: emailNorm,
+          phone: phoneNorm,
+          password: hashedPassword,
+          role: 'HERMANO'
+        }
+      });
 
-    // Obtener la red — OBLIGATORIO
-    const red = await prisma.red.findFirst({
-      where: { tipo: body.red }
-    });
+      const h = await tx.hermano.create({
+        data: {
+          userId: u.id,
+          fechaNacimiento: birthDate,
+          direccion: body.direccion.trim(),
+          ocupacion: body.ocupacion.trim(),
+          estadoCivil: body.estadoCivil.trim(),
+          estado: 'NUEVO'
+        }
+      });
 
-    if (!red) {
-      // Red no existe — limpiar usuario/hermano creados y retornar error
-      await prisma.hermano.delete({ where: { id: hermano.id } });
-      await prisma.user.delete({ where: { id: user.id } });
-      return NextResponse.json(
-        { message: `La red ${body.red} no existe. Contacta al administrador.` },
-        { status: 500 }
-      );
-    }
+      await tx.redMember.create({
+        data: { userId: u.id, redId: red.id }
+      });
 
-    // Agregar a la red
-    await prisma.redMember.create({
-      data: {
-        userId: user.id,
-        redId: red.id
-      }
+      return { user: u, hermano: h };
     });
 
     // Enviar email de bienvenida
