@@ -413,12 +413,12 @@ ${transcripcion.trim()}`
               onClick={() => setMetodo('youtube')}
               className="px-4 py-2 rounded-lg text-sm font-medium transition-all"
               style={{
-                background: metodo === 'youtube' ? 'rgba(239,68,68,0.1)' : 'transparent',
-                color: metodo === 'youtube' ? '#ef4444' : 'var(--color-text-muted)',
-                border: metodo === 'youtube' ? '1px solid rgba(239,68,68,0.3)' : '1px solid var(--color-border-subtle)',
+                background: metodo === 'youtube' ? 'rgba(201,168,76,0.1)' : 'transparent',
+                color: metodo === 'youtube' ? 'var(--color-accent-gold)' : 'var(--color-text-muted)',
+                border: metodo === 'youtube' ? '1px solid rgba(201,168,76,0.3)' : '1px solid var(--color-border-subtle)',
               }}
             >
-              YouTube Subtitulos
+              Automatico
             </button>
             <button
               onClick={() => setMetodo('mic')}
@@ -434,20 +434,28 @@ ${transcripcion.trim()}`
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
-          {/* YouTube subtitle extraction */}
+          {/* Automatic YouTube transcript extraction */}
           {metodo === 'youtube' && (
             <div className="space-y-3">
               <p className="text-sm" style={{ color: 'var(--color-text-muted)' }}>
-                Extrae automaticamente los subtitulos del video de YouTube. Sin ruido, sin microfono. Funciona con videos que tienen subtitulos activados.
+                Pega el link de YouTube arriba y extrae la transcripcion con un click. 100% automatico.
               </p>
               <Button
                 onClick={extraerDeYoutube}
                 disabled={!videoId || extrayendo}
-                className="flex items-center gap-2 w-full justify-center py-3"
-                style={{ background: videoId ? '#ef4444' : 'var(--color-border-default)', color: '#fff' }}
+                className="flex items-center gap-2 w-full justify-center py-4 text-base font-semibold"
+                style={{ background: videoId ? 'var(--color-accent-gold)' : 'var(--color-border-default)', color: videoId ? '#000' : '#666' }}
               >
-                <ExternalLink size={16} />
-                {extrayendo ? 'Extrayendo subtitulos...' : videoId ? 'Extraer Transcripcion de YouTube' : 'Pega un link de YouTube arriba'}
+                {extrayendo ? (
+                  <>
+                    <span className="animate-spin inline-block w-4 h-4 border-2 border-black/20 border-t-black rounded-full" />
+                    Extrayendo transcripcion...
+                  </>
+                ) : videoId ? (
+                  <>Extraer Transcripcion</>
+                ) : (
+                  <>Pega un link de YouTube arriba</>
+                )}
               </Button>
               {errorExtraer && (
                 <div className="rounded-lg px-4 py-3 space-y-2" style={{ background: 'rgba(248,113,113,0.06)', border: '1px solid rgba(248,113,113,0.15)' }}>
@@ -457,10 +465,15 @@ ${transcripcion.trim()}`
                     className="text-sm font-medium flex items-center gap-1.5 px-3 py-2 rounded-lg transition-all"
                     style={{ background: 'rgba(34,197,94,0.1)', color: '#22c55e', border: '1px solid rgba(34,197,94,0.2)' }}
                   >
-                    <Mic size={14} /> Usar microfono en su lugar
+                    <Mic size={14} /> Usar microfono
                   </button>
-                  <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
-                    Pon el audio del video cerca del microfono de tu dispositivo
+                </div>
+              )}
+              {transcripcion && (
+                <div className="rounded-lg px-3 py-2 flex items-center gap-2" style={{ background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.2)' }}>
+                  <Check size={16} style={{ color: '#22c55e' }} />
+                  <p className="text-sm" style={{ color: '#22c55e' }}>
+                    Transcripcion extraida — {transcripcion.split(/\s+/).length} palabras
                   </p>
                 </div>
               )}
