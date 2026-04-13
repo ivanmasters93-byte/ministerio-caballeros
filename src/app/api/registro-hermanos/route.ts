@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { hash } from 'bcryptjs';
+import bcryptjs from 'bcryptjs';
 import { sendWelcomeEmail } from '@/lib/mailgun';
 
 interface RegistroData {
@@ -97,7 +97,7 @@ export async function POST(request: NextRequest) {
 
     // Generar contraseña temporal
     const temporalPassword = Math.random().toString(36).slice(-8);
-    const hashedPassword = await hash(temporalPassword, 10);
+    const hashedPassword = await bcryptjs.hash(temporalPassword, 10);
 
     // Crear usuario
     const user = await prisma.user.create({
@@ -126,20 +126,28 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    // Obtener la red
+    // Obtener la red — OBLIGATORIO
     const red = await prisma.red.findFirst({
       where: { tipo: body.red }
     });
 
-    if (red) {
-      // Agregar a la red
-      await prisma.redMember.create({
-        data: {
-          userId: user.id,
-          redId: red.id
-        }
-      });
+    if (!red) {
+      // Red no existe — limpiar usuario/hermano creados y retornar error
+      await prisma.hermano.delete({ where: { id: hermano.id } });
+      await prisma.user.delete({ where: { id: user.id } });
+      return NextResponse.json(
+        { message: `La red ${body.red} no existe. Contacta al administrador.` },
+        { status: 500 }
+      );
     }
+
+    // Agregar a la red
+    await prisma.redMember.create({
+      data: {
+        userId: user.id,
+        redId: red.id
+      }
+    });
 
     // Enviar email de bienvenida
     try {

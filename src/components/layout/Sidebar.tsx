@@ -23,6 +23,7 @@ import {
   Palette,
   Video,
   Mic,
+  Crown,
 } from 'lucide-react'
 
 interface SidebarProps {
@@ -43,6 +44,7 @@ interface NavItem {
 const panoramaItems: NavItem[] = [
   { href: '/', label: 'Centro de Mando', icon: LayoutDashboard },
   { href: '/redes', label: 'Redes', icon: Network },
+  { href: '/liderazgo', label: 'Liderazgo', icon: Crown },
 ]
 
 const personasItems: NavItem[] = [
