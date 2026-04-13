@@ -63,7 +63,14 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
   const validation = validateBody(createEventoSchema, body)
   if (!validation.success) return errorResponse(validation.error)
 
-  const { titulo, descripcion, fecha, hora, tipo, zoomLink, youtubeLink, redId, esRecurrente, patron } = validation.data
+  const { titulo, descripcion, fecha, hora, tipo, zoomLink, youtubeLink, jitsiEnabled, jitsiRoomId, grabacionUrl, redId, esRecurrente, patron } = validation.data
+
+  // Auto-generate room ID when jitsi is enabled and no room ID provided
+  let resolvedRoomId = jitsiRoomId || null
+  if (jitsiEnabled && !resolvedRoomId) {
+    const { generateRoomId } = await import('@/lib/jitsi/config')
+    resolvedRoomId = generateRoomId(Date.now().toString(), titulo)
+  }
 
   const evento = await prisma.evento.create({
     data: {
@@ -74,6 +81,9 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
       tipo,
       zoomLink: zoomLink || null,
       youtubeLink: youtubeLink || null,
+      jitsiEnabled: jitsiEnabled ?? false,
+      jitsiRoomId: resolvedRoomId,
+      grabacionUrl: grabacionUrl || null,
       redId,
       esRecurrente,
       patron,

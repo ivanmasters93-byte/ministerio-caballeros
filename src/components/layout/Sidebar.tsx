@@ -20,6 +20,9 @@ import {
   ChevronLeft,
   ChevronRight,
   Cross,
+  Palette,
+  Video,
+  Mic,
 } from 'lucide-react'
 
 interface SidebarProps {
@@ -55,11 +58,14 @@ const ministerioItems: NavItem[] = [
 
 const recursosItems: NavItem[] = [
   { href: '/documentos', label: 'Documentos', icon: BookOpen },
+  { href: '/predicas', label: 'Prédicas', icon: Mic },
 ]
 
 const herramientasItems: NavItem[] = [
+  { href: '/reuniones', label: 'Reuniones', icon: Video },
   { href: '/asistente-ia', label: 'Asistente IA', icon: Bot },
   { href: '/whatsapp', label: 'WhatsApp', icon: MessageSquare },
+  { href: '/flyers', label: 'Flyers', icon: Palette },
   { href: '/roles', label: 'Roles y Permisos', icon: Shield },
 ]
 

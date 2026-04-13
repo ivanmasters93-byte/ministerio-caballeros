@@ -40,6 +40,8 @@
     "src/lib/resend.ts",
     "src/lib/supabase.ts",
     "src/middleware.ts",
-    "src/app/api/webhooks"
+    "src/app/api/webhooks",
+    "prisma/seed.ts",
+    "scripts"
   ]
 }

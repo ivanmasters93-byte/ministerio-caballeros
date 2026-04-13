@@ -27,20 +27,33 @@ export const PUT = withErrorHandling(async (req: NextRequest, context: { params:
   await requirePermiso(RECURSOS.EVENTOS, ACCIONES.EDITAR)
 
   const body = await req.json()
-  const { titulo, descripcion, fecha, hora, tipo, zoomLink, youtubeLink, redId } = body
+  const { titulo, descripcion, fecha, hora, tipo, zoomLink, youtubeLink, jitsiEnabled, jitsiRoomId, grabacionUrl, redId } = body
+
+  // Auto-generate room ID when enabling jitsi without providing one
+  let resolvedRoomId = jitsiRoomId !== undefined ? (jitsiRoomId || null) : undefined
+  if (jitsiEnabled && !jitsiRoomId) {
+    const { generateRoomId } = await import('@/lib/jitsi/config')
+    resolvedRoomId = generateRoomId(id, titulo || 'reunion')
+  }
+
+  const updateData: Record<string, unknown> = {
+    titulo,
+    descripcion,
+    fecha: fecha ? new Date(fecha) : undefined,
+    hora,
+    tipo,
+    zoomLink: zoomLink || null,
+    youtubeLink: youtubeLink || null,
+    redId: redId || null,
+  }
+
+  if (typeof jitsiEnabled !== 'undefined') updateData.jitsiEnabled = Boolean(jitsiEnabled)
+  if (resolvedRoomId !== undefined) updateData.jitsiRoomId = resolvedRoomId
+  if (typeof grabacionUrl !== 'undefined') updateData.grabacionUrl = grabacionUrl || null
 
   const evento = await prisma.evento.update({
     where: { id },
-    data: {
-      titulo,
-      descripcion,
-      fecha: new Date(fecha),
-      hora,
-      tipo,
-      zoomLink: zoomLink || null,
-      youtubeLink: youtubeLink || null,
-      redId: redId || null,
-    },
+    data: updateData,
     include: { red: true },
   })
 
