@@ -1,0 +1,364 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+enum Role {
+  LIDER_GENERAL
+  LIDER_RED
+  SECRETARIO
+  ASISTENTE
+  HERMANO
+}
+
+enum TipoRed {
+  MENOR
+  MEDIA
+  MAYOR
+}
+
+enum EstadoHermano {
+  ACTIVO
+  PENDIENTE
+  INACTIVO
+  NUEVO
+  REQUIERE_SEGUIMIENTO
+}
+
+enum TipoEvento {
+  REUNION
+  CULTO
+  RETIRO
+  CAPACITACION
+  SOCIAL
+  OTRO
+}
+
+enum TipoAnuncio {
+  GENERAL
+  URGENTE
+  RECORDATORIO
+  EVENTO
+}
+
+enum Prioridad {
+  BAJA
+  NORMAL
+  ALTA
+  URGENTE
+}
+
+enum TipoSeguimiento {
+  LLAMADA
+  VISITA
+  NOTA
+  ALERTA
+}
+
+enum TipoVisita {
+  PASTORAL
+  SOCIAL
+  EMERGENCIA
+}
+
+enum EstadoCaso {
+  ABIERTO
+  EN_PROCESO
+  CERRADO
+}
+
+enum EstadoPeticion {
+  ACTIVA
+  EN_ORACION
+  RESPONDIDA
+  CERRADA
+}
+
+enum TipoDocumento {
+  DEVOCIONAL
+  CALENDARIO
+  AGENDA
+  PDF
+  ENLACE
+  MATERIAL
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  phone     String?
+  password  String
+  role      Role     @default(HERMANO)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  redes          RedMember[]
+  lideredRed     Red[]            @relation("LiderRed")
+  hermano        Hermano?
+  permisos       Permiso[]
+  notificaciones Notificacion[]
+}
+
+model Red {
+  id      String  @id @default(cuid())
+  nombre  String
+  tipo    TipoRed
+  edadMin Int
+  edadMax Int
+
+  lideres     User[]       @relation("LiderRed")
+  miembros    RedMember[]
+  eventos     Evento[]
+  anuncios    Anuncio[]
+  asistencias Asistencia[]
+}
+
+model Hermano {
+  id               String        @id @default(cuid())
+  userId           String        @unique
+  user             User          @relation(fields: [userId], references: [id])
+  fechaNacimiento  DateTime?
+  direccion        String?
+  ocupacion        String?
+  estadoCivil      String?
+  estado           EstadoHermano @default(ACTIVO)
+  notas            String?
+  ultimaAsistencia DateTime?
+
+  peticionesOracion PeticionOracion[]
+  visitas           Visita[]
+  seguimientos      Seguimiento[]
+  asistencias       AsistenciaDetalle[]
+  cuotas            Cuota[]
+}
+
+model Evento {
+  id           String     @id @default(cuid())
+  titulo       String
+  descripcion  String?
+  fecha        DateTime
+  hora         String?
+  tipo         TipoEvento
+  zoomLink     String?
+  youtubeLink  String?
+  redId        String?
+  esRecurrente Boolean    @default(false)
+  patron       String?
+  createdAt    DateTime   @default(now())
+
+  red         Red?         @relation(fields: [redId], references: [id])
+  anuncios    Anuncio[]
+  asistencias Asistencia[]
+}
+
+model Anuncio {
+  id             String      @id @default(cuid())
+  titulo         String
+  contenido      String
+  tipo           TipoAnuncio
+  prioridad      Prioridad   @default(NORMAL)
+  paraTodasRedes Boolean     @default(false)
+  redId          String?
+  eventoId       String?
+  publicadoEn    DateTime    @default(now())
+  expiraEn       DateTime?
+  activo         Boolean     @default(true)
+  createdAt      DateTime    @default(now())
+
+  red    Red?    @relation(fields: [redId], references: [id])
+  evento Evento? @relation(fields: [eventoId], references: [id])
+}
+
+model Asistencia {
+  id        String   @id @default(cuid())
+  eventoId  String
+  redId     String
+  fecha     DateTime
+  total     Int      @default(0)
+  presentes Int      @default(0)
+  createdAt DateTime @default(now())
+
+  evento   Evento              @relation(fields: [eventoId], references: [id])
+  red      Red                 @relation(fields: [redId], references: [id])
+  detalles AsistenciaDetalle[]
+}
+
+model AsistenciaDetalle {
+  id           String  @id @default(cuid())
+  asistenciaId String
+  hermanoId    String
+  presente     Boolean @default(false)
+  nota         String?
+
+  asistencia Asistencia @relation(fields: [asistenciaId], references: [id])
+  hermano    Hermano    @relation(fields: [hermanoId], references: [id])
+}
+
+model Seguimiento {
+  id              String          @id @default(cuid())
+  hermanoId       String
+  tipo            TipoSeguimiento
+  descripcion     String
+  responsableId   String
+  estado          EstadoCaso      @default(ABIERTO)
+  proximoContacto DateTime?
+  privado         Boolean         @default(false)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  hermano Hermano @relation(fields: [hermanoId], references: [id])
+}
+
+model Visita {
+  id           String     @id @default(cuid())
+  hermanoId    String
+  fecha        DateTime
+  tipo         TipoVisita
+  notas        String?
+  realizadaPor String
+
+  hermano Hermano @relation(fields: [hermanoId], references: [id])
+}
+
+model PeticionOracion {
+  id          String         @id @default(cuid())
+  hermanoId   String
+  descripcion String
+  prioridad   Prioridad      @default(NORMAL)
+  estado      EstadoPeticion @default(ACTIVA)
+  responsable String?
+  privada     Boolean        @default(false)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  hermano Hermano @relation(fields: [hermanoId], references: [id])
+}
+
+model Documento {
+  id          String        @id @default(cuid())
+  titulo      String
+  descripcion String?
+  tipo        TipoDocumento
+  url         String
+  redId       String?
+  categoria   String?
+  publicadoEn DateTime      @default(now())
+  activo      Boolean       @default(true)
+}
+
+model RedMember {
+  userId String
+  redId  String
+
+  user User @relation(fields: [userId], references: [id])
+  red  Red  @relation(fields: [redId], references: [id])
+
+  @@id([userId, redId])
+}
+
+model Permiso {
+  id        String  @id @default(cuid())
+  userId    String
+  recurso   String
+  accion    String
+  permitido Boolean @default(true)
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@unique([userId, recurso, accion])
+}
+
+model Cuota {
+  id          String      @id @default(cuid())
+  hermanoId   String
+  hermano     Hermano     @relation(fields: [hermanoId], references: [id])
+  monto       Float
+  fecha       DateTime    @default(now())
+  mes         Int
+  anio        Int
+  tipo        TipoCuota   @default(MENSUAL)
+  estado      EstadoCuota @default(PENDIENTE)
+  concepto    String?
+  redId       String?
+  creadoPor   String
+  createdAt   DateTime    @default(now())
+}
+
+model MetaFinanciera {
+  id          String   @id @default(cuid())
+  nombre      String
+  montoMeta   Float
+  montoActual Float    @default(0)
+  mes         Int
+  anio        Int
+  redId       String?
+  descripcion String?
+  activa      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+enum TipoCuota {
+  MENSUAL
+  ESPECIAL
+  OFRENDA
+  DONACION
+}
+
+enum EstadoCuota {
+  PENDIENTE
+  PAGADA
+  EXONERADA
+}
+
+model Notificacion {
+  id        String   @id @default(cuid())
+  tipo      String   // 'ausencia', 'seguimiento', 'evento', 'anuncio', 'financiero'
+  severidad String   // 'info', 'warning', 'critical'
+  mensaje   String
+  leida     Boolean  @default(false)
+  userId    String?  // destinatario (null = para todos los líderes)
+  relatedId String?  // id del recurso relacionado
+  createdAt DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id])
+}
+
+model MensajeWhatsApp {
+  id        String   @id @default(cuid())
+  telefono  String
+  mensaje   String
+  direccion String   // 'entrante' | 'saliente'
+  estado    String   @default("enviado") // enviado, entregado, leido, fallido
+  tipo      String   @default("texto")   // texto, template, interactivo
+  messageId String?  // ID del proveedor
+  userId    String?  // Hermano asociado si se identifica
+  createdAt DateTime @default(now())
+}
+
+model EmbeddingDocumento {
+  id            String   @id @default(cuid())
+  documentoId   String
+  contenido     String
+  embedding     String   // JSON serializado del vector de Pinecone
+  pineconeId    String?  // ID en Pinecone
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([documentoId])
+}
+
+model ConfiguracionIntegracion {
+  id        String   @id @default(cuid())
+  servicio  String   @unique // 'supabase', 'clerk', 'sentry', 'posthog', 'resend', 'pinecone'
+  activa    Boolean  @default(true)
+  config    String   // JSON serializado
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([servicio])
+}

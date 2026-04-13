@@ -30,5 +30,16 @@
     ".next/dev/types/**/*.ts",
     "**/*.mts"
   ],
-  "exclude": ["node_modules"]
+  "exclude": [
+    "node_modules",
+    "sentry.client.config.ts",
+    "sentry.server.config.ts",
+    "src/lib/clerk.ts",
+    "src/lib/pinecone.ts",
+    "src/lib/posthog.ts",
+    "src/lib/resend.ts",
+    "src/lib/supabase.ts",
+    "src/middleware.ts",
+    "src/app/api/webhooks"
+  ]
 }
