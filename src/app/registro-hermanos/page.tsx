@@ -113,15 +113,29 @@ export default function RegistroHermanos() {
   return (
     <div
       ref={containerRef}
-      className="min-h-screen overflow-y-auto"
+      className="min-h-screen overflow-y-auto relative"
       style={{
         background: 'var(--color-bg-base, #0a0e1a)',
         color: 'var(--color-text-primary, #f0f0f5)',
       }}
     >
+      {/* Background watermark logo — large, centered, translucent with gold glow */}
+      <div
+        className="fixed inset-0 flex items-center justify-center pointer-events-none z-0"
+        style={{ overflow: 'hidden' }}
+      >
+        <div
+          style={{
+            opacity: 0.06,
+            filter: 'drop-shadow(0 0 80px rgba(201,168,76,0.4)) drop-shadow(0 0 160px rgba(201,168,76,0.2))',
+          }}
+        >
+          <Logo size={320} />
+        </div>
+      </div>
       {/* Header bar */}
       <div
-        className="sticky top-0 z-20 px-6 py-4"
+        className="sticky top-0 z-20 px-6 py-4 relative"
         style={{
           background: 'var(--color-bg-surface, #12162a)',
           borderBottom: '1px solid var(--color-border-subtle, rgba(255,255,255,0.06))',
