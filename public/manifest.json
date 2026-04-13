@@ -63,6 +63,12 @@
       "icons": [{"src": "/icons/icon-96x96.png", "sizes": "96x96"}]
     },
     {
+      "name": "Chat",
+      "short_name": "Chat",
+      "url": "/chat",
+      "icons": [{"src": "/icons/icon-96x96.png", "sizes": "96x96"}]
+    },
+    {
       "name": "Biblia",
       "short_name": "Biblia",
       "url": "/biblia",

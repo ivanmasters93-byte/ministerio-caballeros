@@ -793,6 +793,7 @@ async function main() {
   })
 
   // ---- PERMISOS ----
+  await prisma.permiso.deleteMany({})
   const permisosData = []
   const recursos = ['seguimientos', 'cuotas', 'notificaciones', 'eventos', 'documentos', 'anuncios']
   const acciones = ['crear', 'leer', 'actualizar', 'eliminar']
@@ -815,9 +816,14 @@ async function main() {
   })
 
   // ---- CHAT GRUPAL GENERAL ----
+  // Clean up existing chat data first (seed is idempotent)
+  await prisma.chatMessage.deleteMany({})
+  await prisma.chatRoomMember.deleteMany({})
+  await prisma.chatRoom.deleteMany({})
+
   const allUserIds = [
     javier.id, carlos.id, pedro.id, roberto.id, miguel.id, antonio.id, david.id,
-    ...hermanoUsers.map((u: { id: string }) => u.id),
+    ...hermanoUsers.map((u: { user: { id: string } }) => u.user.id),
   ]
 
   const chatGrupal = await prisma.chatRoom.create({
