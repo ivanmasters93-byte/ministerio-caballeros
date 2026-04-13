@@ -60,11 +60,11 @@ export default function LoginPage() {
         }}
       >
         <Image
-          src="/logo-gedeones.jpg"
+          src="/logo-gedeones-gold.png"
           alt=""
           width={480}
           height={480}
-          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+          style={{ width: '100%', height: '100%', objectFit: 'contain' }}
           priority
         />
       </div>

@@ -66,7 +66,7 @@ const ministerioItems: NavItem[] = [
 const recursosItems: NavItem[] = [
   { href: '/documentos', label: 'Documentos', icon: BookOpen },
   { href: '/predicas', label: 'Predicas', icon: Mic },
-  { href: '/predicas/en-vivo', label: 'Predica en Vivo', icon: Radio },
+  { href: '/biblia', label: 'Biblia', icon: BookOpen },
 ]
 
 const herramientasItems: NavItem[] = [

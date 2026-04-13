@@ -127,18 +127,15 @@ export default function RegistroHermanos() {
           background: 'radial-gradient(ellipse 60% 40% at 50% 30%, rgba(201,168,76,0.08) 0%, transparent 70%)',
         }}
       />
-      {/* Floating watermark logo — hero size with gold glow ring */}
+      {/* Floating watermark logo — hero size gold transparent with glow */}
       <div className="fixed inset-0 flex items-center justify-center pointer-events-none z-0">
-        <div className="antigravity-float" style={{ opacity: 0.10 }}>
+        <div className="antigravity-float" style={{ opacity: 0.12 }}>
           <div
             style={{
-              borderRadius: '50%',
-              padding: 40,
-              background: 'radial-gradient(circle, rgba(201,168,76,0.15) 0%, transparent 70%)',
-              filter: 'drop-shadow(0 0 60px rgba(201,168,76,0.3)) drop-shadow(0 0 120px rgba(201,168,76,0.15))',
+              filter: 'drop-shadow(0 0 60px rgba(201,168,76,0.4)) drop-shadow(0 0 120px rgba(201,168,76,0.2))',
             }}
           >
-            <Logo size={360} />
+            <Logo size={400} variant="gold" />
           </div>
         </div>
       </div>
@@ -172,7 +169,7 @@ export default function RegistroHermanos() {
       >
         <div className="max-w-lg mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Logo size={48} animated />
+            <Logo size={48} variant="gold" animated />
             <div>
               <p
                 className="text-[9px] tracking-[0.35em] uppercase"

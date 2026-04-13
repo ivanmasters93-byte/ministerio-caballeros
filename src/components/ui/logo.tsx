@@ -14,20 +14,29 @@ interface LogoProps {
   size?: number | LogoSize
   className?: string
   animated?: boolean
+  variant?: 'gold' | 'original' | 'transparent'
   withText?: boolean
   textBelow?: boolean
 }
 
-export function Logo({ size = 'md', className, animated = false, withText = false, textBelow = false }: LogoProps) {
+export function Logo({ size = 'md', className, animated = false, variant = 'gold', withText = false, textBelow = false }: LogoProps) {
   const px = typeof size === 'number' ? size : SIZE_MAP[size]
+
+  const src = variant === 'original'
+    ? '/logo-gedeones.jpg'
+    : variant === 'transparent'
+      ? '/logo-gedeones-transparent.png'
+      : '/logo-gedeones-gold.png'
+
+  const isTransparent = variant !== 'original'
 
   const img = (
     <Image
-      src="/logo-gedeones.jpg"
+      src={src}
       alt="GEDEONES GP"
       width={px}
       height={px}
-      className={`rounded-xl object-cover flex-shrink-0 ${animated ? 'logo-glow' : ''} ${className || ''}`}
+      className={`${isTransparent ? '' : 'rounded-xl'} object-contain flex-shrink-0 ${animated ? 'logo-glow' : ''} ${className || ''}`}
       style={{ width: px, height: px }}
       priority
     />
