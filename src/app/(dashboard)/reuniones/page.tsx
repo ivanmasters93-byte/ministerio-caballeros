@@ -4,9 +4,8 @@ import { useEffect, useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Dialog } from '@/components/ui/dialog'
-import { JitsiMeet } from '@/components/video/JitsiMeet'
-import { getJitsiUrl } from '@/lib/jitsi/config'
-import { Video, ExternalLink, Plus, Clock, Radio, PlayCircle, Copy, Check, Share2 } from 'lucide-react'
+import { buildJitsiEmbedUrl } from '@/lib/jitsi/config'
+import { Video, Plus, Clock, Radio, PlayCircle, Copy, Check, Share2 } from 'lucide-react'
 
 interface Reunion {
   id: string
@@ -24,8 +23,6 @@ export default function ReunionesPage() {
   const [proximas, setProximas] = useState<Reunion[]>([])
   const [anteriores, setAnteriores] = useState<Reunion[]>([])
   const [loading, setLoading] = useState(true)
-  const [activaRoomId, setActivaRoomId] = useState<string | null>(null)
-  const [activaTitulo, setActivaTitulo] = useState('')
   const [showCrear, setShowCrear] = useState(false)
   const [nuevoTitulo, setNuevoTitulo] = useState('')
   const [creando, setCreando] = useState(false)
@@ -50,13 +47,9 @@ export default function ReunionesPage() {
 
   const unirseReunion = (reunion: Reunion) => {
     if (!reunion.jitsiRoomId) return
-    setActivaRoomId(reunion.jitsiRoomId)
-    setActivaTitulo(reunion.titulo)
-  }
-
-  const cerrarReunion = () => {
-    setActivaRoomId(null)
-    setActivaTitulo('')
+    // Open in new tab — works on mobile without login issues
+    const url = buildJitsiEmbedUrl(reunion.jitsiRoomId, { subject: reunion.titulo })
+    window.open(url, '_blank', 'noopener')
   }
 
   const crearReunionInstantanea = async () => {
@@ -74,8 +67,9 @@ export default function ReunionesPage() {
         setNuevoTitulo('')
         await cargarReuniones()
         if (nueva.jitsiRoomId) {
-          setActivaRoomId(nueva.jitsiRoomId)
-          setActivaTitulo(nueva.titulo)
+          // Open meeting directly
+          const url = buildJitsiEmbedUrl(nueva.jitsiRoomId, { subject: nueva.titulo })
+          window.open(url, '_blank', 'noopener')
         }
       }
     } catch {
@@ -130,23 +124,6 @@ export default function ReunionesPage() {
           Reunion Rapida
         </Button>
       </div>
-
-      {/* Active call embed */}
-      {activaRoomId && (
-        <div className="space-y-2">
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-            <span className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>
-              En reunion: {activaTitulo}
-            </span>
-          </div>
-          <JitsiMeet
-            roomId={activaRoomId}
-            subject={activaTitulo}
-            onClose={cerrarReunion}
-          />
-        </div>
-      )}
 
       {/* Instant meeting section */}
       <Card>
@@ -303,24 +280,6 @@ export default function ReunionesPage() {
             ))}
           </div>
         </div>
-      )}
-
-      {/* Share link info */}
-      {activaRoomId && (
-        <Card>
-          <CardContent className="py-4">
-            <div className="flex items-center gap-3">
-              <Share2 size={16} style={{ color: 'var(--color-accent-gold)' }} />
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>Comparte este link con los hermanos:</p>
-                <p className="text-xs truncate mt-0.5" style={{ color: 'var(--color-text-muted)' }}>
-                  {typeof window !== 'undefined' ? `${window.location.origin}/sala/${activaRoomId}` : `/sala/${activaRoomId}`}
-                </p>
-              </div>
-              <CopyLinkButton roomId={activaRoomId} />
-            </div>
-          </CardContent>
-        </Card>
       )}
 
       {/* Create meeting dialog */}
