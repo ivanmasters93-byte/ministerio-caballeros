@@ -115,23 +115,52 @@ export default function RegistroHermanos() {
       ref={containerRef}
       className="min-h-screen overflow-y-auto relative"
       style={{
-        background: 'var(--color-bg-base, #0a0e1a)',
+        background: '#060810',
         color: 'var(--color-text-primary, #f0f0f5)',
       }}
     >
-      {/* Background watermark logo — large, centered, translucent with gold glow */}
+      {/* === ANTIGRAVITY BACKGROUND === */}
+      {/* Radial gold nebula */}
       <div
-        className="fixed inset-0 flex items-center justify-center pointer-events-none z-0"
-        style={{ overflow: 'hidden' }}
-      >
-        <div
-          style={{
-            opacity: 0.06,
-            filter: 'drop-shadow(0 0 80px rgba(201,168,76,0.4)) drop-shadow(0 0 160px rgba(201,168,76,0.2))',
-          }}
-        >
-          <Logo size={320} />
+        className="fixed inset-0 pointer-events-none z-0"
+        style={{
+          background: 'radial-gradient(ellipse 60% 40% at 50% 30%, rgba(201,168,76,0.08) 0%, transparent 70%)',
+        }}
+      />
+      {/* Floating watermark logo — hero size with gold glow ring */}
+      <div className="fixed inset-0 flex items-center justify-center pointer-events-none z-0">
+        <div className="antigravity-float" style={{ opacity: 0.10 }}>
+          <div
+            style={{
+              borderRadius: '50%',
+              padding: 40,
+              background: 'radial-gradient(circle, rgba(201,168,76,0.15) 0%, transparent 70%)',
+              filter: 'drop-shadow(0 0 60px rgba(201,168,76,0.3)) drop-shadow(0 0 120px rgba(201,168,76,0.15))',
+            }}
+          >
+            <Logo size={360} />
+          </div>
         </div>
+      </div>
+      {/* Floating gold particles */}
+      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+        {[...Array(8)].map((_, i) => (
+          <div
+            key={i}
+            className="antigravity-particle"
+            style={{
+              position: 'absolute',
+              width: 3 + (i % 3),
+              height: 3 + (i % 3),
+              borderRadius: '50%',
+              background: 'rgba(201,168,76,0.4)',
+              left: `${12 + i * 11}%`,
+              bottom: '-10px',
+              animationDelay: `${i * 1.2}s`,
+              animationDuration: `${8 + i * 2}s`,
+            }}
+          />
+        ))}
       </div>
       {/* Header bar */}
       <div
@@ -143,25 +172,16 @@ export default function RegistroHermanos() {
       >
         <div className="max-w-lg mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div
-              style={{
-                borderRadius: 10,
-                padding: 2,
-                background: 'linear-gradient(135deg, rgba(201,168,76,0.35), rgba(201,168,76,0.08))',
-                flexShrink: 0,
-              }}
-            >
-              <Logo size={40} animated />
-            </div>
+            <Logo size={48} animated />
             <div>
               <p
-                className="text-[10px] tracking-[0.3em] uppercase"
-                style={{ color: 'var(--color-text-muted, rgba(255,255,255,0.3))' }}
+                className="text-[9px] tracking-[0.35em] uppercase"
+                style={{ color: 'rgba(201,168,76,0.6)' }}
               >
                 Ministerio de Caballeros
               </p>
               <h1
-                className="text-[18px] font-bold tracking-tight gold-text"
+                className="text-[18px] font-bold tracking-wider gold-text"
                 style={{ fontFamily: 'var(--font-display)' }}
               >
                 GEDEONES GP
@@ -624,12 +644,28 @@ export default function RegistroHermanos() {
         )}
       </div>
 
-      {/* Inline keyframes for check animation */}
+      {/* Antigravity keyframes */}
       <style>{`
         @keyframes checkPop {
           0% { transform: scale(0.5); opacity: 0; }
           60% { transform: scale(1.15); }
           100% { transform: scale(1); opacity: 1; }
+        }
+        @keyframes antigravityFloat {
+          0%, 100% { transform: translateY(0) scale(1); }
+          50% { transform: translateY(-12px) scale(1.02); }
+        }
+        @keyframes particleRise {
+          0% { transform: translateY(0) translateX(0); opacity: 0; }
+          10% { opacity: 0.6; }
+          90% { opacity: 0.3; }
+          100% { transform: translateY(-100vh) translateX(20px); opacity: 0; }
+        }
+        .antigravity-float {
+          animation: antigravityFloat 6s ease-in-out infinite;
+        }
+        .antigravity-particle {
+          animation: particleRise 10s ease-in-out infinite;
         }
       `}</style>
     </div>
