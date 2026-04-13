@@ -14,6 +14,7 @@ interface RegistroData {
   ocupacion: string;
   estadoCivil: string;
   red: 'MENOR' | 'MEDIA' | 'MAYOR';
+  password?: string;
 }
 
 // Validar rango de edad según red
@@ -117,8 +118,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Generar contraseña temporal segura
-    const temporalPassword = randomBytes(12).toString('base64url').slice(0, 12);
+    // Usar contraseña del usuario si la provee, o generar temporal
+    const temporalPassword = body.password?.trim() && body.password.length >= 6
+      ? body.password
+      : randomBytes(12).toString('base64url').slice(0, 12);
     const hashedPassword = await bcryptjs.hash(temporalPassword, 10);
 
     // Edad a fecha de nacimiento (aproximada)

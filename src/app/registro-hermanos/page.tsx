@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { ArrowLeft, Check, Loader2, User, Phone as PhoneIcon, Mail, MapPin, Briefcase, Heart, Users } from 'lucide-react'
+import { ArrowLeft, Check, Loader2, User, Phone as PhoneIcon, Mail, MapPin, Briefcase, Heart, Users, Lock } from 'lucide-react'
 import { Logo } from '@/components/ui/logo'
 
 type Step = 'datos' | 'confirmar' | 'sending' | 'listo'
@@ -15,6 +15,8 @@ interface FormData {
   ocupacion: string
   estadoCivil: string
   red: 'MENOR' | 'MEDIA' | 'MAYOR' | ''
+  password: string
+  confirmPassword: string
 }
 
 const CIVIL_OPTIONS = ['Soltero', 'Casado', 'Divorciado', 'Viudo', 'Union libre']
@@ -29,7 +31,8 @@ export default function RegistroHermanos() {
   const [step, setStep] = useState<Step>('datos')
   const [formData, setFormData] = useState<FormData>({
     nombre: '', edad: '', telefono: '', email: '',
-    direccion: '', ocupacion: '', estadoCivil: '', red: ''
+    direccion: '', ocupacion: '', estadoCivil: '', red: '',
+    password: '', confirmPassword: ''
   })
   const [error, setError] = useState('')
   const [fadeIn, setFadeIn] = useState(true)
@@ -84,6 +87,14 @@ export default function RegistroHermanos() {
     }
     if (!formData.red) {
       setError('Selecciona una red')
+      return false
+    }
+    if (!formData.password || formData.password.length < 6) {
+      setError('La contrasena debe tener al menos 6 caracteres')
+      return false
+    }
+    if (formData.password !== formData.confirmPassword) {
+      setError('Las contrasenas no coinciden')
       return false
     }
     return true
@@ -267,6 +278,26 @@ export default function RegistroHermanos() {
                   type="email"
                 />
 
+                {/* Contrasena */}
+                <div className="grid grid-cols-2 gap-3">
+                  <InputField
+                    icon={Lock}
+                    label="Contrasena"
+                    value={formData.password}
+                    onChange={v => update('password', v)}
+                    placeholder="Min. 6 caracteres"
+                    type="password"
+                  />
+                  <InputField
+                    icon={Lock}
+                    label="Confirmar"
+                    value={formData.confirmPassword}
+                    onChange={v => update('confirmPassword', v)}
+                    placeholder="Repite tu contrasena"
+                    type="password"
+                  />
+                </div>
+
                 {/* Direccion */}
                 <InputField
                   icon={MapPin}
@@ -425,6 +456,7 @@ export default function RegistroHermanos() {
                 <SummaryRow label="Edad" value={`${formData.edad} anios`} />
                 <SummaryRow label="Telefono" value={formData.telefono} />
                 <SummaryRow label="Email" value={formData.email} />
+                <SummaryRow label="Contrasena" value={'•'.repeat(formData.password.length)} />
                 <div style={{ height: '1px', background: 'rgba(255,255,255,0.05)', margin: '4px 0' }} />
                 <SummaryRow label="Direccion" value={formData.direccion} />
                 <SummaryRow label="Ocupacion" value={formData.ocupacion} />

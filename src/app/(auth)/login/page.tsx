@@ -2,6 +2,7 @@
 import { useState } from 'react'
 import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -146,6 +147,24 @@ export default function LoginPage() {
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? 'Iniciando sesion...' : 'Entrar'}
             </Button>
+
+            {/* Links */}
+            <div className="flex items-center justify-between pt-2">
+              <Link
+                href="/forgot-password"
+                className="text-xs font-medium transition-colors"
+                style={{ color: 'var(--color-text-muted)' }}
+              >
+                Olvidaste tu contrasena?
+              </Link>
+              <Link
+                href="/registro-hermanos"
+                className="text-xs font-medium"
+                style={{ color: 'var(--color-accent-gold)' }}
+              >
+                Registrate aqui
+              </Link>
+            </div>
           </form>
         </div>
       </div>
