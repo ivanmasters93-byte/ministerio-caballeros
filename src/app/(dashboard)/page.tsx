@@ -86,6 +86,7 @@ interface DashboardStats {
     total?: number
     activos?: number
     inactivos?: number
+    nuevos?: number
     requierenSeguimiento?: number
   }
   redes?: { total?: number }
@@ -203,7 +204,8 @@ export default function DashboardPage() {
   const [peticionesUrgentes, setPeticionesUrgentes] = useState<PeticionUrgente[]>([])
   const [redes, setRedes] = useState<RedSummary[]>([])
 
-  useEffect(() => {
+  // Fetch stats + auto-refresh every 30s
+  const fetchStats = () => {
     fetch('/api/dashboard/stats')
       .then((r) => r.json())
       .then((data) => {
@@ -211,6 +213,12 @@ export default function DashboardPage() {
         setLoading(false)
       })
       .catch(() => setLoading(false))
+  }
+
+  useEffect(() => {
+    fetchStats()
+    const interval = setInterval(fetchStats, 30000)
+    return () => clearInterval(interval)
 
     // Fetch hermanos that need pastoral attention
     fetch('/api/hermanos?estado=REQUIERE_SEGUIMIENTO&limit=20')
