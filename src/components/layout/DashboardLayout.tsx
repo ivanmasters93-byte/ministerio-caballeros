@@ -3,6 +3,7 @@
 import { Sidebar } from './Sidebar'
 import { Header } from './Header'
 import { InstallPrompt } from '@/components/pwa/InstallPrompt'
+import { ChatNotificationProvider } from '@/components/chat/ChatNotification'
 import { useEffect, useState } from 'react'
 
 interface RedSummary {
@@ -97,14 +98,16 @@ export function DashboardLayout({ children, user, title }: DashboardLayoutProps)
           onMenuToggle={() => setMobileOpen((prev) => !prev)}
         />
 
-        <main
-          id="main-content"
-          className="flex-1 overflow-x-hidden relative p-4 sm:p-6"
-        >
-          <div className="relative z-10 max-w-[1400px] mx-auto">
-            {children}
-          </div>
-        </main>
+        <ChatNotificationProvider>
+          <main
+            id="main-content"
+            className="flex-1 overflow-x-hidden relative p-4 sm:p-6"
+          >
+            <div className="relative z-10 max-w-[1400px] mx-auto">
+              {children}
+            </div>
+          </main>
+        </ChatNotificationProvider>
       </div>
 
       <InstallPrompt />

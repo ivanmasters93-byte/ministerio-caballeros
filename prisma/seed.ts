@@ -814,6 +814,34 @@ async function main() {
     data: permisosData,
   })
 
+  // ---- CHAT GRUPAL GENERAL ----
+  const allUserIds = [
+    javier.id, carlos.id, pedro.id, roberto.id, miguel.id, antonio.id, david.id,
+    ...hermanoUsers.map((u: { id: string }) => u.id),
+  ]
+
+  const chatGrupal = await prisma.chatRoom.create({
+    data: {
+      nombre: 'GEDEONES General',
+      tipo: 'GRUPO',
+      descripcion: 'Chat general del ministerio de caballeros',
+      miembros: {
+        create: allUserIds.map(userId => ({ userId })),
+      },
+    },
+  })
+
+  // Welcome message
+  await prisma.chatMessage.create({
+    data: {
+      roomId: chatGrupal.id,
+      senderId: javier.id,
+      content: 'Bienvenidos al chat general de GEDEONES GP. Aqui podemos comunicarnos como hermanos.',
+    },
+  })
+
+  console.log(`Created chat grupal with ${allUserIds.length} members`)
+
   console.log('Seed completed successfully!')
   console.log(`Created users: 9 leaders + ${hermanoNames.length} hermanos`)
   console.log(`Created 3 Redes with distributed hermano members`)

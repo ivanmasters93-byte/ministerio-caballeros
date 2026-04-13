@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import Image from 'next/image'
 import {
@@ -197,7 +198,167 @@ function daysSince(iso?: string): number | null {
   return Math.floor(diff / (1000 * 60 * 60 * 24))
 }
 
+/* ------------------------------------------------------------------ */
+/*  Member Dashboard (HERMANO role)                                    */
+/* ------------------------------------------------------------------ */
+
+function MemberDashboard({ userName }: { userName: string }) {
+  const [events, setEvents] = useState<Evento[]>([])
+  const [anuncios, setAnuncios] = useState<Anuncio[]>([])
+  const [oraciones, setOraciones] = useState<{ id: string; descripcion: string; estado: string }[]>([])
+  const [unreadChats, setUnreadChats] = useState(0)
+  const [loading, setLoading] = useState(true)
+
+  const hour = new Date().getHours()
+  const greeting = hour < 12 ? 'Buenos dias' : hour < 18 ? 'Buenas tardes' : 'Buenas noches'
+
+  useEffect(() => {
+    Promise.all([
+      fetch('/api/eventos?limit=3&upcoming=true').then(r => r.json()).catch(() => []),
+      fetch('/api/anuncios?limit=5&activos=true').then(r => r.json()).catch(() => []),
+      fetch('/api/oracion?mine=true').then(r => r.json()).catch(() => []),
+      fetch('/api/chat/unread').then(r => r.json()).catch(() => ({ total: 0 })),
+    ]).then(([evts, anns, oras, unread]) => {
+      setEvents((Array.isArray(evts) ? evts : (evts?.data || [])).slice(0, 3))
+      setAnuncios((Array.isArray(anns) ? anns : (anns?.data || [])).slice(0, 5))
+      setOraciones((Array.isArray(oras) ? oras : (oras?.data || [])).slice(0, 5))
+      setUnreadChats(unread?.total || 0)
+      setLoading(false)
+    })
+  }, [])
+
+  const quickActions = [
+    { href: '/chat', label: 'Chat', emoji: '💬', badge: unreadChats },
+    { href: '/oracion', label: 'Pedir Oracion', emoji: '🙏', badge: 0 },
+    { href: '/biblia', label: 'Biblia', emoji: '📖', badge: 0 },
+    { href: '/agenda', label: 'Eventos', emoji: '📅', badge: 0 },
+  ]
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="h-32 rounded-2xl animate-pulse" style={{ background: 'var(--color-bg-elevated)' }} />
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          {[...Array(4)].map((_, i) => <div key={i} className="h-24 rounded-2xl animate-pulse" style={{ background: 'var(--color-bg-elevated)' }} />)}
+        </div>
+        <div className="h-64 rounded-2xl animate-pulse" style={{ background: 'var(--color-bg-elevated)' }} />
+      </div>
+    )
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Welcome Card */}
+      <div className="rounded-2xl p-6 relative overflow-hidden" style={{ background: 'var(--color-bg-card)', border: '1px solid var(--color-border-subtle)' }}>
+        <div className="absolute top-0 right-0 w-48 h-48 opacity-5" style={{ background: 'radial-gradient(circle, var(--color-accent-gold) 0%, transparent 70%)' }} />
+        <p className="text-sm" style={{ color: 'var(--color-text-muted)' }}>{greeting},</p>
+        <h1 className="text-2xl font-bold mt-1" style={{ color: 'var(--color-text-primary)', fontFamily: 'var(--font-display)' }}>
+          {userName || 'Hermano'}
+        </h1>
+        <p className="text-sm mt-2" style={{ color: 'var(--color-text-secondary)' }}>Bienvenido a GEDEONES GP</p>
+      </div>
+
+      {/* Quick Actions */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        {quickActions.map(action => (
+          <Link
+            key={action.href}
+            href={action.href}
+            className="rounded-2xl p-4 text-center transition-all duration-200 relative group"
+            style={{ background: 'var(--color-bg-card)', border: '1px solid var(--color-border-subtle)' }}
+          >
+            <div className="text-2xl mb-2">{action.emoji}</div>
+            <p className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>{action.label}</p>
+            {action.badge > 0 && (
+              <span
+                className="absolute top-2 right-2 min-w-[20px] h-5 flex items-center justify-center rounded-full text-[10px] font-bold px-1.5"
+                style={{ background: 'var(--color-accent-gold)', color: 'var(--color-bg-base)' }}
+              >
+                {action.badge}
+              </span>
+            )}
+          </Link>
+        ))}
+      </div>
+
+      {/* Events */}
+      {events.length > 0 && (
+        <div className="rounded-2xl p-5" style={{ background: 'var(--color-bg-card)', border: '1px solid var(--color-border-subtle)' }}>
+          <h2 className="text-base font-bold mb-3" style={{ color: 'var(--color-text-primary)', fontFamily: 'var(--font-display)' }}>
+            Proximos Eventos
+          </h2>
+          <div className="space-y-2.5">
+            {events.map(evt => (
+              <div key={evt.id} className="flex items-center gap-3 px-3 py-2.5 rounded-xl" style={{ background: 'var(--color-bg-elevated)' }}>
+                <div
+                  className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 text-[10px] font-bold leading-tight text-center"
+                  style={{ background: 'rgba(201, 168, 76, 0.15)', color: 'var(--color-accent-gold)' }}
+                >
+                  {new Date(evt.fecha).toLocaleDateString('es', { day: '2-digit', month: 'short' }).replace(' ', '\n').toUpperCase()}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-medium truncate" style={{ color: 'var(--color-text-primary)' }}>{evt.titulo}</p>
+                  <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>{evt.hora || ''} {evt.tipo || ''}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Announcements */}
+      {anuncios.length > 0 && (
+        <div className="rounded-2xl p-5" style={{ background: 'var(--color-bg-card)', border: '1px solid var(--color-border-subtle)' }}>
+          <h2 className="text-base font-bold mb-3" style={{ color: 'var(--color-text-primary)', fontFamily: 'var(--font-display)' }}>
+            Anuncios
+          </h2>
+          <div className="space-y-2.5">
+            {anuncios.map(a => (
+              <div key={a.id} className="px-3 py-2.5 rounded-xl" style={{ background: 'var(--color-bg-elevated)' }}>
+                <div className="flex items-center gap-2 mb-0.5">
+                  <p className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>{a.titulo}</p>
+                  {a.prioridad === 'URGENTE' && (
+                    <span className="text-[10px] px-1.5 py-0.5 rounded-full font-bold" style={{ background: 'rgba(239, 68, 68, 0.15)', color: 'rgb(239, 68, 68)' }}>
+                      URGENTE
+                    </span>
+                  )}
+                </div>
+                <p className="text-xs line-clamp-2" style={{ color: 'var(--color-text-muted)' }}>{a.contenido}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* My Prayer Requests */}
+      {oraciones.length > 0 && (
+        <div className="rounded-2xl p-5" style={{ background: 'var(--color-bg-card)', border: '1px solid var(--color-border-subtle)' }}>
+          <h2 className="text-base font-bold mb-3" style={{ color: 'var(--color-text-primary)', fontFamily: 'var(--font-display)' }}>
+            Mis Peticiones de Oracion
+          </h2>
+          <div className="space-y-2">
+            {oraciones.map(o => (
+              <div key={o.id} className="flex items-start gap-3 px-3 py-2 rounded-xl" style={{ background: 'var(--color-bg-elevated)' }}>
+                <Heart size={14} className="mt-0.5 flex-shrink-0" style={{ color: 'var(--color-accent-gold)' }} />
+                <div>
+                  <p className="text-sm" style={{ color: 'var(--color-text-primary)' }}>{o.descripcion}</p>
+                  <p className="text-[11px] mt-0.5" style={{ color: 'var(--color-text-muted)' }}>{o.estado}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+/* ------------------------------------------------------------------ */
+/*  Leader Dashboard (existing)                                        */
+/* ------------------------------------------------------------------ */
+
 export default function DashboardPage() {
+  const { data: session } = useSession()
   const [stats, setStats] = useState<DashboardStats | null>(null)
   const [loading, setLoading] = useState(true)
   const [hermanosAlerta, setHermanosAlerta] = useState<HermanoAlerta[]>([])
@@ -252,6 +413,11 @@ export default function DashboardPage() {
       })
       .catch(() => {})
   }, [])
+
+  // HERMANO role -> render member dashboard
+  if (session?.user?.role === 'HERMANO') {
+    return <MemberDashboard userName={session.user.name || ''} />
+  }
 
   const hour = new Date().getHours()
   const greeting = greetingForHour(hour)
