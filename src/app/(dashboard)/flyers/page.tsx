@@ -688,8 +688,7 @@ export default function FlyersPage() {
       link.download = `flyer-${flyerData.titulo.replace(/\s+/g, "-").toLowerCase() || "gedeones"}.png`;
       link.href = dataUrl;
       link.click();
-    } catch (err) {
-      console.error("Error al exportar flyer:", err);
+    } catch {
       alert("No se pudo exportar el flyer. Intenta de nuevo.");
     } finally {
       setDownloading(false);
