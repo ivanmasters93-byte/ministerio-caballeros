@@ -8,29 +8,20 @@ import { buildJitsiEmbedUrl } from '@/lib/jitsi/config'
 export default function SalaPublica() {
   const { roomId } = useParams()
   const [nombre, setNombre] = useState('')
-  const [joined, setJoined] = useState(false)
   const [micMuted, setMicMuted] = useState(true)
   const [camOn, setCamOn] = useState(true)
 
   const room = typeof roomId === 'string' ? roomId : ''
 
-  if (joined) {
+  const joinMeeting = () => {
+    if (!nombre.trim()) return
     const url = buildJitsiEmbedUrl(room, {
-      displayName: nombre,
+      displayName: nombre.trim(),
       audioMuted: micMuted,
       videoMuted: !camOn,
     })
-
-    return (
-      <div className="fixed inset-0 bg-[#0a0e1a]">
-        <iframe
-          src={url}
-          allow="camera; microphone; fullscreen; display-capture; autoplay; clipboard-write"
-          className="w-full h-full border-0"
-          title={`Reunion GEDEONES`}
-        />
-      </div>
-    )
+    // Open directly — works perfectly on mobile and desktop
+    window.location.href = url
   }
 
   return (
@@ -70,7 +61,7 @@ export default function SalaPublica() {
               placeholder="Tu nombre"
               className="w-full bg-white/[0.03] border border-white/[0.06] rounded-xl px-4 py-3 text-sm text-white placeholder:text-white/15 focus:outline-none focus:border-white/15 transition-all"
               autoFocus
-              onKeyDown={e => { if (e.key === 'Enter' && nombre.trim()) setJoined(true) }}
+              onKeyDown={e => { if (e.key === 'Enter') joinMeeting() }}
             />
 
             {/* Controls */}
@@ -95,16 +86,16 @@ export default function SalaPublica() {
 
             {/* Join */}
             <button
-              onClick={() => nombre.trim() && setJoined(true)}
+              onClick={joinMeeting}
               disabled={!nombre.trim()}
               className={`w-full py-3.5 rounded-xl text-sm font-medium tracking-wide transition-all flex items-center justify-center gap-2 ${
                 nombre.trim()
-                  ? 'bg-gradient-to-r from-amber-600/80 to-amber-500/70 text-white hover:from-amber-500 hover:to-amber-400 shadow-lg shadow-amber-900/20'
+                  ? 'bg-gradient-to-r from-green-600/90 to-green-500/80 text-white hover:from-green-500 hover:to-green-400 shadow-lg shadow-green-900/20'
                   : 'bg-white/[0.03] text-white/15 cursor-not-allowed'
               }`}
             >
               <Video size={16} />
-              Unirme
+              Unirme a la reunion
               {nombre.trim() && <ArrowRight size={14} className="opacity-40" />}
             </button>
           </div>

@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
 import { buildJitsiEmbedUrl } from '@/lib/jitsi/config'
+import { Video, ExternalLink } from 'lucide-react'
 
 interface JitsiMeetProps {
   roomId: string
@@ -11,8 +11,6 @@ interface JitsiMeetProps {
 }
 
 export function JitsiMeet({ roomId, displayName, subject, onClose }: JitsiMeetProps) {
-  const [isLoading, setIsLoading] = useState(true)
-
   const jitsiUrl = buildJitsiEmbedUrl(roomId, {
     displayName,
     subject,
@@ -20,36 +18,44 @@ export function JitsiMeet({ roomId, displayName, subject, onClose }: JitsiMeetPr
     videoMuted: false,
   })
 
+  const openMeeting = () => {
+    window.open(jitsiUrl, '_blank', 'noopener,noreferrer')
+  }
+
   return (
     <div
-      className="relative w-full rounded-xl overflow-hidden"
-      style={{ height: '70vh', background: '#0a0e1a' }}
+      className="relative w-full rounded-xl overflow-hidden p-6 text-center space-y-4"
+      style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}
     >
-      {isLoading && (
-        <div className="absolute inset-0 flex items-center justify-center z-10 bg-[#0a0e1a]">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-10 w-10 border-2 border-amber-500/30 border-t-amber-500 mx-auto mb-4" />
-            <p className="text-white/40 text-sm">Conectando...</p>
-            <p className="text-white/20 text-xs mt-1">Video HD + cancelacion de ruido</p>
-          </div>
-        </div>
-      )}
-      {onClose && (
+      <div className="w-14 h-14 rounded-full mx-auto flex items-center justify-center bg-green-500/10">
+        <Video size={24} className="text-green-400" />
+      </div>
+      <div>
+        <p className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>
+          Reunion activa: {subject || roomId}
+        </p>
+        <p className="text-xs mt-1" style={{ color: 'var(--color-text-muted)' }}>
+          Se abrira en una nueva ventana con video HD y cancelacion de ruido
+        </p>
+      </div>
+      <div className="flex items-center justify-center gap-3">
         <button
-          onClick={onClose}
-          className="absolute top-3 right-3 z-20 rounded-full w-9 h-9 flex items-center justify-center text-sm font-bold transition-all cursor-pointer bg-red-500/80 hover:bg-red-500 text-white backdrop-blur-sm"
-          aria-label="Cerrar reunion"
+          onClick={openMeeting}
+          className="px-6 py-3 rounded-xl text-sm font-medium flex items-center gap-2 transition-all bg-gradient-to-r from-green-600 to-green-500 text-white hover:from-green-500 hover:to-green-400 shadow-lg shadow-green-900/20"
         >
-          ✕
+          <ExternalLink size={16} />
+          Abrir Videollamada
         </button>
-      )}
-      <iframe
-        src={jitsiUrl}
-        allow="camera; microphone; fullscreen; display-capture; autoplay; clipboard-write"
-        className="w-full h-full border-0"
-        onLoad={() => setIsLoading(false)}
-        title={`Reunion GEDEONES: ${roomId}`}
-      />
+        {onClose && (
+          <button
+            onClick={onClose}
+            className="px-4 py-3 rounded-xl text-sm transition-all text-white/40 hover:text-white/70"
+            style={{ background: 'rgba(255,255,255,0.04)' }}
+          >
+            Cerrar
+          </button>
+        )}
+      </div>
     </div>
   )
 }
