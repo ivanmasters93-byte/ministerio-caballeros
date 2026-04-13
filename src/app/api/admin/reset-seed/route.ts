@@ -13,10 +13,7 @@ export async function POST(request: NextRequest) {
   const secret = (process.env.NEXTAUTH_SECRET || '').trim().replace(/\\n$/, '')
 
   if (!adminKey || !secret || adminKey !== secret) {
-    return NextResponse.json({
-      message: 'No autorizado',
-      debug: { keyLen: adminKey.length, secretLen: secret.length, match: adminKey === secret }
-    }, { status: 401 })
+    return NextResponse.json({ message: 'No autorizado' }, { status: 401 })
   }
 
   try {
