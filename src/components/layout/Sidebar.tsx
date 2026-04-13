@@ -144,18 +144,18 @@ export function Sidebar({ collapsed = false, mobileOpen = false, onToggle, onMob
   const sidebarContent = (
     <>
       {/* Logo area */}
-      <div className="relative flex-shrink-0" style={{ padding: collapsed ? '20px 8px' : '20px 16px' }}>
-        <Link href="/" className={cn('flex items-center', collapsed ? 'justify-center' : 'gap-3')}>
-            <Logo size={collapsed ? 36 : 52} animated />
+      <div className="relative flex-shrink-0" style={{ padding: collapsed ? '16px 8px' : '24px 16px' }}>
+        <Link href="/" className={cn('flex', collapsed ? 'justify-center' : 'flex-col items-center gap-2')}>
+            <Logo size={collapsed ? 40 : 80} animated />
           {!collapsed && (
-            <div className="min-w-0">
+            <div className="text-center">
               <p
-                className="font-bold text-sm leading-tight tracking-wide gold-text"
+                className="font-bold text-[16px] leading-tight tracking-widest gold-text"
                 style={{ fontFamily: 'var(--font-display)' }}
               >
                 GEDEONES GP
               </p>
-              <p className="text-[11px] leading-tight" style={{ color: 'var(--color-text-muted)' }}>
+              <p className="text-[10px] leading-tight tracking-wider uppercase mt-1" style={{ color: 'var(--color-text-muted)' }}>
                 Ministerio de Caballeros
               </p>
             </div>
@@ -163,7 +163,7 @@ export function Sidebar({ collapsed = false, mobileOpen = false, onToggle, onMob
         </Link>
         <div
           className="absolute bottom-0 left-4 right-4 h-px"
-          style={{ background: 'linear-gradient(90deg, var(--color-accent-gold), transparent)' }}
+          style={{ background: 'linear-gradient(90deg, transparent, var(--color-accent-gold), transparent)' }}
         />
       </div>
 
@@ -241,20 +241,20 @@ export function Sidebar({ collapsed = false, mobileOpen = false, onToggle, onMob
         }}
       >
         {/* Reuse sidebar content but never collapsed on mobile */}
-        {/* Logo area */}
-        <div className="relative flex-shrink-0" style={{ padding: '20px 16px' }}>
-          <Link href="/" onClick={onMobileClose} className="flex items-center gap-3">
-                <Logo size={52} animated />
-            <div className="min-w-0 flex-1">
-              <p className="font-bold text-sm leading-tight tracking-wide gold-text" style={{ fontFamily: 'var(--font-display)' }}>
+        {/* Logo area — large and centered */}
+        <div className="relative flex-shrink-0" style={{ padding: '28px 16px 20px' }}>
+          <Link href="/" onClick={onMobileClose} className="flex flex-col items-center gap-3">
+            <Logo size={88} animated />
+            <div className="text-center">
+              <p className="font-bold text-[18px] leading-tight tracking-widest gold-text" style={{ fontFamily: 'var(--font-display)' }}>
                 GEDEONES GP
               </p>
-              <p className="text-[11px] leading-tight" style={{ color: 'var(--color-text-muted)' }}>
+              <p className="text-[10px] leading-tight tracking-wider uppercase mt-1" style={{ color: 'var(--color-text-muted)' }}>
                 Ministerio de Caballeros
               </p>
             </div>
           </Link>
-          <div className="absolute bottom-0 left-4 right-4 h-px" style={{ background: 'linear-gradient(90deg, var(--color-accent-gold), transparent)' }} />
+          <div className="absolute bottom-0 left-4 right-4 h-px" style={{ background: 'linear-gradient(90deg, transparent, var(--color-accent-gold), transparent)' }} />
         </div>
 
         {/* Navigation */}
