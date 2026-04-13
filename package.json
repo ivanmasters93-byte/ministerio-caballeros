@@ -2,6 +2,9 @@
   "name": "ministerio-caballeros",
   "version": "0.1.0",
   "private": true,
+  "overrides": {
+    "nodemailer": "^8.0.5"
+  },
   "scripts": {
     "dev": "next dev",
     "postinstall": "PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1 npx prisma generate",
