@@ -22,11 +22,19 @@ export function Dialog({ open, onClose, title, children, className }: DialogProp
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
-      <div className={cn("relative bg-white rounded-lg shadow-xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto", className)}>
-        <div className="flex items-center justify-between p-6 border-b">
-          <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
+      <div className={cn(
+        "relative rounded-xl shadow-2xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto",
+        "bg-[var(--color-bg-surface)] border border-[var(--color-border-default)]",
+        className
+      )}>
+        <div className="flex items-center justify-between p-6 border-b border-[var(--color-border-subtle)]">
+          <h2 className="text-lg font-semibold text-[var(--color-text-primary)]">{title}</h2>
+          <button
+            onClick={onClose}
+            className="text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] transition-colors cursor-pointer"
+            aria-label="Cerrar dialogo"
+          >
             <X size={20} />
           </button>
         </div>

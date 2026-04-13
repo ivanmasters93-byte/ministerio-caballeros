@@ -9,11 +9,11 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant = 'default', size = 'md', ...props }, ref) => {
     const variants = {
-      default: 'bg-blue-900 text-white hover:bg-blue-800',
-      outline: 'border border-blue-900 text-blue-900 hover:bg-blue-50',
-      ghost: 'text-gray-600 hover:bg-gray-100',
-      destructive: 'bg-red-600 text-white hover:bg-red-700',
-      secondary: 'bg-gray-100 text-gray-800 hover:bg-gray-200',
+      default: 'bg-[var(--color-accent-gold)] text-[#0c0e14] hover:brightness-110 font-semibold',
+      outline: 'border border-[var(--color-border-default)] text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-elevated)] hover:text-[var(--color-text-primary)] hover:border-[var(--color-border-strong)]',
+      ghost: 'text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-elevated)] hover:text-[var(--color-text-primary)]',
+      destructive: 'bg-[var(--color-accent-red)] text-white hover:brightness-110',
+      secondary: 'bg-[var(--color-bg-elevated)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] border border-[var(--color-border-subtle)]',
     }
     const sizes = {
       sm: 'px-3 py-1.5 text-sm',
@@ -24,8 +24,8 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       <button
         ref={ref}
         className={cn(
-          'inline-flex items-center justify-center rounded-md font-medium transition-colors',
-          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500',
+          'inline-flex items-center justify-center rounded-lg font-medium transition-all duration-200 cursor-pointer',
+          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent-gold)]',
           'disabled:pointer-events-none disabled:opacity-50',
           variants[variant],
           sizes[size],

@@ -242,3 +242,81 @@ export async function sendWeeklyDigest(
     html,
   });
 }
+
+/**
+ * Send welcome email after registration
+ */
+export async function sendWelcomeEmail({
+  email,
+  name,
+  temporalPassword,
+  red
+}: {
+  email: string;
+  name: string;
+  temporalPassword: string;
+  red: string;
+}) {
+  const redNames: Record<string, string> = {
+    MENOR: 'Red Menor (18-30 años)',
+    MEDIA: 'Red Media (31-40 años)',
+    MAYOR: 'Red Mayor (41-75 años)'
+  };
+
+  const html = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+      <div style="background: linear-gradient(135deg, #1C3B6F 0%, #D4842A 100%); color: white; padding: 30px; border-radius: 8px 8px 0 0; text-align: center;">
+        <h1 style="margin: 0; font-size: 32px;">¡Bienvenido a GEDEONES!</h1>
+        <p style="margin: 10px 0 0 0; font-size: 16px;">Ministerio de Caballeros</p>
+      </div>
+
+      <div style="background: #f9f9f9; padding: 30px; border-radius: 0 0 8px 8px; border: 1px solid #e0e0e0;">
+        <p>Hola <strong>${name}</strong>,</p>
+
+        <p>¡Nos alegra mucho que te hayas registrado en GEDEONES! Ahora eres parte de una comunidad de hermanos conectados en fe.</p>
+
+        <div style="background: white; padding: 20px; border-left: 4px solid #1C3B6F; margin: 20px 0; border-radius: 4px;">
+          <h3 style="margin-top: 0; color: #1C3B6F;">Tus Credenciales de Acceso</h3>
+          <p><strong>Email:</strong> ${email}</p>
+          <p><strong>Contraseña temporal:</strong> <code style="background: #f0f0f0; padding: 2px 6px; border-radius: 3px; font-family: monospace; font-weight: bold;">${temporalPassword}</code></p>
+          <p style="color: #666; font-size: 12px; margin-top: 15px;">⚠️ Te recomendamos cambiar tu contraseña al primer acceso.</p>
+        </div>
+
+        <div style="background: #e8f5e9; padding: 20px; border-left: 4px solid #4CAF50; margin: 20px 0; border-radius: 4px;">
+          <h3 style="margin-top: 0; color: #2e7d32;">Tu Red Ministerial</h3>
+          <p style="margin: 10px 0;"><strong>🌍 Red asignada:</strong> ${redNames[red] || 'Red Asignada'}</p>
+          <p style="color: #666; font-size: 14px; margin: 10px 0;">Aquí conocerás a hermanos de tu edad y participarás en actividades especiales para tu red.</p>
+        </div>
+
+        <div style="background: #fff3cd; padding: 20px; border-left: 4px solid #ffc107; margin: 20px 0; border-radius: 4px;">
+          <h3 style="margin-top: 0; color: #856404;">Próximos Pasos</h3>
+          <ol style="margin: 10px 0; padding-left: 20px;">
+            <li>Accede a <strong>GEDEONES</strong> con tus credenciales</li>
+            <li>Cambia tu contraseña temporal por una nueva</li>
+            <li>Explora el calendario y los eventos próximos</li>
+            <li>¡Conecta con tu comunidad y crece en fe!</li>
+          </ol>
+        </div>
+
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://gedeones.app'}" style="display: inline-block; background: linear-gradient(135deg, #1C3B6F 0%, #D4842A 100%); color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; font-weight: bold;">
+            Acceder a GEDEONES
+          </a>
+        </div>
+
+        <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;">
+
+        <p style="color: #666; font-size: 12px; text-align: center;">
+          Si tienes preguntas, contacta a tu líder de red.<br>
+          <strong>GEDEONES © 2024 - Ministerio de Caballeros</strong>
+        </p>
+      </div>
+    </div>
+  `;
+
+  return sendEmail({
+    to: email,
+    subject: '¡Bienvenido a GEDEONES! - Tu Registro fue Exitoso',
+    html,
+  });
+}

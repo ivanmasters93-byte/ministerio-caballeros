@@ -101,6 +101,7 @@ model User {
   hermano        Hermano?
   permisos       Permiso[]
   notificaciones Notificacion[]
+  predicas       Predica[]
 }
 
 model Red {
@@ -115,6 +116,7 @@ model Red {
   eventos     Evento[]
   anuncios    Anuncio[]
   asistencias Asistencia[]
+  predicas    Predica[]
 }
 
 model Hermano {
@@ -145,6 +147,9 @@ model Evento {
   tipo         TipoEvento
   zoomLink     String?
   youtubeLink  String?
+  jitsiRoomId  String?
+  jitsiEnabled Boolean    @default(false)
+  grabacionUrl String?
   redId        String?
   esRecurrente Boolean    @default(false)
   patron       String?
@@ -153,6 +158,30 @@ model Evento {
   red         Red?         @relation(fields: [redId], references: [id])
   anuncios    Anuncio[]
   asistencias Asistencia[]
+  predicas    Predica[]
+}
+
+model Predica {
+  id                 String        @id @default(cuid())
+  titulo             String
+  predicador         String
+  fecha              DateTime      @default(now())
+  duracion           Int?
+  audioUrl           String?
+  transcripcion      String?
+  resumen            String?
+  puntosClave        String?
+  preguntasReflexion String?
+  versiculosCitados  String?
+  estado             EstadoPredica @default(PENDIENTE)
+  eventoId           String?
+  evento             Evento?       @relation(fields: [eventoId], references: [id])
+  redId              String?
+  red                Red?          @relation(fields: [redId], references: [id])
+  creadoPor          String
+  creador            User          @relation(fields: [creadoPor], references: [id])
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
 }
 
 model Anuncio {
@@ -313,6 +342,15 @@ enum EstadoCuota {
   PENDIENTE
   PAGADA
   EXONERADA
+}
+
+enum EstadoPredica {
+  PENDIENTE
+  TRANSCRIBIENDO
+  TRANSCRITA
+  PROCESANDO
+  COMPLETA
+  ERROR
 }
 
 model Notificacion {

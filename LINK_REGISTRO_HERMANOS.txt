@@ -1,0 +1,66 @@
+╔════════════════════════════════════════════════════════════════════╗
+║                  PÁGINA DE REGISTRO - GEDEONES                     ║
+║                                                                    ║
+║          ¡HERMANOS, REGISTRENSE EN GEDEONES EN 2 MINUTOS!         ║
+╚════════════════════════════════════════════════════════════════════╝
+
+📱 ACCEDE DESDE TU CELULAR O COMPUTADORA
+
+🔗 LINK DIRECTO:
+   En desarrollo:     http://localhost:3000/registro-hermanos
+   En producción:     https://gedeones.app/registro-hermanos
+   (Reemplaza con tu dominio actual)
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✨ ¿QUÉ NECESITAS?
+
+Solo 4 pasos simples:
+
+  1️⃣  Tu Información Personal
+      • Nombre
+      • Edad
+      • Teléfono
+      • Email
+
+  2️⃣  Un Poco Más Sobre Ti
+      • Dirección
+      • Ocupación
+      • Estado Civil
+
+  3️⃣  Selecciona Tu Red
+      • 🌱 Red Menor (18-30 años)
+      • 🌿 Red Media (31-40 años)
+      • 🌳 Red Mayor (41-75 años)
+
+  4️⃣  ¡Listo! Recibirás Email de Bienvenida
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📧 DESPUÉS DE REGISTRARTE:
+
+✓ Recibirás un email con tus credenciales
+✓ Tu contraseña temporal (cámbiala al primer acceso)
+✓ Información sobre tu red ministerial
+✓ Link para acceder a GEDEONES
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+❓ ¿NECESITAS AYUDA?
+
+Si tienes preguntas, contacta a:
+• Tu líder de red
+• Secretario del ministerio
+• Asistente
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🚀 ¡VAMOS! REGISTRATE AHORA MISMO
+
+→ http://localhost:3000/registro-hermanos
+
+GEDEONES © 2024 - Ministerio de Caballeros

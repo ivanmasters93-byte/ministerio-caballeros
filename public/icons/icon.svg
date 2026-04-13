@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Background -->
+  <rect width="512" height="512" rx="80" fill="#1e40af"/>
+
+  <!-- Shield shape -->
+  <path d="M256 80 L380 130 L380 270 Q380 360 256 430 Q132 360 132 270 L132 130 Z"
+        fill="#1e3a8a" stroke="#c9a84c" stroke-width="6"/>
+
+  <!-- Cross -->
+  <rect x="234" y="160" width="44" height="160" rx="8" fill="#c9a84c"/>
+  <rect x="176" y="218" width="160" height="44" rx="8" fill="#c9a84c"/>
+
+  <!-- G letter overlay (subtle) -->
+  <text x="256" y="295"
+        font-family="Arial, sans-serif"
+        font-size="48"
+        font-weight="bold"
+        text-anchor="middle"
+        fill="rgba(255,255,255,0.15)"
+        letter-spacing="2">G</text>
+</svg>
