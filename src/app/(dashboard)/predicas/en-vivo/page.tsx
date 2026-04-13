@@ -214,7 +214,36 @@ export default function PredicaEnVivoPage() {
     setErrorResumen('')
     setResumen('')
     try {
-      const prompt = `Resume esta predica en puntos clave, versículos citados, y aplicación práctica:\n\n${transcripcion.trim()}`
+      const prompt = `Eres un asistente pastoral experto. Analiza esta transcripcion de una predica y genera un BOSQUEJO ELABORADO con el siguiente formato:
+
+TITULO SUGERIDO: (un titulo impactante para la predica)
+
+TEMA CENTRAL:
+(1-2 oraciones sobre el mensaje principal)
+
+PUNTOS CLAVE:
+1. (punto principal con explicacion breve)
+2. (punto principal con explicacion breve)
+3. (punto principal con explicacion breve)
+
+VERSICULOS CITADOS:
+- (lista de versiculos mencionados con cita completa)
+
+FRASES CELEBRES DE LA PREDICA:
+- "(frase poderosa 1)"
+- "(frase poderosa 2)"
+- "(frase poderosa 3)"
+
+APLICACION PRACTICA:
+- (como aplicar este mensaje en la vida diaria)
+
+REFLEXION FINAL:
+(un parrafo de cierre inspirador)
+
+#GedeoneGP #MinisterioDeCaballeros #PredicaDelDia #FeCristianda #HombresDeValor #PalabraDeDios #VidaCristiana #CrecimientoEspiritual
+
+Transcripcion de la predica:
+${transcripcion.trim()}`
       const res = await fetch('/api/ai/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -560,31 +589,59 @@ export default function PredicaEnVivoPage() {
                       color: 'var(--color-text-muted)',
                     }}
                   >
-                    Resume esta predica en puntos clave, versículos citados, y aplicación práctica:
+                    Genera un bosquejo elaborado de esta predica con: titulo sugerido, tema central, puntos clave, versiculos, frases celebres, aplicacion practica, reflexion final, y hashtags para redes sociales al final:
                   </div>
                 </div>
               )}
 
               {resumen && (
-                <div
-                  className="rounded-xl px-5 py-4 space-y-2"
-                  style={{
-                    background: 'var(--color-accent-purple-soft, rgba(139,92,246,0.08))',
-                    border: '1px solid var(--color-accent-purple)',
-                  }}
-                >
-                  <p
-                    className="text-xs font-semibold uppercase tracking-wider"
-                    style={{ color: 'var(--color-accent-purple)' }}
+                <div className="space-y-4">
+                  <div
+                    className="rounded-xl px-5 py-4 space-y-2"
+                    style={{
+                      background: 'var(--color-accent-purple-soft, rgba(139,92,246,0.08))',
+                      border: '1px solid var(--color-accent-purple)',
+                    }}
                   >
-                    Resumen generado
-                  </p>
-                  <p
-                    className="text-sm leading-relaxed whitespace-pre-wrap"
-                    style={{ color: 'var(--color-text-primary)' }}
-                  >
-                    {resumen}
-                  </p>
+                    <p
+                      className="text-xs font-semibold uppercase tracking-wider"
+                      style={{ color: 'var(--color-accent-purple)' }}
+                    >
+                      Bosquejo de la Predica
+                    </p>
+                    <p
+                      className="text-sm leading-relaxed whitespace-pre-wrap"
+                      style={{ color: 'var(--color-text-primary)' }}
+                    >
+                      {resumen}
+                    </p>
+                  </div>
+
+                  {/* Share buttons */}
+                  <div className="flex gap-2 flex-wrap">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        navigator.clipboard.writeText(resumen)
+                      }}
+                      className="flex items-center gap-1.5"
+                    >
+                      <Copy size={14} /> Copiar bosquejo
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        const msg = encodeURIComponent(resumen)
+                        window.open(`https://wa.me/?text=${msg}`, '_blank')
+                      }}
+                      className="flex items-center gap-1.5"
+                      style={{ color: '#25D366', borderColor: 'rgba(37,211,102,0.3)' }}
+                    >
+                      <ExternalLink size={14} /> Compartir por WhatsApp
+                    </Button>
+                  </div>
                 </div>
               )}
             </>
