@@ -1,8 +1,6 @@
 import { NextRequest } from 'next/server'
 import { withErrorHandling, requireAuth, jsonResponse, errorResponse } from '@/lib/api-helpers'
 
-// Use edge runtime — runs on Cloudflare's network, NOT blocked by YouTube
-export const runtime = 'edge'
 
 export const GET = withErrorHandling(async (req: NextRequest) => {
   await requireAuth()
