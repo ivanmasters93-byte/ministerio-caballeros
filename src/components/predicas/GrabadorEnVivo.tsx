@@ -17,9 +17,10 @@ export function GrabadorEnVivo({ onTranscripcion }: GrabadorEnVivoProps) {
   const reconocimientoRef = useRef<any>(null)
 
   useEffect(() => {
-    const SpeechRecognition =
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const SpeechRecognition: any =
       (typeof window !== 'undefined' &&
-        (window.SpeechRecognition || (window as typeof window & { webkitSpeechRecognition?: typeof SpeechRecognition }).webkitSpeechRecognition)) ||
+        ((window as any).SpeechRecognition || (window as any).webkitSpeechRecognition)) ||
       null
 
     setSoportado(!!SpeechRecognition)
@@ -32,19 +33,20 @@ export function GrabadorEnVivo({ onTranscripcion }: GrabadorEnVivoProps) {
   }, [])
 
   const iniciar = useCallback(() => {
-    const SpeechRecognition =
-      window.SpeechRecognition ||
-      (window as typeof window & { webkitSpeechRecognition?: typeof SpeechRecognition }).webkitSpeechRecognition
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const w = window as any
+    const SpeechRecognitionImpl = w.SpeechRecognition || w.webkitSpeechRecognition
 
-    if (!SpeechRecognition) return
+    if (!SpeechRecognitionImpl) return
 
-    const rec = new SpeechRecognition()
+    const rec = new SpeechRecognitionImpl()
     rec.lang = 'es-ES'
     rec.continuous = true
     rec.interimResults = true
     rec.maxAlternatives = 1
 
-    rec.onresult = (event: SpeechRecognitionEvent) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    rec.onresult = (event: any) => {
       let definitivo = ''
       let interino = ''
 
