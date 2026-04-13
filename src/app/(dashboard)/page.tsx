@@ -359,6 +359,96 @@ export default function DashboardPage() {
         <GreetingBar greeting={greeting} todayLabel={todayLabel} />
       </div>
 
+      {/* ========== TABLERO DE ANUNCIOS — Laurel Style ========== */}
+      <div className="slide-up" style={{ animationDelay: '60ms' }}>
+        <div
+          className="relative rounded-2xl overflow-hidden"
+          style={{
+            background: 'linear-gradient(135deg, rgba(201,168,76,0.06) 0%, rgba(201,168,76,0.02) 50%, rgba(201,168,76,0.06) 100%)',
+            border: '1px solid rgba(201,168,76,0.15)',
+          }}
+        >
+          {/* Laurel SVG decorations */}
+          <svg className="absolute top-0 left-0 w-16 h-16 opacity-[0.08]" viewBox="0 0 100 100" fill="none">
+            <path d="M50 10C30 25 15 45 10 70C25 55 40 45 50 30C60 45 75 55 90 70C85 45 70 25 50 10Z" fill="currentColor" style={{color: 'var(--color-accent-gold)'}} />
+          </svg>
+          <svg className="absolute top-0 right-0 w-16 h-16 opacity-[0.08] scale-x-[-1]" viewBox="0 0 100 100" fill="none">
+            <path d="M50 10C30 25 15 45 10 70C25 55 40 45 50 30C60 45 75 55 90 70C85 45 70 25 50 10Z" fill="currentColor" style={{color: 'var(--color-accent-gold)'}} />
+          </svg>
+          <svg className="absolute bottom-0 left-0 w-16 h-16 opacity-[0.08] scale-y-[-1]" viewBox="0 0 100 100" fill="none">
+            <path d="M50 10C30 25 15 45 10 70C25 55 40 45 50 30C60 45 75 55 90 70C85 45 70 25 50 10Z" fill="currentColor" style={{color: 'var(--color-accent-gold)'}} />
+          </svg>
+          <svg className="absolute bottom-0 right-0 w-16 h-16 opacity-[0.08] scale-[-1]" viewBox="0 0 100 100" fill="none">
+            <path d="M50 10C30 25 15 45 10 70C25 55 40 45 50 30C60 45 75 55 90 70C85 45 70 25 50 10Z" fill="currentColor" style={{color: 'var(--color-accent-gold)'}} />
+          </svg>
+
+          <div className="relative z-10 px-6 py-5">
+            {/* Header */}
+            <div className="flex items-center justify-center gap-3 mb-4">
+              <div className="h-px flex-1" style={{ background: 'linear-gradient(to right, transparent, rgba(201,168,76,0.3))' }} />
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] tracking-[0.35em] uppercase font-semibold" style={{ color: 'var(--color-accent-gold)' }}>
+                  Tablero Semanal
+                </span>
+              </div>
+              <div className="h-px flex-1" style={{ background: 'linear-gradient(to left, transparent, rgba(201,168,76,0.3))' }} />
+            </div>
+
+            {/* Announcements */}
+            {stats?.anuncios?.recientes && stats.anuncios.recientes.length > 0 ? (
+              <div className="space-y-3">
+                {stats.anuncios.recientes.slice(0, 3).map((anuncio: { id: string; titulo: string; contenido?: string; prioridad: string }) => (
+                  <div key={anuncio.id} className="flex items-start gap-3">
+                    <div
+                      className="w-1.5 h-1.5 rounded-full mt-2 flex-shrink-0"
+                      style={{
+                        background: anuncio.prioridad === 'URGENTE' ? '#ef4444'
+                          : anuncio.prioridad === 'ALTA' ? 'var(--color-accent-gold)'
+                          : 'rgba(255,255,255,0.2)',
+                      }}
+                    />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[14px] font-medium" style={{ color: 'var(--color-text-primary)' }}>
+                        {anuncio.titulo}
+                      </p>
+                      {anuncio.contenido && (
+                        <p className="text-[12px] mt-0.5 line-clamp-2" style={{ color: 'var(--color-text-muted)' }}>
+                          {anuncio.contenido}
+                        </p>
+                      )}
+                    </div>
+                    {anuncio.prioridad === 'URGENTE' && (
+                      <span className="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full flex-shrink-0"
+                        style={{ background: 'rgba(239,68,68,0.15)', color: '#ef4444' }}>
+                        Urgente
+                      </span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-4">
+                <p className="text-[13px] italic" style={{ color: 'var(--color-text-muted)' }}>
+                  Sin anuncios esta semana
+                </p>
+                <Link href="/anuncios" className="text-[12px] mt-1 inline-block" style={{ color: 'var(--color-accent-gold)' }}>
+                  Publicar anuncio
+                </Link>
+              </div>
+            )}
+
+            {/* Footer link */}
+            {stats?.anuncios?.recientes && stats.anuncios.recientes.length > 0 && (
+              <div className="flex justify-center mt-4 pt-3" style={{ borderTop: '1px solid rgba(201,168,76,0.1)' }}>
+                <Link href="/anuncios" className="text-[11px] tracking-wider uppercase flex items-center gap-1.5" style={{ color: 'var(--color-accent-gold)' }}>
+                  Ver todos los anuncios <ChevronRight size={12} />
+                </Link>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
       {/* ========== ATENCION PASTORAL ========== */}
       {tieneAtencionPastoral && (
         <div className="slide-up" style={{ animationDelay: '80ms' }}>
