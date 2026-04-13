@@ -167,9 +167,10 @@ export default function LiderazgoPage() {
 
     try {
       const res = await fetch('/api/roles')
-      const users: LiderUser[] = await res.json()
-      // Show ALL users — when assigned, their role will be updated to LIDER_RED
-      const candidates = Array.isArray(users) ? users : []
+      const raw = await res.json()
+      // API may return {data: [...]} or [...] directly
+      const users: LiderUser[] = Array.isArray(raw) ? raw : (raw?.data ?? [])
+      const candidates = users
       setAvailableLideres(candidates)
       setSelectedLider1(red.lideres[0]?.id ?? '')
       setSelectedLider2(red.lideres[1]?.id ?? '')

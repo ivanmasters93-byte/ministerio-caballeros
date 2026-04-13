@@ -102,6 +102,8 @@ model User {
   permisos       Permiso[]
   notificaciones Notificacion[]
   predicas       Predica[]
+  chatRooms      ChatRoomMember[]
+  chatMessages   ChatMessage[]
 }
 
 model Red {
@@ -419,4 +421,56 @@ model ConfiguracionIntegracion {
   updatedAt DateTime @updatedAt
 
   @@index([servicio])
+}
+
+// ============================================================
+// CHAT SYSTEM
+// ============================================================
+
+enum TipoChatRoom {
+  GRUPO
+  PRIVADO
+}
+
+model ChatRoom {
+  id          String       @id @default(cuid())
+  nombre      String?
+  tipo        TipoChatRoom @default(PRIVADO)
+  descripcion String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  miembros ChatRoomMember[]
+  mensajes ChatMessage[]
+}
+
+model ChatRoomMember {
+  id          String   @id @default(cuid())
+  roomId      String
+  userId      String
+  unreadCount Int      @default(0)
+  joinedAt    DateTime @default(now())
+  lastRead    DateTime @default(now())
+
+  room ChatRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  user User     @relation(fields: [userId], references: [id])
+
+  @@unique([roomId, userId])
+  @@index([userId])
+}
+
+model ChatMessage {
+  id        String   @id @default(cuid())
+  roomId    String
+  senderId  String
+  content   String
+  tipo      String   @default("texto")
+  leido     Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  room   ChatRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  sender User     @relation(fields: [senderId], references: [id])
+
+  @@index([roomId, createdAt])
+  @@index([senderId])
 }

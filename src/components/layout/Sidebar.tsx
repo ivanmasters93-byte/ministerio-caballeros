@@ -14,6 +14,7 @@ import {
   BookOpen,
   Bot,
   MessageSquare,
+  MessageCircle,
   Shield,
   Wallet,
   UserCheck,
@@ -26,6 +27,7 @@ import {
   Cross,
   Mail,
   Radio,
+  User,
 } from 'lucide-react'
 import { Logo } from '@/components/ui/logo'
 
@@ -35,6 +37,7 @@ interface SidebarProps {
   mobileOpen?: boolean
   onToggle?: () => void
   onMobileClose?: () => void
+  userRole?: string
 }
 
 interface NavItem {
@@ -73,6 +76,26 @@ const recursosItems: NavItem[] = [
 const herramientasItems: NavItem[] = [
   { href: '/email', label: 'Correo', icon: Mail },
   { href: '/roles', label: 'Roles', icon: Shield },
+]
+
+// Nav items for HERMANO role
+const miembroGeneralItems: NavItem[] = [
+  { href: '/', label: 'Inicio', icon: LayoutDashboard },
+  { href: '/mi-perfil', label: 'Mi Perfil', icon: User },
+]
+
+const miembroActividadItems: NavItem[] = [
+  { href: '/agenda', label: 'Eventos', icon: Calendar },
+  { href: '/anuncios', label: 'Anuncios', icon: Megaphone },
+  { href: '/oracion', label: 'Oracion', icon: Heart },
+  { href: '/reuniones', label: 'Reuniones', icon: Video },
+]
+
+const miembroComunidadItems: NavItem[] = [
+  { href: '/chat', label: 'Chat', icon: MessageCircle },
+  { href: '/biblia', label: 'Biblia', icon: Cross },
+  { href: '/documentos', label: 'Recursos', icon: BookOpen },
+  { href: '/asistente-ia', label: 'Asistente IA', icon: Bot },
 ]
 
 interface NavGroupProps {
@@ -139,7 +162,7 @@ function NavGroup({ label, items, pathname, collapsed, onNavigate }: NavGroupPro
   )
 }
 
-export function Sidebar({ collapsed = false, mobileOpen = false, onToggle, onMobileClose }: SidebarProps) {
+export function Sidebar({ collapsed = false, mobileOpen = false, onToggle, onMobileClose, userRole }: SidebarProps) {
   const pathname = usePathname()
 
   const sidebarContent = (
@@ -182,16 +205,28 @@ export function Sidebar({ collapsed = false, mobileOpen = false, onToggle, onMob
 
       {/* Navigation */}
       <nav className="flex-1 overflow-y-auto overflow-x-hidden px-3 py-2 space-y-1">
-        <NavGroup label="General" items={panoramaItems} pathname={pathname} collapsed={collapsed} onNavigate={onMobileClose} />
-        <NavGroup label="Pastoral" items={personasItems} pathname={pathname} collapsed={collapsed} onNavigate={onMobileClose} />
-        <NavGroup label="Actividades" items={ministerioItems} pathname={pathname} collapsed={collapsed} onNavigate={onMobileClose} />
-        <NavGroup label="Gestion" items={recursosItems} pathname={pathname} collapsed={collapsed} onNavigate={onMobileClose} />
+        {userRole === 'HERMANO' ? (
+          <>
+            <NavGroup label="General" items={miembroGeneralItems} pathname={pathname} collapsed={collapsed} onNavigate={onMobileClose} />
+            <NavGroup label="Actividades" items={miembroActividadItems} pathname={pathname} collapsed={collapsed} onNavigate={onMobileClose} />
+            <NavGroup label="Comunidad" items={miembroComunidadItems} pathname={pathname} collapsed={collapsed} onNavigate={onMobileClose} />
+          </>
+        ) : (
+          <>
+            <NavGroup label="General" items={panoramaItems} pathname={pathname} collapsed={collapsed} onNavigate={onMobileClose} />
+            <NavGroup label="Pastoral" items={personasItems} pathname={pathname} collapsed={collapsed} onNavigate={onMobileClose} />
+            <NavGroup label="Actividades" items={ministerioItems} pathname={pathname} collapsed={collapsed} onNavigate={onMobileClose} />
+            <NavGroup label="Gestion" items={recursosItems} pathname={pathname} collapsed={collapsed} onNavigate={onMobileClose} />
+          </>
+        )}
       </nav>
 
       {/* Bottom tools section */}
-      <div className="flex-shrink-0 px-3 py-2" style={{ borderTop: '1px solid var(--color-border-subtle)' }}>
-        <NavGroup label="Herramientas" items={herramientasItems} pathname={pathname} collapsed={collapsed} onNavigate={onMobileClose} />
-      </div>
+      {userRole !== 'HERMANO' && (
+        <div className="flex-shrink-0 px-3 py-2" style={{ borderTop: '1px solid var(--color-border-subtle)' }}>
+          <NavGroup label="Herramientas" items={herramientasItems} pathname={pathname} collapsed={collapsed} onNavigate={onMobileClose} />
+        </div>
+      )}
 
       {/* Footer version */}
       <div className="flex-shrink-0 py-3 text-center" style={{ borderTop: '1px solid var(--color-border-subtle)' }}>
@@ -260,14 +295,26 @@ export function Sidebar({ collapsed = false, mobileOpen = false, onToggle, onMob
 
         {/* Navigation */}
         <nav className="flex-1 overflow-y-auto overflow-x-hidden px-3 py-2 space-y-1">
-          <NavGroup label="General" items={panoramaItems} pathname={pathname} collapsed={false} onNavigate={onMobileClose} />
-          <NavGroup label="Pastoral" items={personasItems} pathname={pathname} collapsed={false} onNavigate={onMobileClose} />
-          <NavGroup label="Actividades" items={ministerioItems} pathname={pathname} collapsed={false} onNavigate={onMobileClose} />
-          <NavGroup label="Gestion" items={recursosItems} pathname={pathname} collapsed={false} onNavigate={onMobileClose} />
+          {userRole === 'HERMANO' ? (
+            <>
+              <NavGroup label="General" items={miembroGeneralItems} pathname={pathname} collapsed={false} onNavigate={onMobileClose} />
+              <NavGroup label="Actividades" items={miembroActividadItems} pathname={pathname} collapsed={false} onNavigate={onMobileClose} />
+              <NavGroup label="Comunidad" items={miembroComunidadItems} pathname={pathname} collapsed={false} onNavigate={onMobileClose} />
+            </>
+          ) : (
+            <>
+              <NavGroup label="General" items={panoramaItems} pathname={pathname} collapsed={false} onNavigate={onMobileClose} />
+              <NavGroup label="Pastoral" items={personasItems} pathname={pathname} collapsed={false} onNavigate={onMobileClose} />
+              <NavGroup label="Actividades" items={ministerioItems} pathname={pathname} collapsed={false} onNavigate={onMobileClose} />
+              <NavGroup label="Gestion" items={recursosItems} pathname={pathname} collapsed={false} onNavigate={onMobileClose} />
+            </>
+          )}
         </nav>
-        <div className="flex-shrink-0 px-3 py-2" style={{ borderTop: '1px solid var(--color-border-subtle)' }}>
-          <NavGroup label="Herramientas" items={herramientasItems} pathname={pathname} collapsed={false} onNavigate={onMobileClose} />
-        </div>
+        {userRole !== 'HERMANO' && (
+          <div className="flex-shrink-0 px-3 py-2" style={{ borderTop: '1px solid var(--color-border-subtle)' }}>
+            <NavGroup label="Herramientas" items={herramientasItems} pathname={pathname} collapsed={false} onNavigate={onMobileClose} />
+          </div>
+        )}
         <div className="flex-shrink-0 py-3 text-center" style={{ borderTop: '1px solid var(--color-border-subtle)' }}>
           <p className="text-[10px] tracking-wider" style={{ color: 'var(--color-text-muted)' }}>v1.0.0 &middot; MVP</p>
         </div>

@@ -75,6 +75,7 @@ export function DashboardLayout({ children, user, title }: DashboardLayoutProps)
         mobileOpen={mobileOpen}
         onToggle={toggleSidebar}
         onMobileClose={() => setMobileOpen(false)}
+        userRole={user?.role}
       />
 
       {/*
