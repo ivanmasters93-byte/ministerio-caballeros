@@ -450,9 +450,19 @@ ${transcripcion.trim()}`
                 {extrayendo ? 'Extrayendo subtitulos...' : videoId ? 'Extraer Transcripcion de YouTube' : 'Pega un link de YouTube arriba'}
               </Button>
               {errorExtraer && (
-                <p className="text-sm px-3 py-2 rounded-lg" style={{ color: '#f87171', background: 'rgba(248,113,113,0.08)' }}>
-                  {errorExtraer}
-                </p>
+                <div className="rounded-lg px-4 py-3 space-y-2" style={{ background: 'rgba(248,113,113,0.06)', border: '1px solid rgba(248,113,113,0.15)' }}>
+                  <p className="text-sm" style={{ color: '#f87171' }}>{errorExtraer}</p>
+                  <button
+                    onClick={() => { setMetodo('mic'); setErrorExtraer('') }}
+                    className="text-sm font-medium flex items-center gap-1.5 px-3 py-2 rounded-lg transition-all"
+                    style={{ background: 'rgba(34,197,94,0.1)', color: '#22c55e', border: '1px solid rgba(34,197,94,0.2)' }}
+                  >
+                    <Mic size={14} /> Usar microfono en su lugar
+                  </button>
+                  <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
+                    Pon el audio del video cerca del microfono de tu dispositivo
+                  </p>
+                </div>
               )}
             </div>
           )}
