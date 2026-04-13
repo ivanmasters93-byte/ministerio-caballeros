@@ -45,37 +45,33 @@ interface NavItem {
 }
 
 const panoramaItems: NavItem[] = [
-  { href: '/', label: 'Centro de Mando', icon: LayoutDashboard },
-  { href: '/redes', label: 'Redes', icon: Network },
+  { href: '/', label: 'Inicio', icon: LayoutDashboard },
+  { href: '/hermanos', label: 'Hermanos', icon: Users },
   { href: '/liderazgo', label: 'Liderazgo', icon: Crown },
 ]
 
 const personasItems: NavItem[] = [
-  { href: '/hermanos', label: 'Hermanos', icon: Users },
   { href: '/seguimiento', label: 'Seguimiento', icon: UserCheck },
-  { href: '/oracion', label: 'Peticiones de Oracion', icon: Heart },
+  { href: '/oracion', label: 'Oracion', icon: Heart },
+  { href: '/hermanos/enviar-versiculo', label: 'Enviar Versiculo', icon: BookOpen },
 ]
 
 const ministerioItems: NavItem[] = [
   { href: '/agenda', label: 'Agenda', icon: Calendar },
   { href: '/anuncios', label: 'Anuncios', icon: Megaphone },
   { href: '/asistencia', label: 'Asistencia', icon: ClipboardList },
-  { href: '/finanzas', label: 'Finanzas', icon: Wallet },
+  { href: '/predicas', label: 'Predicas', icon: Mic },
 ]
 
 const recursosItems: NavItem[] = [
-  { href: '/documentos', label: 'Documentos', icon: BookOpen },
-  { href: '/predicas', label: 'Predicas', icon: Mic },
-  { href: '/biblia', label: 'Biblia', icon: BookOpen },
+  { href: '/reuniones', label: 'Reuniones', icon: Video },
+  { href: '/finanzas', label: 'Finanzas', icon: Wallet },
+  { href: '/flyers', label: 'Flyers', icon: Palette },
 ]
 
 const herramientasItems: NavItem[] = [
-  { href: '/reuniones', label: 'Reuniones', icon: Video },
-  { href: '/asistente-ia', label: 'Asistente IA', icon: Bot },
-  { href: '/whatsapp', label: 'WhatsApp', icon: MessageSquare },
   { href: '/email', label: 'Correo', icon: Mail },
-  { href: '/flyers', label: 'Flyers', icon: Palette },
-  { href: '/roles', label: 'Roles y Permisos', icon: Shield },
+  { href: '/roles', label: 'Roles', icon: Shield },
 ]
 
 interface NavGroupProps {
@@ -185,10 +181,10 @@ export function Sidebar({ collapsed = false, mobileOpen = false, onToggle, onMob
 
       {/* Navigation */}
       <nav className="flex-1 overflow-y-auto overflow-x-hidden px-3 py-2 space-y-1">
-        <NavGroup label="Panorama" items={panoramaItems} pathname={pathname} collapsed={collapsed} onNavigate={onMobileClose} />
-        <NavGroup label="Personas" items={personasItems} pathname={pathname} collapsed={collapsed} onNavigate={onMobileClose} />
-        <NavGroup label="Ministerio" items={ministerioItems} pathname={pathname} collapsed={collapsed} onNavigate={onMobileClose} />
-        <NavGroup label="Recursos" items={recursosItems} pathname={pathname} collapsed={collapsed} onNavigate={onMobileClose} />
+        <NavGroup label="General" items={panoramaItems} pathname={pathname} collapsed={collapsed} onNavigate={onMobileClose} />
+        <NavGroup label="Pastoral" items={personasItems} pathname={pathname} collapsed={collapsed} onNavigate={onMobileClose} />
+        <NavGroup label="Actividades" items={ministerioItems} pathname={pathname} collapsed={collapsed} onNavigate={onMobileClose} />
+        <NavGroup label="Gestion" items={recursosItems} pathname={pathname} collapsed={collapsed} onNavigate={onMobileClose} />
       </nav>
 
       {/* Bottom tools section */}
@@ -263,10 +259,10 @@ export function Sidebar({ collapsed = false, mobileOpen = false, onToggle, onMob
 
         {/* Navigation */}
         <nav className="flex-1 overflow-y-auto overflow-x-hidden px-3 py-2 space-y-1">
-          <NavGroup label="Panorama" items={panoramaItems} pathname={pathname} collapsed={false} onNavigate={onMobileClose} />
-          <NavGroup label="Personas" items={personasItems} pathname={pathname} collapsed={false} onNavigate={onMobileClose} />
-          <NavGroup label="Ministerio" items={ministerioItems} pathname={pathname} collapsed={false} onNavigate={onMobileClose} />
-          <NavGroup label="Recursos" items={recursosItems} pathname={pathname} collapsed={false} onNavigate={onMobileClose} />
+          <NavGroup label="General" items={panoramaItems} pathname={pathname} collapsed={false} onNavigate={onMobileClose} />
+          <NavGroup label="Pastoral" items={personasItems} pathname={pathname} collapsed={false} onNavigate={onMobileClose} />
+          <NavGroup label="Actividades" items={ministerioItems} pathname={pathname} collapsed={false} onNavigate={onMobileClose} />
+          <NavGroup label="Gestion" items={recursosItems} pathname={pathname} collapsed={false} onNavigate={onMobileClose} />
         </nav>
         <div className="flex-shrink-0 px-3 py-2" style={{ borderTop: '1px solid var(--color-border-subtle)' }}>
           <NavGroup label="Herramientas" items={herramientasItems} pathname={pathname} collapsed={false} onNavigate={onMobileClose} />
