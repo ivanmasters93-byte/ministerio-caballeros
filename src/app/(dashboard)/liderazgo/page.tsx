@@ -166,7 +166,7 @@ export default function LiderazgoPage() {
     setSaveError(null)
 
     try {
-      const res = await fetch('/api/roles')
+      const res = await fetch('/api/roles?limit=500')
       const raw = await res.json()
       // API may return {data: [...]} or [...] directly
       const users: LiderUser[] = Array.isArray(raw) ? raw : (raw?.data ?? [])
