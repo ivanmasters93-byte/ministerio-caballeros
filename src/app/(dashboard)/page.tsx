@@ -358,7 +358,7 @@ function MemberDashboard({ userName }: { userName: string }) {
 /* ------------------------------------------------------------------ */
 
 export default function DashboardPage() {
-  const { data: session } = useSession()
+  const { data: session, status } = useSession()
   const [stats, setStats] = useState<DashboardStats | null>(null)
   const [loading, setLoading] = useState(true)
   const [hermanosAlerta, setHermanosAlerta] = useState<HermanoAlerta[]>([])
@@ -414,9 +414,14 @@ export default function DashboardPage() {
       .catch(() => {})
   }, [])
 
+  // Wait for session to resolve before rendering
+  if (status === 'loading') {
+    return null
+  }
+
   // HERMANO role -> render member dashboard
   if (session?.user?.role === 'HERMANO') {
-    return <MemberDashboard userName={session.user.name || ''} />
+    return <MemberDashboard userName={session?.user?.name || ''} />
   }
 
   const hour = new Date().getHours()
