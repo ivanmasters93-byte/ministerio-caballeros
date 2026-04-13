@@ -148,13 +148,13 @@ export function Sidebar({ collapsed = false, mobileOpen = false, onToggle, onMob
         <Link href="/" className={cn('flex items-center', collapsed ? 'justify-center' : 'gap-3')}>
           <div
             style={{
-              borderRadius: 10,
+              borderRadius: 12,
               padding: 2,
               background: 'linear-gradient(135deg, rgba(201,168,76,0.35), rgba(201,168,76,0.08))',
               flexShrink: 0,
             }}
           >
-            <Logo size={collapsed ? 32 : 40} animated />
+            <Logo size={collapsed ? 36 : 52} animated />
           </div>
           {!collapsed && (
             <div className="min-w-0">
@@ -255,13 +255,13 @@ export function Sidebar({ collapsed = false, mobileOpen = false, onToggle, onMob
           <Link href="/" onClick={onMobileClose} className="flex items-center gap-3">
             <div
               style={{
-                borderRadius: 10,
+                borderRadius: 12,
                 padding: 2,
                 background: 'linear-gradient(135deg, rgba(201,168,76,0.35), rgba(201,168,76,0.08))',
                 flexShrink: 0,
               }}
             >
-              <Logo size={40} animated />
+              <Logo size={52} animated />
             </div>
             <div className="min-w-0 flex-1">
               <p className="font-bold text-sm leading-tight tracking-wide gold-text" style={{ fontFamily: 'var(--font-display)' }}>
