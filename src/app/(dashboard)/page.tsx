@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import {
   Users,
   Calendar,
@@ -336,7 +337,19 @@ export default function DashboardPage() {
   const tieneAtencionPastoral = hermanosAlerta.length > 0 || peticionesUrgentes.length > 0
 
   return (
-    <div className="space-y-6 sm:space-y-8">
+    <div className="space-y-6 sm:space-y-8 relative">
+      {/* ========== LOGO WATERMARK ========== */}
+      <div aria-hidden="true" className="logo-watermark">
+        <Image
+          src="/logo-gedeones.jpg"
+          alt=""
+          width={400}
+          height={400}
+          style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }}
+          priority={false}
+        />
+      </div>
+
       {/* ========== GREETING ========== */}
       <div className="slide-up">
         <GreetingBar greeting={greeting} todayLabel={todayLabel} />

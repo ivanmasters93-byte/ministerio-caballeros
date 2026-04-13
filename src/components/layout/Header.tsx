@@ -42,8 +42,8 @@ export function Header({ user, title, onMenuToggle }: HeaderProps) {
 
         {/* Logo — mobile only, clickable */}
         <Link href="/" className="md:hidden flex items-center gap-2">
-          <Logo size={28} />
-          <span className="text-sm font-bold tracking-wide" style={{ fontFamily: 'var(--font-display)', color: 'var(--color-text-primary)' }}>
+          <Logo size={32} animated />
+          <span className="text-sm font-bold tracking-wide gold-text" style={{ fontFamily: 'var(--font-display)' }}>
             GEDEONES GP
           </span>
         </Link>

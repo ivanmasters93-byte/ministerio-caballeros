@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Logo } from '@/components/ui/logo'
 import Image from 'next/image'
 
 export default function LoginPage() {
@@ -35,30 +36,56 @@ export default function LoginPage() {
 
   return (
     <div
-      className="min-h-screen flex items-center justify-center p-4"
+      className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden"
       style={{
         background: 'var(--color-bg-base)',
-        backgroundImage: 'radial-gradient(ellipse at 50% 0%, rgba(201,168,76,0.06) 0%, transparent 60%)',
+        backgroundImage: 'radial-gradient(ellipse at 50% 0%, rgba(201,168,76,0.08) 0%, transparent 60%)',
       }}
     >
-      <div className="w-full max-w-md">
-        {/* Logo area */}
-        <div className="text-center mb-8">
-          <Image
-            src="/logo-gedeones.jpg"
-            alt="GEDEONES GP"
-            width={80}
-            height={80}
-            className="rounded-xl mx-auto mb-4"
-            priority
-          />
+      {/* Large watermark logo behind everything */}
+      <div
+        aria-hidden="true"
+        style={{
+          position: 'fixed',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          opacity: 0.025,
+          pointerEvents: 'none',
+          zIndex: 0,
+          width: 480,
+          height: 480,
+          borderRadius: '50%',
+          overflow: 'hidden',
+        }}
+      >
+        <Image
+          src="/logo-gedeones.jpg"
+          alt=""
+          width={480}
+          height={480}
+          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+          priority
+        />
+      </div>
+
+      {/* Content */}
+      <div className="w-full max-w-md relative z-10">
+        {/* Hero logo area */}
+        <div className="text-center mb-10">
+          <div className="flex justify-center mb-5">
+            <Logo size="hero" animated />
+          </div>
           <h1
-            className="text-3xl font-bold gold-text"
+            className="text-4xl font-bold gold-text tracking-widest mb-1"
             style={{ fontFamily: 'var(--font-display)' }}
           >
             GEDEONES GP
           </h1>
-          <p style={{ color: 'var(--color-text-secondary)' }} className="text-lg">
+          <p
+            className="text-sm tracking-[0.3em] uppercase"
+            style={{ color: 'var(--color-text-muted)' }}
+          >
             Ministerio de Caballeros
           </p>
         </div>
@@ -69,7 +96,7 @@ export default function LoginPage() {
           style={{
             background: 'var(--color-bg-surface)',
             border: '1px solid var(--color-border-subtle)',
-            boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
+            boxShadow: '0 8px 48px rgba(0,0,0,0.5), 0 0 0 1px rgba(201,168,76,0.06)',
           }}
         >
           <h2
@@ -120,7 +147,6 @@ export default function LoginPage() {
               {loading ? 'Iniciando sesion...' : 'Entrar'}
             </Button>
           </form>
-
         </div>
       </div>
     </div>

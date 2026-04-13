@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useParams } from 'next/navigation'
 import { Video, Mic, MicOff, Camera, CameraOff, ArrowRight, Wifi, Shield } from 'lucide-react'
 import Image from 'next/image'
+import { Logo } from '@/components/ui/logo'
 import { buildJitsiEmbedUrl } from '@/lib/jitsi/config'
 
 export default function SalaPublica() {
@@ -30,11 +31,28 @@ export default function SalaPublica() {
       </div>
 
       <div className="relative z-10 w-full max-w-sm space-y-6">
-        {/* Logo */}
-        <div className="text-center space-y-1">
-          <Image src="/logo-gedeones.jpg" alt="GEDEONES GP" width={48} height={48} className="rounded-xl mx-auto" priority />
-          <h1 className="text-xl font-light tracking-wide mt-3">GEDEONES GP</h1>
-          <p className="text-white/25 text-[10px] tracking-[0.3em] uppercase">Reunion en Vivo</p>
+        {/* Logo hero */}
+        <div className="text-center space-y-3">
+          <div className="flex justify-center">
+            <div
+              style={{
+                borderRadius: 20,
+                padding: 3,
+                background: 'linear-gradient(135deg, rgba(201,168,76,0.4), rgba(201,168,76,0.08))',
+              }}
+            >
+              <Logo size="xl" animated />
+            </div>
+          </div>
+          <div>
+            <h1
+              className="text-2xl font-bold tracking-widest gold-text"
+              style={{ fontFamily: 'var(--font-display)' }}
+            >
+              GEDEONES GP
+            </h1>
+            <p className="text-white/25 text-[10px] tracking-[0.3em] uppercase mt-1">Reunion en Vivo</p>
+          </div>
         </div>
 
         {/* Main card */}

@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { ArrowLeft, Check, Loader2, User, Phone as PhoneIcon, Mail, MapPin, Briefcase, Heart, Users } from 'lucide-react'
+import { Logo } from '@/components/ui/logo'
 
 type Step = 'datos' | 'confirmar' | 'sending' | 'listo'
 
@@ -127,19 +128,31 @@ export default function RegistroHermanos() {
         }}
       >
         <div className="max-w-lg mx-auto flex items-center justify-between">
-          <div>
-            <p
-              className="text-[10px] tracking-[0.3em] uppercase"
-              style={{ color: 'var(--color-text-muted, rgba(255,255,255,0.3))' }}
+          <div className="flex items-center gap-3">
+            <div
+              style={{
+                borderRadius: 10,
+                padding: 2,
+                background: 'linear-gradient(135deg, rgba(201,168,76,0.35), rgba(201,168,76,0.08))',
+                flexShrink: 0,
+              }}
             >
-              Ministerio de Caballeros
-            </p>
-            <h1
-              className="text-[18px] font-bold tracking-tight"
-              style={{ color: 'var(--color-accent-gold, #c9a84c)' }}
-            >
-              GEDEONES
-            </h1>
+              <Logo size={40} animated />
+            </div>
+            <div>
+              <p
+                className="text-[10px] tracking-[0.3em] uppercase"
+                style={{ color: 'var(--color-text-muted, rgba(255,255,255,0.3))' }}
+              >
+                Ministerio de Caballeros
+              </p>
+              <h1
+                className="text-[18px] font-bold tracking-tight gold-text"
+                style={{ fontFamily: 'var(--font-display)' }}
+              >
+                GEDEONES GP
+              </h1>
+            </div>
           </div>
           {/* Step indicator */}
           {step !== 'sending' && step !== 'listo' && (
@@ -447,16 +460,18 @@ export default function RegistroHermanos() {
         {step === 'listo' && (
           <div className="min-h-[80vh] flex flex-col items-center justify-center px-6">
             <div className="max-w-lg text-center space-y-6">
-              {/* Animated checkmark */}
-              <div
-                className="w-16 h-16 rounded-full flex items-center justify-center mx-auto"
-                style={{
-                  border: '2px solid rgba(74,222,128,0.3)',
-                  background: 'rgba(74,222,128,0.08)',
-                  animation: 'checkPop 0.4s ease-out',
-                }}
-              >
-                <Check className="w-7 h-7" style={{ color: '#4ade80' }} />
+              {/* Hero animated logo */}
+              <div className="flex justify-center">
+                <div
+                  style={{
+                    borderRadius: 24,
+                    padding: 4,
+                    background: 'linear-gradient(135deg, rgba(201,168,76,0.45), rgba(201,168,76,0.08))',
+                    animation: 'checkPop 0.5s ease-out',
+                  }}
+                >
+                  <Logo size="xl" animated />
+                </div>
               </div>
 
               <div className="space-y-2">

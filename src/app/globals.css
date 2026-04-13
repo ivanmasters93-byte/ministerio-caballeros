@@ -601,6 +601,35 @@ label { color: var(--color-text-secondary); }
   }
 }
 
+/* ============================================================= */
+/*  LOGO ANIMATIONS & WATERMARK                                  */
+/* ============================================================= */
+
+@keyframes logo-glow {
+  0%, 100% { filter: drop-shadow(0 0 8px rgba(201, 168, 76, 0.3)); }
+  50% { filter: drop-shadow(0 0 22px rgba(201, 168, 76, 0.65)); }
+}
+
+.logo-glow {
+  animation: logo-glow 3s ease-in-out infinite;
+}
+
+.logo-watermark {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 0.025;
+  pointer-events: none;
+  z-index: 0;
+  width: 400px;
+  height: 400px;
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+/* ============================================================= */
+
 @layer utilities {
   .fade-in {
     animation: var(--animate-fade-in);
