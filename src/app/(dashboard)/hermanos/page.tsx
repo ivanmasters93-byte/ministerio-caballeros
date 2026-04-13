@@ -50,7 +50,7 @@ export default function HermanosPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <h2 className="text-2xl font-bold text-gray-900">Hermanos</h2>
           <p className="text-gray-500 text-sm">{hermanos.length} miembros registrados</p>
@@ -60,7 +60,7 @@ export default function HermanosPage() {
 
       <Card>
         <CardContent className="pt-4">
-          <div className="flex gap-3 mb-4">
+          <div className="flex flex-col sm:flex-row gap-3 mb-4">
             <div className="relative flex-1">
               <Search size={16} className="absolute left-3 top-3 text-gray-400" />
               <Input
@@ -83,6 +83,7 @@ export default function HermanosPage() {
           {loading ? (
             <div className="space-y-3">{[...Array(5)].map((_, i) => <div key={i} className="h-12 bg-gray-100 rounded animate-pulse" />)}</div>
           ) : (
+            <div className="overflow-x-auto -mx-1">
             <Table>
               <TableHead>
                 <TableRow>
@@ -152,6 +153,7 @@ export default function HermanosPage() {
                 )}
               </TableBody>
             </Table>
+            </div>
           )}
         </CardContent>
       </Card>

@@ -48,6 +48,7 @@ export default function SeguimientoPage() {
   const [modalOpen, setModalOpen] = useState(false)
   const [hermanos, setHermanos] = useState<Hermano[]>([])
   const [saving, setSaving] = useState(false)
+  const [currentUserId, setCurrentUserId] = useState<string>('')
   const [form, setForm] = useState({
     hermanoId: '',
     tipo: 'NOTA',
@@ -67,6 +68,14 @@ export default function SeguimientoPage() {
   }
 
   useEffect(() => { loadCasos() }, [filter]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Fetch current user ID once for use as responsableId
+  useEffect(() => {
+    fetch('/api/auth/session')
+      .then(r => r.json())
+      .then(data => { if (data?.user?.id) setCurrentUserId(data.user.id) })
+      .catch(() => {})
+  }, [])
 
   const openModal = () => {
     if (hermanos.length === 0) {
@@ -89,6 +98,7 @@ export default function SeguimientoPage() {
         hermanoId: form.hermanoId,
         tipo: form.tipo,
         descripcion: form.descripcion,
+        responsableId: currentUserId,
       }
       if (form.proximoContacto) body.proximoContacto = form.proximoContacto
       const res = await fetch('/api/seguimiento', {

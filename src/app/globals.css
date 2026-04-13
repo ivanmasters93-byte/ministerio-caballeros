@@ -569,9 +569,35 @@
 label { color: var(--color-text-secondary); }
 
 /* --- Mobile safety: prevent horizontal overflow --- */
-@media (max-width: 1023px) {
+@media (max-width: 767px) {
   body {
     overflow-x: hidden;
+  }
+}
+
+/* --- Touch targets: minimum 44px on tablet and mobile --- */
+@media (max-width: 1023px) {
+  button, a, [role="button"] {
+    min-height: 44px;
+  }
+}
+
+/* --- Table responsive wrapper utility --- */
+.table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* --- Font scaling for large screens --- */
+@media (min-width: 1280px) {
+  body {
+    font-size: 15px;
+  }
+}
+
+@media (min-width: 1536px) {
+  body {
+    font-size: 15px;
   }
 }
 

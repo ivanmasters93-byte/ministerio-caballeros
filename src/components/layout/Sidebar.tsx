@@ -176,8 +176,8 @@ export function Sidebar({ collapsed = false, mobileOpen = false, onToggle, onMob
         />
       </div>
 
-      {/* Toggle button — desktop only */}
-      <div className="flex-shrink-0 px-3 pt-3 pb-1 hidden lg:block">
+      {/* Toggle button — tablet and desktop */}
+      <div className="flex-shrink-0 px-3 pt-3 pb-1 hidden md:block">
         <button
           onClick={onToggle}
           className="w-full flex items-center justify-center rounded-md py-1.5 transition-all duration-200 cursor-pointer"
@@ -216,9 +216,9 @@ export function Sidebar({ collapsed = false, mobileOpen = false, onToggle, onMob
 
   return (
     <>
-      {/* ===== DESKTOP SIDEBAR (hidden on mobile) ===== */}
+      {/* ===== DESKTOP SIDEBAR (hidden on mobile, collapsed icon-only on md tablet, full on lg+) ===== */}
       <aside
-        className="hidden lg:flex fixed top-0 left-0 h-screen flex-col z-40 transition-all duration-300 ease-in-out"
+        className="hidden md:flex fixed top-0 left-0 h-screen flex-col z-40 transition-all duration-300 ease-in-out"
         style={{
           width: collapsed ? 'var(--spacing-sidebar-collapsed)' : 'var(--spacing-sidebar)',
           background: 'var(--color-bg-sidebar)',
@@ -228,11 +228,11 @@ export function Sidebar({ collapsed = false, mobileOpen = false, onToggle, onMob
         {sidebarContent}
       </aside>
 
-      {/* ===== MOBILE DRAWER (hidden on desktop) ===== */}
+      {/* ===== MOBILE DRAWER (hidden on tablet and desktop) ===== */}
       {/* Backdrop */}
       <div
         className={cn(
-          'lg:hidden fixed inset-0 z-40 bg-black/60 backdrop-blur-sm transition-opacity duration-300',
+          'md:hidden fixed inset-0 z-40 bg-black/60 backdrop-blur-sm transition-opacity duration-300',
           mobileOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
         )}
         onClick={onMobileClose}
@@ -240,7 +240,7 @@ export function Sidebar({ collapsed = false, mobileOpen = false, onToggle, onMob
       {/* Drawer */}
       <aside
         className={cn(
-          'lg:hidden fixed top-0 left-0 h-screen flex flex-col z-50 transition-transform duration-300 ease-in-out',
+          'md:hidden fixed top-0 left-0 h-screen flex flex-col z-50 transition-transform duration-300 ease-in-out',
         )}
         style={{
           width: 280,

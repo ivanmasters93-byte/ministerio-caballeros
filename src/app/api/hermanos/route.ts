@@ -19,19 +19,16 @@ export const GET = withErrorHandling(async (req: NextRequest) => {
 
   const whereConditions: Prisma.HermanoWhereInput = {}
 
+  // Build user sub-filter: supports search + redId simultaneously
+  const userFilter: Prisma.UserWhereInput = {}
   if (search) {
-    whereConditions.user = {
-      name: {
-        contains: search,
-      },
-    }
-  } else if (redId || estado) {
-    whereConditions.user = {}
-    if (redId) {
-      whereConditions.user.redes = {
-        some: { redId },
-      }
-    }
+    userFilter.name = { contains: search }
+  }
+  if (redId) {
+    userFilter.redes = { some: { redId } }
+  }
+  if (Object.keys(userFilter).length > 0) {
+    whereConditions.user = userFilter
   }
 
   if (estado) {

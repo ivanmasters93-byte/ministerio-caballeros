@@ -19,7 +19,7 @@ interface DashboardLayoutProps {
 
 export function DashboardLayout({ children, user, title }: DashboardLayoutProps) {
   const [redes, setRedes] = useState<RedSummary[]>([])
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(true)
   const [mobileOpen, setMobileOpen] = useState(false)
   const [mounted, setMounted] = useState(false)
 
@@ -32,7 +32,13 @@ export function DashboardLayout({ children, user, title }: DashboardLayoutProps)
 
   useEffect(() => {
     const saved = localStorage.getItem('sidebar-collapsed')
-    if (saved !== null) setSidebarCollapsed(JSON.parse(saved))
+    if (saved !== null) {
+      setSidebarCollapsed(JSON.parse(saved))
+    } else {
+      // Default: collapsed on tablet (< 1024px), expanded on desktop (>= 1024px)
+      const isDesktop = window.matchMedia('(min-width: 1024px)').matches
+      setSidebarCollapsed(!isDesktop)
+    }
     setMounted(true)
   }, [])
 
@@ -64,9 +70,9 @@ export function DashboardLayout({ children, user, title }: DashboardLayoutProps)
         className={`flex flex-col min-h-screen w-full transition-[margin] duration-300 ease-in-out ml-0 ${
           mounted
             ? sidebarCollapsed
-              ? 'lg:ml-[72px]'
-              : 'lg:ml-[256px]'
-            : 'lg:ml-[256px]'
+              ? 'md:ml-[72px] lg:ml-[72px]'
+              : 'md:ml-[256px] lg:ml-[256px]'
+            : 'md:ml-[72px] lg:ml-[256px]'
         }`}
       >
         <Header
@@ -79,7 +85,7 @@ export function DashboardLayout({ children, user, title }: DashboardLayoutProps)
           id="main-content"
           className="flex-1 overflow-x-hidden relative p-4 sm:p-6"
         >
-          <div className="relative z-10 max-w-7xl mx-auto">
+          <div className="relative z-10 max-w-[1400px] mx-auto">
             {children}
           </div>
         </main>

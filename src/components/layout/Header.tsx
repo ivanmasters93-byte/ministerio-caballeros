@@ -29,10 +29,10 @@ export function Header({ user, title, onMenuToggle }: HeaderProps) {
     >
       {/* Left: Hamburger (mobile) + Page title */}
       <div className="flex items-center gap-2 min-w-0 overflow-hidden">
-        {/* Hamburger — mobile only */}
+        {/* Hamburger — mobile only (below md) */}
         <button
           onClick={onMenuToggle}
-          className="lg:hidden flex items-center justify-center w-11 h-11 -ml-2 rounded-lg transition-colors duration-200 cursor-pointer"
+          className="md:hidden flex items-center justify-center w-11 h-11 -ml-2 rounded-lg transition-colors duration-200 cursor-pointer"
           style={{ color: 'var(--color-text-secondary)' }}
           aria-label="Abrir menu"
         >
@@ -40,7 +40,7 @@ export function Header({ user, title, onMenuToggle }: HeaderProps) {
         </button>
 
         {/* Logo — mobile only, clickable */}
-        <Link href="/" className="lg:hidden flex items-center gap-2">
+        <Link href="/" className="md:hidden flex items-center gap-2">
           <div
             className="flex-shrink-0 flex items-center justify-center rounded-md"
             style={{
@@ -56,9 +56,9 @@ export function Header({ user, title, onMenuToggle }: HeaderProps) {
           </span>
         </Link>
 
-        {/* Page title — desktop only */}
+        {/* Page title — tablet and desktop */}
         <h1
-          className="text-lg font-semibold truncate hidden lg:block"
+          className="text-lg font-semibold truncate hidden md:block"
           style={{
             fontFamily: 'var(--font-display)',
             color: 'var(--color-text-primary)',

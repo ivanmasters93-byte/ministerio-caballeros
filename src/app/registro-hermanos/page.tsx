@@ -495,6 +495,95 @@ export default function RegistroHermanos() {
                 </p>
               </div>
 
+              {/* PWA install card */}
+              <div
+                className="w-full max-w-sm mx-auto rounded-2xl p-5 space-y-4"
+                style={{
+                  background: 'linear-gradient(160deg, rgba(201,168,76,0.08) 0%, rgba(201,168,76,0.03) 100%)',
+                  border: '1px solid rgba(201,168,76,0.25)',
+                }}
+              >
+                <div className="flex items-center gap-3">
+                  {/* Cross icon */}
+                  <div
+                    className="flex-shrink-0 flex items-center justify-center rounded-xl"
+                    style={{
+                      width: 44,
+                      height: 44,
+                      background: 'rgba(201,168,76,0.12)',
+                      border: '1px solid rgba(201,168,76,0.3)',
+                    }}
+                  >
+                    <svg width="22" height="22" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+                      <rect x="12" y="2" width="4" height="24" rx="2" fill="#c9a84c" />
+                      <rect x="4" y="10" width="20" height="4" rx="2" fill="#c9a84c" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p
+                      className="font-bold leading-tight"
+                      style={{ color: '#c9a84c', fontSize: 15 }}
+                    >
+                      Agrega GEDEONES a tu pantalla
+                    </p>
+                    <p
+                      className="leading-snug mt-0.5"
+                      style={{ color: 'rgba(255,255,255,0.6)', fontSize: 13 }}
+                    >
+                      Accede con un solo toque, sin buscar
+                    </p>
+                  </div>
+                </div>
+
+                {/* iOS instructions */}
+                <div className="space-y-2 text-left">
+                  <p
+                    className="font-semibold"
+                    style={{ color: 'rgba(255,255,255,0.9)', fontSize: 14 }}
+                  >
+                    En iPhone / iPad (Safari):
+                  </p>
+                  <ol className="space-y-1.5 list-none">
+                    {[
+                      <>Toca el boton <span style={{ color: '#c9a84c' }}>⬆ Compartir</span> en la barra de Safari</>,
+                      <>Selecciona <span style={{ color: '#c9a84c', fontWeight: 600 }}>&ldquo;Agregar a pantalla de inicio&rdquo;</span></>,
+                      <>Toca <span style={{ color: '#c9a84c', fontWeight: 600 }}>&ldquo;Agregar&rdquo;</span> para confirmar</>,
+                    ].map((text, i) => (
+                      <li key={i} className="flex items-start gap-2">
+                        <span
+                          className="flex-shrink-0 flex items-center justify-center rounded-full font-bold"
+                          style={{
+                            width: 22, height: 22,
+                            background: 'rgba(201,168,76,0.15)',
+                            border: '1px solid rgba(201,168,76,0.3)',
+                            color: '#c9a84c',
+                            fontSize: 12,
+                            marginTop: 1,
+                          }}
+                        >
+                          {i + 1}
+                        </span>
+                        <span style={{ color: 'rgba(255,255,255,0.75)', fontSize: 13, lineHeight: '1.5' }}>
+                          {text}
+                        </span>
+                      </li>
+                    ))}
+                  </ol>
+                </div>
+
+                <div
+                  className="text-center py-1 rounded-xl"
+                  style={{
+                    background: 'rgba(255,255,255,0.04)',
+                    border: '1px solid rgba(255,255,255,0.06)',
+                    color: 'rgba(255,255,255,0.4)',
+                    fontSize: 12,
+                  }}
+                >
+                  En Android: toca el aviso de instalacion que aparece automaticamente
+                </div>
+              </div>
+
               <p
                 className="text-[12px]"
                 style={{ color: 'var(--color-text-muted, rgba(255,255,255,0.25))' }}

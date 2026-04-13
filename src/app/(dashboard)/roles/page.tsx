@@ -121,6 +121,7 @@ export default function RolesPage() {
 
       <Card>
         <CardContent className="pt-4">
+          <div className="overflow-x-auto -mx-1">
           <Table>
             <TableHead>
               <TableRow>
@@ -178,6 +179,7 @@ export default function RolesPage() {
               ))}
             </TableBody>
           </Table>
+          </div>
         </CardContent>
       </Card>
 

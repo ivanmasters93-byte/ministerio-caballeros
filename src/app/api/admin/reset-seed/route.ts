@@ -107,7 +107,4 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// GET handler for easier access (same logic)
-export async function GET(request: NextRequest) {
-  return POST(request)
-}
+// GET is intentionally not exposed — use POST to prevent accidental resets via browser navigation.

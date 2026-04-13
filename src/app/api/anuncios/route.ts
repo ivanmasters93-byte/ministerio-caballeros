@@ -40,8 +40,19 @@ export const GET = withErrorHandling(async (req: NextRequest) => {
     whereConditions.OR = [{ redId }, { paraTodasRedes: true }]
   }
 
-  // Filter out expired announcements
-  whereConditions.OR = whereConditions.OR ? [...whereConditions.OR, { expiraEn: { gte: new Date() } }] : [{ expiraEn: { gte: new Date() } }, { expiraEn: null }]
+  // Filter out expired announcements — must not overwrite the redId OR clause
+  // Use AND to compose: (redId filter) AND (not expired)
+  if (whereConditions.OR) {
+    // redId filter is active — wrap both constraints with AND
+    const existingOR = whereConditions.OR
+    delete whereConditions.OR
+    whereConditions.AND = [
+      { OR: existingOR },
+      { OR: [{ expiraEn: { gte: new Date() } }, { expiraEn: null }] },
+    ]
+  } else {
+    whereConditions.OR = [{ expiraEn: { gte: new Date() } }, { expiraEn: null }]
+  }
 
   const [anuncios, total] = await Promise.all([
     prisma.anuncio.findMany({

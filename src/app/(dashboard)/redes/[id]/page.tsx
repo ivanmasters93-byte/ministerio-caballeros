@@ -155,6 +155,7 @@ export default function RedDetailPage() {
             {filteredMembers.length === 0 ? (
               <p className="text-center text-gray-400 py-8">No hay miembros</p>
             ) : (
+              <div className="overflow-x-auto -mx-1">
               <Table>
                 <TableHead>
                   <TableRow>
@@ -178,6 +179,7 @@ export default function RedDetailPage() {
                   ))}
                 </TableBody>
               </Table>
+              </div>
             )}
           </CardContent>
         </Card>

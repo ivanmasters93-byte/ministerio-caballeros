@@ -86,7 +86,6 @@ export const LIBRO_API_MAP: Record<string, string> = {
   'Filemón': 'philemon',
   'Hebreos': 'hebrews',
   'Santiago': 'james',
-  'Pedro': '1+peter',
   '1 Pedro': '1+peter',
   '2 Pedro': '2+peter',
   '1 Juan': '1+john',
