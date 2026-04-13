@@ -23,6 +23,7 @@ export const GET = withErrorHandling(async (req: NextRequest) => {
     totalHermanos,
     hermanosActivos,
     hermanosInactivos,
+    hermanosNuevos,
     redesActivas,
     proximosEventos,
     eventosProximosMes,
@@ -38,6 +39,7 @@ export const GET = withErrorHandling(async (req: NextRequest) => {
     prisma.hermano.count(),
     prisma.hermano.count({ where: { estado: 'ACTIVO' } }),
     prisma.hermano.count({ where: { estado: 'INACTIVO' } }),
+    prisma.hermano.count({ where: { estado: 'NUEVO' } }),
     prisma.red.count(),
     prisma.evento.count({ where: { fecha: { gte: currentDate, lte: in7Days } } }),
     prisma.evento.count({ where: { fecha: { gte: currentDate, lte: in30Days } } }),
@@ -74,6 +76,7 @@ export const GET = withErrorHandling(async (req: NextRequest) => {
       total: totalHermanos,
       activos: hermanosActivos,
       inactivos: hermanosInactivos,
+      nuevos: hermanosNuevos,
       requierenSeguimiento: hermanosRequierenSeguimiento,
     },
     redes: {

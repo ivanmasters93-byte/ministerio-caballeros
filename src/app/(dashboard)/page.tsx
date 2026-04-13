@@ -278,14 +278,16 @@ export default function DashboardPage() {
   }
 
   /* ---- Stat cards config ---- */
+  const nuevos = stats?.hermanos?.nuevos ?? 0
+
   const statCards = [
     {
-      label: 'Hermanos Activos',
-      value: stats?.hermanos?.activos ?? 0,
-      subtitle: `de ${stats?.hermanos?.total ?? 0} totales`,
+      label: 'Total Hermanos',
+      value: stats?.hermanos?.total ?? 0,
+      subtitle: nuevos > 0 ? `${nuevos} nuevo${nuevos > 1 ? 's' : ''} hoy` : `${stats?.hermanos?.activos ?? 0} activos`,
       icon: Users,
-      accentColor: 'var(--color-accent-blue)',
-      accentSoft: 'var(--color-accent-blue-soft)',
+      accentColor: nuevos > 0 ? 'var(--color-accent-green)' : 'var(--color-accent-blue)',
+      accentSoft: nuevos > 0 ? 'var(--color-accent-green-soft)' : 'var(--color-accent-blue-soft)',
       href: '/hermanos',
     },
     {

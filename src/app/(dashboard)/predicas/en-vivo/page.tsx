@@ -212,25 +212,122 @@ export default function PredicaEnVivoPage() {
     }
   }
 
-  /* ---- Extract YouTube transcript (subtitles) ---- */
+  /* ---- Extract YouTube transcript CLIENT-SIDE via proxy ---- */
   const extraerDeYoutube = async () => {
     if (!videoId) return
     setExtrayendo(true)
     setErrorExtraer('')
     try {
-      const res = await fetch(`/api/youtube/transcript?videoId=${videoId}`)
-      if (res.ok) {
-        const data = await res.json()
-        if (data.transcript) {
-          setTranscripcion(data.transcript)
-          setErrorExtraer('')
+      // Use multiple free CORS proxies to fetch YouTube page from the browser
+      const proxies = [
+        `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://www.youtube.com/watch?v=${videoId}`)}`,
+        `https://corsproxy.io/?${encodeURIComponent(`https://www.youtube.com/watch?v=${videoId}`)}`,
+      ]
+
+      let html = ''
+      for (const proxyUrl of proxies) {
+        try {
+          const res = await fetch(proxyUrl, { signal: AbortSignal.timeout(10000) })
+          if (res.ok) {
+            html = await res.text()
+            if (html.includes('captionTracks')) break
+          }
+        } catch {
+          continue
         }
-      } else {
-        const data = await res.json().catch(() => ({}))
-        setErrorExtraer(data.error || 'No se pudo extraer la transcripcion. El video debe tener subtitulos activados.')
       }
+
+      if (!html || !html.includes('captionTracks')) {
+        // Fallback to server API
+        const res = await fetch(`/api/youtube/transcript?videoId=${videoId}`)
+        if (res.ok) {
+          const data = await res.json()
+          if (data.transcript) {
+            setTranscripcion(data.transcript)
+            setErrorExtraer('')
+            return
+          }
+        }
+        setErrorExtraer('No se pudo acceder a los subtitulos. Intenta con el microfono.')
+        return
+      }
+
+      // Extract caption track URLs
+      const urlPattern = /https:\/\/www\.youtube\.com\/api\/timedtext[^"\\]*/g
+      const urls: string[] = []
+      let match
+      while ((match = urlPattern.exec(html)) !== null) {
+        urls.push(match[0].replace(/\\u0026/g, '&'))
+      }
+
+      if (urls.length === 0) {
+        setErrorExtraer('No se encontraron subtitulos en este video.')
+        return
+      }
+
+      // Sort: Spanish first
+      const sorted = [
+        ...urls.filter(u => u.includes('lang=es')),
+        ...urls.filter(u => !u.includes('lang=es')),
+      ]
+
+      // Fetch the actual captions via proxy
+      for (const captionUrl of sorted) {
+        try {
+          const proxyCaption = `https://api.allorigins.win/raw?url=${encodeURIComponent(captionUrl)}`
+          const capRes = await fetch(proxyCaption, { signal: AbortSignal.timeout(10000) })
+          if (!capRes.ok) continue
+          const body = await capRes.text()
+
+          // Parse XML captions
+          if (body.includes('<text')) {
+            const parts: string[] = []
+            const textPattern = /<text[^>]*>([^<]*)<\/text>/g
+            let m
+            while ((m = textPattern.exec(body)) !== null) {
+              parts.push(
+                m[1]
+                  .replace(/&amp;/g, '&')
+                  .replace(/&lt;/g, '<')
+                  .replace(/&gt;/g, '>')
+                  .replace(/&#39;/g, "'")
+                  .replace(/&quot;/g, '"')
+                  .replace(/&apos;/g, "'")
+              )
+            }
+            const text = parts.join(' ').replace(/\n/g, ' ').replace(/\s+/g, ' ').trim()
+            if (text.length > 100) {
+              setTranscripcion(text)
+              setErrorExtraer('')
+              return
+            }
+          }
+
+          // Try JSON format
+          try {
+            const data = JSON.parse(body)
+            if (data.events) {
+              const text = data.events
+                .filter((e: { segs?: unknown[] }) => e.segs)
+                .map((e: { segs: Array<{ utf8: string }> }) => e.segs.map(s => s.utf8).join(''))
+                .join(' ')
+                .replace(/\s+/g, ' ')
+                .trim()
+              if (text.length > 100) {
+                setTranscripcion(text)
+                setErrorExtraer('')
+                return
+              }
+            }
+          } catch { /* not JSON */ }
+        } catch {
+          continue
+        }
+      }
+
+      setErrorExtraer('Se encontraron subtitulos pero no se pudieron descargar. Intenta de nuevo.')
     } catch {
-      setErrorExtraer('Error de conexion al extraer subtitulos')
+      setErrorExtraer('Error de conexion. Verifica tu internet e intenta de nuevo.')
     } finally {
       setExtrayendo(false)
     }
