@@ -8,11 +8,29 @@ import { Table, TableHead, TableBody, TableRow, TableTh, TableTd } from '@/compo
 import { Avatar } from '@/components/ui/avatar'
 import { EstadoBadge } from '@/components/hermanos/EstadoBadge'
 import { formatDateShort } from '@/lib/utils'
-import { Search, Plus, Eye } from 'lucide-react'
+import { Search, Plus, Eye, Phone, MessageCircle } from 'lucide-react'
 import Link from 'next/link'
 
+interface Hermano {
+  id: string
+  estado: string
+  ultimaAsistencia?: string
+  user?: {
+    name?: string
+    email?: string
+    phone?: string
+    redes?: Array<{ red?: { nombre?: string } }>
+  }
+  red?: { nombre?: string }
+}
+
+function formatPhone(phone?: string) {
+  if (!phone) return ''
+  return phone.replace(/\D/g, '')
+}
+
 export default function HermanosPage() {
-  const [hermanos, setHermanos] = useState<{ id: string; estado: string; ultimaAsistencia?: string; user?: { name?: string; email?: string; redes?: Array<{ red?: { nombre?: string } }> }; red?: { nombre?: string } }[]>([])
+  const [hermanos, setHermanos] = useState<Hermano[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [filterEstado, setFilterEstado] = useState('')
@@ -76,31 +94,57 @@ export default function HermanosPage() {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {filtered.map(h => (
-                  <TableRow key={h.id}>
-                    <TableTd>
-                      <div className="flex items-center gap-3">
-                        <Avatar name={h.user?.name || '?'} size="sm" />
-                        <div>
-                          <p className="font-medium text-gray-900">{h.user?.name}</p>
-                          <p className="text-gray-400 text-xs">{h.user?.email}</p>
+                {filtered.map(h => {
+                  const phone = h.user?.phone
+                  const phoneClean = formatPhone(phone)
+                  return (
+                    <TableRow key={h.id}>
+                      <TableTd>
+                        <div className="flex items-center gap-3">
+                          <Avatar name={h.user?.name || '?'} size="sm" />
+                          <div>
+                            <p className="font-medium text-gray-900">{h.user?.name}</p>
+                            <p className="text-gray-400 text-xs">{h.user?.email}</p>
+                          </div>
                         </div>
-                      </div>
-                    </TableTd>
-                    <TableTd>
-                      {h.user?.redes?.[0]?.red?.nombre || <span className="text-gray-400 text-xs">Sin red</span>}
-                    </TableTd>
-                    <TableTd><EstadoBadge estado={h.estado} /></TableTd>
-                    <TableTd>
-                      {h.ultimaAsistencia ? formatDateShort(h.ultimaAsistencia) : <span className="text-gray-400 text-xs">—</span>}
-                    </TableTd>
-                    <TableTd>
-                      <Link href={`/hermanos/${h.id}`}>
-                        <Button variant="ghost" size="sm"><Eye size={14} /></Button>
-                      </Link>
-                    </TableTd>
-                  </TableRow>
-                ))}
+                      </TableTd>
+                      <TableTd>
+                        {h.user?.redes?.[0]?.red?.nombre || <span className="text-gray-400 text-xs">Sin red</span>}
+                      </TableTd>
+                      <TableTd><EstadoBadge estado={h.estado} /></TableTd>
+                      <TableTd>
+                        {h.ultimaAsistencia ? formatDateShort(h.ultimaAsistencia) : <span className="text-gray-400 text-xs">—</span>}
+                      </TableTd>
+                      <TableTd>
+                        <div className="flex items-center gap-1">
+                          {phone && (
+                            <>
+                              <a
+                                href={`tel:${phone}`}
+                                title="Llamar"
+                                className="flex items-center justify-center w-8 h-8 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors"
+                              >
+                                <Phone size={14} />
+                              </a>
+                              <a
+                                href={`https://wa.me/${phoneClean}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                title="WhatsApp"
+                                className="flex items-center justify-center w-8 h-8 rounded-lg bg-green-50 text-green-600 hover:bg-green-100 transition-colors"
+                              >
+                                <MessageCircle size={14} />
+                              </a>
+                            </>
+                          )}
+                          <Link href={`/hermanos/${h.id}`}>
+                            <Button variant="ghost" size="sm"><Eye size={14} /></Button>
+                          </Link>
+                        </div>
+                      </TableTd>
+                    </TableRow>
+                  )
+                })}
                 {filtered.length === 0 && (
                   <TableRow>
                     <TableTd colSpan={5} className="text-center text-gray-400 py-8">No se encontraron hermanos</TableTd>

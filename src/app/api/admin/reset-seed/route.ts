@@ -8,8 +8,8 @@ import { prisma } from '@/lib/prisma'
  * Requiere header: x-admin-key = NEXTAUTH_SECRET
  */
 export async function POST(request: NextRequest) {
-  // Security: require secret key
-  const adminKey = request.headers.get('x-admin-key')
+  // Security: accept key via header OR query param
+  const adminKey = request.headers.get('x-admin-key') || request.nextUrl.searchParams.get('key')
   const secret = process.env.NEXTAUTH_SECRET
 
   if (!adminKey || adminKey !== secret) {
@@ -105,4 +105,9 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     )
   }
+}
+
+// GET handler for easier access (same logic)
+export async function GET(request: NextRequest) {
+  return POST(request)
 }

@@ -28,6 +28,7 @@ import {
   Sparkles,
   Copy,
   Check,
+  MessageCircle,
 } from 'lucide-react'
 
 /* ------------------------------------------------------------------ */
@@ -60,6 +61,23 @@ interface CasoSeguimiento {
   descripcion?: string
   createdAt: string
   hermano: { user: { name: string } }
+}
+
+interface HermanoAlerta {
+  id: string
+  estado: string
+  ultimaAsistencia?: string
+  user: {
+    name: string
+    phone?: string
+  }
+}
+
+interface PeticionUrgente {
+  id: string
+  descripcion: string
+  prioridad: string
+  hermano?: { user?: { name?: string; phone?: string } }
 }
 
 interface DashboardStats {
@@ -153,9 +171,22 @@ function timeAgo(iso: string): string {
 /*  Component                                                          */
 /* ------------------------------------------------------------------ */
 
+function formatPhone(phone?: string) {
+  if (!phone) return ''
+  return phone.replace(/\D/g, '')
+}
+
+function daysSince(iso?: string): number | null {
+  if (!iso) return null
+  const diff = Date.now() - new Date(iso).getTime()
+  return Math.floor(diff / (1000 * 60 * 60 * 24))
+}
+
 export default function DashboardPage() {
   const [stats, setStats] = useState<DashboardStats | null>(null)
   const [loading, setLoading] = useState(true)
+  const [hermanosAlerta, setHermanosAlerta] = useState<HermanoAlerta[]>([])
+  const [peticionesUrgentes, setPeticionesUrgentes] = useState<PeticionUrgente[]>([])
 
   useEffect(() => {
     fetch('/api/dashboard/stats')
@@ -165,6 +196,30 @@ export default function DashboardPage() {
         setLoading(false)
       })
       .catch(() => setLoading(false))
+
+    // Fetch hermanos that need pastoral attention
+    fetch('/api/hermanos?estado=REQUIERE_SEGUIMIENTO&limit=20')
+      .then(r => r.json())
+      .then(data => {
+        const seg = Array.isArray(data) ? data : (data?.data ?? [])
+        fetch('/api/hermanos?estado=INACTIVO&limit=10')
+          .then(r2 => r2.json())
+          .then(data2 => {
+            const inac = Array.isArray(data2) ? data2 : (data2?.data ?? [])
+            setHermanosAlerta([...seg, ...inac])
+          })
+          .catch(() => setHermanosAlerta(seg))
+      })
+      .catch(() => {})
+
+    // Fetch urgent prayer requests
+    fetch('/api/oracion?prioridad=URGENTE&limit=5')
+      .then(r => r.json())
+      .then(data => {
+        const list = Array.isArray(data) ? data : (data?.data ?? [])
+        setPeticionesUrgentes(list.filter((p: PeticionUrgente) => p.prioridad === 'URGENTE'))
+      })
+      .catch(() => {})
   }, [])
 
   const hour = new Date().getHours()
@@ -261,12 +316,129 @@ export default function DashboardPage() {
     ? stats.seguimiento.abiertos
     : []
 
+  const tieneAtencionPastoral = hermanosAlerta.length > 0 || peticionesUrgentes.length > 0
+
   return (
     <div className="space-y-6 sm:space-y-8">
       {/* ========== SECTION 1: GREETING ========== */}
       <div className="slide-up">
         <GreetingBar greeting={greeting} todayLabel={todayLabel} />
       </div>
+
+      {/* ========== SECTION 1b: ATENCION PASTORAL ========== */}
+      {tieneAtencionPastoral && (
+        <div className="slide-up" style={{ animationDelay: '80ms' }}>
+          <div className="rounded-xl border-2 border-amber-300 bg-amber-50 p-5">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-amber-100">
+                <AlertTriangle size={18} className="text-amber-600" />
+              </div>
+              <div>
+                <h3 className="text-[15px] font-bold text-amber-900">Atencion Pastoral</h3>
+                <p className="text-[12px] text-amber-700">
+                  {hermanosAlerta.length} hermano{hermanosAlerta.length !== 1 ? 's' : ''} requieren contacto
+                  {peticionesUrgentes.length > 0 && ` · ${peticionesUrgentes.length} peticion${peticionesUrgentes.length !== 1 ? 'es' : ''} urgente${peticionesUrgentes.length !== 1 ? 's' : ''}`}
+                </p>
+              </div>
+              <Link href="/seguimiento" className="ml-auto text-[12px] font-medium text-amber-700 hover:text-amber-900 flex items-center gap-1">
+                Ver seguimiento <ChevronRight size={13} />
+              </Link>
+            </div>
+
+            {/* Hermanos requiring attention */}
+            {hermanosAlerta.length > 0 && (
+              <div className="space-y-2 mb-4">
+                {hermanosAlerta.slice(0, 6).map(h => {
+                  const phone = h.user?.phone
+                  const phoneClean = formatPhone(phone)
+                  const dias = daysSince(h.ultimaAsistencia)
+                  return (
+                    <div key={h.id} className="flex items-center gap-3 bg-white rounded-lg px-4 py-3 border border-amber-200">
+                      <div className="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center text-[13px] font-bold text-amber-700 shrink-0">
+                        {h.user.name.charAt(0).toUpperCase()}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[14px] font-semibold text-gray-900 truncate">{h.user.name}</p>
+                        <p className="text-[11px] text-amber-700">
+                          {h.estado === 'REQUIERE_SEGUIMIENTO' ? 'Requiere seguimiento' : 'Inactivo'}
+                          {dias !== null && ` · ${dias}d sin asistir`}
+                        </p>
+                      </div>
+                      {phone && (
+                        <div className="flex items-center gap-2 shrink-0">
+                          <a
+                            href={`tel:${phone}`}
+                            title="Llamar"
+                            className="flex items-center justify-center w-9 h-9 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors border border-blue-200"
+                          >
+                            <Phone size={16} />
+                          </a>
+                          <a
+                            href={`https://wa.me/${phoneClean}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            title="WhatsApp"
+                            className="flex items-center justify-center w-9 h-9 rounded-lg bg-green-50 text-green-600 hover:bg-green-100 transition-colors border border-green-200"
+                          >
+                            <MessageCircle size={16} />
+                          </a>
+                          <Link href={`/hermanos/${h.id}`}>
+                            <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-gray-50 text-gray-500 hover:bg-gray-100 transition-colors border border-gray-200">
+                              <ChevronRight size={16} />
+                            </div>
+                          </Link>
+                        </div>
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+
+            {/* Urgent prayer requests */}
+            {peticionesUrgentes.length > 0 && (
+              <div>
+                <p className="text-[12px] font-semibold text-red-700 uppercase tracking-wide mb-2">Peticiones Urgentes</p>
+                <div className="space-y-2">
+                  {peticionesUrgentes.map(p => {
+                    const phone = p.hermano?.user?.phone
+                    const phoneClean = formatPhone(phone)
+                    return (
+                      <div key={p.id} className="flex items-center gap-3 bg-red-50 rounded-lg px-4 py-3 border border-red-200">
+                        <Heart size={14} className="text-red-500 shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[13px] font-medium text-gray-900 truncate">{p.hermano?.user?.name}</p>
+                          <p className="text-[12px] text-gray-600 line-clamp-1">{p.descripcion}</p>
+                        </div>
+                        {phone && (
+                          <div className="flex items-center gap-2 shrink-0">
+                            <a
+                              href={`tel:${phone}`}
+                              title="Llamar"
+                              className="flex items-center justify-center w-8 h-8 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors border border-blue-200"
+                            >
+                              <Phone size={14} />
+                            </a>
+                            <a
+                              href={`https://wa.me/${phoneClean}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              title="WhatsApp"
+                              className="flex items-center justify-center w-8 h-8 rounded-lg bg-green-50 text-green-600 hover:bg-green-100 transition-colors border border-green-200"
+                            >
+                              <MessageCircle size={14} />
+                            </a>
+                          </div>
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* ========== SECTION 2: QUICK STATS ========== */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
