@@ -465,7 +465,13 @@ export default function EnviarVersiculoPage() {
                       {versiculos.map((v) => (
                         <button
                           key={v.versiculo}
-                          onClick={() => setVersiculoSeleccionado(v)}
+                          onClick={() => {
+                            setVersiculoSeleccionado(v)
+                            // Scroll to preview after short delay
+                            setTimeout(() => {
+                              document.getElementById('verse-preview')?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                            }, 100)
+                          }}
                           className="w-full flex items-start gap-3 px-3 py-2.5 rounded-lg text-left transition-all"
                           style={{
                             background:
@@ -504,7 +510,7 @@ export default function EnviarVersiculoPage() {
 
           {/* Preview */}
           {(versiculoSeleccionado || mensajeCustom.trim()) && (
-            <Card>
+            <Card id="verse-preview">
               <CardContent className="pt-4">
                 <p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--color-text-muted)' }}>
                   Vista previa del mensaje
@@ -523,15 +529,18 @@ export default function EnviarVersiculoPage() {
             </Card>
           )}
 
-          <div className="flex justify-end">
-            <Button
-              disabled={!puedeIrAPaso2}
-              onClick={() => setPaso(2)}
-              className="flex items-center gap-2"
-            >
-              Elegir destinatarios <ChevronRight size={16} />
-            </Button>
-          </div>
+          {/* Sticky bottom button */}
+          {puedeIrAPaso2 && (
+            <div className="sticky bottom-0 pt-4 pb-2" style={{ background: 'linear-gradient(transparent, var(--color-bg-base) 20%)' }}>
+              <Button
+                onClick={() => setPaso(2)}
+                className="w-full flex items-center justify-center gap-2 py-4 text-base font-semibold"
+                style={{ background: 'var(--color-accent-gold)', color: '#000' }}
+              >
+                <Users size={18} /> Elegir destinatarios <ChevronRight size={18} />
+              </Button>
+            </div>
+          )}
         </div>
       )}
 
