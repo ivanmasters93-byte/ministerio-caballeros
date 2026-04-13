@@ -68,7 +68,7 @@ export const updateAnuncioSchema = createAnuncioSchema.partial().extend({
 // ============================================================
 export const createAsistenciaSchema = z.object({
   eventoId: z.string().min(1, 'Evento requerido'),
-  redId: z.string().min(1, 'Red requerida'),
+  redId: z.string().optional().nullable(),
   fecha: z.string(),
   detalles: z.array(z.object({
     hermanoId: z.string(),
@@ -84,7 +84,7 @@ export const createSeguimientoSchema = z.object({
   hermanoId: z.string().min(1, 'Hermano requerido'),
   tipo: z.enum(['LLAMADA', 'VISITA', 'NOTA', 'ALERTA']),
   descripcion: z.string().min(5, 'La descripción debe tener al menos 5 caracteres'),
-  responsableId: z.string().min(1, 'Responsable requerido'),
+  responsableId: z.string().optional(),
   estado: z.enum(['ABIERTO', 'EN_PROCESO', 'CERRADO']).optional(),
   proximoContacto: z.string().optional(),
   privado: z.boolean().optional(),

@@ -10,7 +10,7 @@ import { Select } from '@/components/ui/select'
 import { Input } from '@/components/ui/input'
 import { EstadoBadge } from '@/components/hermanos/EstadoBadge'
 import { formatDate } from '@/lib/utils'
-import { ArrowLeft, Phone, Mail, MapPin, MessageCircle, Briefcase, Heart, Clock, Plus, UserCheck } from 'lucide-react'
+import { ArrowLeft, Phone, Mail, MapPin, MessageCircle, Briefcase, Heart, Clock, Plus, UserCheck, BookOpen } from 'lucide-react'
 import Link from 'next/link'
 
 interface HermanoProfile {
@@ -252,6 +252,12 @@ export default function HermanoProfilePage() {
                 >
                   <Heart size={15} /> Petición de Oración
                 </button>
+                <Link
+                  href={`/hermanos/enviar-versiculo?hermanoId=${hermano.id}`}
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-emerald-600 text-white text-sm font-semibold hover:bg-emerald-700 transition-colors"
+                >
+                  <BookOpen size={15} /> Enviar Versículo
+                </Link>
               </div>
             </div>
           </div>

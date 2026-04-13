@@ -1,11 +1,12 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Dialog } from '@/components/ui/dialog'
 import { buildJitsiEmbedUrl } from '@/lib/jitsi/config'
-import { Video, Plus, Clock, Radio, PlayCircle, Copy, Check, Share2 } from 'lucide-react'
+import {
+  Video, Clock, Copy, Check, Share2, Users, Network,
+  PlayCircle, ChevronDown, ChevronUp, ExternalLink,
+} from 'lucide-react'
 
 interface Reunion {
   id: string
@@ -19,295 +20,250 @@ interface Reunion {
   red?: { nombre: string } | null
 }
 
+interface Hermano {
+  id: string
+  user: { name: string; phone?: string | null }
+}
+
+interface Red {
+  id: string
+  nombre: string
+  tipo: string
+  _count?: { miembros: number }
+}
+
+type Paso = 'inicio' | 'crear' | 'compartir'
+
 export default function ReunionesPage() {
   const [proximas, setProximas] = useState<Reunion[]>([])
   const [anteriores, setAnteriores] = useState<Reunion[]>([])
   const [loading, setLoading] = useState(true)
-  const [showCrear, setShowCrear] = useState(false)
-  const [nuevoTitulo, setNuevoTitulo] = useState('')
+  const [redes, setRedes] = useState<Red[]>([])
+  const [hermanos, setHermanos] = useState<Hermano[]>([])
+  const [showAnteriores, setShowAnteriores] = useState(false)
+
+  // Crear reunion state
+  const [paso, setPaso] = useState<Paso>('inicio')
+  const [titulo, setTitulo] = useState('')
+  const [destino, setDestino] = useState<'todos' | 'red' | 'seleccionar'>('todos')
+  const [redSeleccionada, setRedSeleccionada] = useState('')
+  const [hermanosSeleccionados, setHermanosSeleccionados] = useState<Set<string>>(new Set())
   const [creando, setCreando] = useState(false)
+  const [reunionCreada, setReunionCreada] = useState<Reunion | null>(null)
 
-  const cargarReuniones = async () => {
-    setLoading(true)
-    try {
-      const [rProx, rAnt] = await Promise.all([
-        fetch('/api/reuniones?tipo=proximas').then(r => r.json()),
-        fetch('/api/reuniones?tipo=anteriores').then(r => r.json()),
-      ])
-      setProximas(Array.isArray(rProx) ? rProx : [])
-      setAnteriores(Array.isArray(rAnt) ? rAnt : [])
-    } catch {
-      // silently handle
-    } finally {
-      setLoading(false)
-    }
-  }
+  useEffect(() => {
+    Promise.all([
+      fetch('/api/reuniones?tipo=proximas').then(r => r.json()),
+      fetch('/api/reuniones?tipo=anteriores').then(r => r.json()),
+      fetch('/api/redes').then(r => r.json()),
+      fetch('/api/hermanos?limit=200').then(r => r.json()),
+    ]).then(([prox, ant, redesData, hermanosData]) => {
+      setProximas(Array.isArray(prox) ? prox : [])
+      setAnteriores(Array.isArray(ant) ? ant : [])
+      setRedes(Array.isArray(redesData) ? redesData : [])
+      const lista = Array.isArray(hermanosData) ? hermanosData
+        : Array.isArray(hermanosData?.data) ? hermanosData.data : []
+      setHermanos(lista)
+    }).catch(() => {}).finally(() => setLoading(false))
+  }, [])
 
-  useEffect(() => { cargarReuniones() }, [])
-
-  const unirseReunion = (reunion: Reunion) => {
-    if (!reunion.jitsiRoomId) return
-    // Open in new tab — works on mobile without login issues
-    const url = buildJitsiEmbedUrl(reunion.jitsiRoomId, { subject: reunion.titulo })
-    window.open(url, '_blank', 'noopener')
-  }
-
-  const crearReunionInstantanea = async () => {
-    if (!nuevoTitulo.trim()) return
+  const crearReunion = async () => {
+    const nombre = titulo.trim() || `Reunion ${new Date().toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}`
     setCreando(true)
     try {
       const res = await fetch('/api/reuniones', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ titulo: nuevoTitulo.trim() }),
+        body: JSON.stringify({ titulo: nombre }),
       })
       if (res.ok) {
         const nueva = await res.json()
-        setShowCrear(false)
-        setNuevoTitulo('')
-        await cargarReuniones()
-        if (nueva.jitsiRoomId) {
-          // Open meeting directly
-          const url = buildJitsiEmbedUrl(nueva.jitsiRoomId, { subject: nueva.titulo })
-          window.open(url, '_blank', 'noopener')
-        }
+        setReunionCreada(nueva)
+        setProximas(prev => [nueva, ...prev])
+        setPaso('compartir')
       }
-    } catch {
-      // silently handle
-    } finally {
-      setCreando(false)
+    } catch {} finally { setCreando(false) }
+  }
+
+  const getMeetingUrl = (r: Reunion) => {
+    if (!r.jitsiRoomId) return ''
+    return buildJitsiEmbedUrl(r.jitsiRoomId, { subject: r.titulo })
+  }
+
+  const compartirWhatsApp = (url: string, titulo: string, phones: string[]) => {
+    const msg = encodeURIComponent(`Reunion GEDEONES: ${titulo}\n\nUnete aqui:\n${url}`)
+    if (phones.length === 1) {
+      window.open(`https://wa.me/${phones[0].replace(/\D/g, '')}?text=${msg}`, '_blank')
+    } else {
+      window.open(`https://wa.me/?text=${msg}`, '_blank')
     }
   }
 
-  const formatFecha = (fecha: string) => {
-    return new Date(fecha).toLocaleDateString('es-ES', {
-      weekday: 'long',
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric',
+  const getDestinatariosPhones = (): string[] => {
+    if (destino === 'todos') {
+      return hermanos.filter(h => h.user.phone).map(h => h.user.phone!)
+    }
+    if (destino === 'red') {
+      // For now share to all (API doesn't filter by red in hermanos list)
+      return hermanos.filter(h => h.user.phone).map(h => h.user.phone!)
+    }
+    return hermanos
+      .filter(h => hermanosSeleccionados.has(h.id) && h.user.phone)
+      .map(h => h.user.phone!)
+  }
+
+  const toggleHermano = (id: string) => {
+    setHermanosSeleccionados(prev => {
+      const next = new Set(prev)
+      next.has(id) ? next.delete(id) : next.add(id)
+      return next
     })
   }
 
-  const esHoy = (fecha: string) => {
-    const hoy = new Date()
-    const f = new Date(fecha)
-    return f.getFullYear() === hoy.getFullYear() &&
-      f.getMonth() === hoy.getMonth() &&
-      f.getDate() === hoy.getDate()
+  const resetCrear = () => {
+    setPaso('inicio')
+    setTitulo('')
+    setDestino('todos')
+    setRedSeleccionada('')
+    setHermanosSeleccionados(new Set())
+    setReunionCreada(null)
+  }
+
+  const formatFecha = (f: string) =>
+    new Date(f).toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short' })
+
+  const esHoy = (f: string) => {
+    const h = new Date(), d = new Date(f)
+    return h.toDateString() === d.toDateString()
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-2xl mx-auto">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div
-            className="flex items-center justify-center rounded-lg w-10 h-10"
-            style={{ background: 'var(--color-accent-gold-soft)' }}
-          >
-            <Video size={20} style={{ color: 'var(--color-accent-gold)' }} />
-          </div>
-          <div>
-            <h2
-              className="text-2xl font-bold"
-              style={{ color: 'var(--color-text-primary)', fontFamily: 'var(--font-display)' }}
-            >
-              Reuniones en Vivo
-            </h2>
-            <p className="text-sm" style={{ color: 'var(--color-text-muted)' }}>
-              Videollamadas gratuitas con Jitsi Meet - Gedeones 2.0
-            </p>
-          </div>
-        </div>
-        <Button onClick={() => setShowCrear(true)} className="flex items-center gap-2">
-          <Plus size={16} />
-          Reunion Rapida
-        </Button>
-      </div>
-
-      {/* Instant meeting section */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Radio size={18} style={{ color: 'var(--color-accent-gold)' }} />
-            Reunion Rapida
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm mb-4" style={{ color: 'var(--color-text-secondary)' }}>
-            Inicia una videollamada instantanea sin necesidad de programarla. Comparte el enlace con los hermanos.
-          </p>
-          <Button onClick={() => setShowCrear(true)} variant="outline" className="flex items-center gap-2">
-            <Plus size={16} />
-            Crear reunion ahora
-          </Button>
-        </CardContent>
-      </Card>
-
-      {/* Upcoming meetings */}
-      <div>
-        <h3
-          className="text-sm font-semibold uppercase tracking-wider mb-3"
-          style={{ color: 'var(--color-text-muted)' }}
+      <div className="flex items-center gap-3">
+        <div
+          className="flex items-center justify-center rounded-xl w-11 h-11"
+          style={{ background: 'var(--color-accent-gold-soft)', border: '1px solid rgba(201,168,76,0.2)' }}
         >
-          Proximas Reuniones
-        </h3>
-        {loading ? (
-          <div className="space-y-3">
-            {[1, 2].map(i => (
-              <div
-                key={i}
-                className="h-20 rounded-xl animate-pulse"
-                style={{ background: 'var(--color-bg-elevated)' }}
-              />
-            ))}
-          </div>
-        ) : proximas.length === 0 ? (
-          <Card>
-            <CardContent className="py-10 text-center">
-              <Video size={32} className="mx-auto mb-3 opacity-30" style={{ color: 'var(--color-text-muted)' }} />
-              <p style={{ color: 'var(--color-text-muted)' }}>
-                No hay reuniones con video programadas
-              </p>
-              <p className="text-xs mt-1" style={{ color: 'var(--color-text-muted)' }}>
-                Activa &quot;Habilitar videollamada&quot; al crear un evento en la Agenda
-              </p>
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="space-y-3">
-            {proximas.map(r => (
-              <Card key={r.id}>
-                <CardContent className="py-4">
-                  <div className="flex items-center justify-between gap-4">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <p
-                          className="font-semibold truncate"
-                          style={{ color: 'var(--color-text-primary)' }}
-                        >
-                          {r.titulo}
-                        </p>
-                        {esHoy(r.fecha) && (
-                          <span
-                            className="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide flex-shrink-0"
-                            style={{
-                              background: 'var(--color-accent-gold-soft)',
-                              color: 'var(--color-accent-gold)',
-                            }}
-                          >
-                            Hoy
-                          </span>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-3 text-xs" style={{ color: 'var(--color-text-muted)' }}>
-                        <span className="flex items-center gap-1">
-                          <Clock size={11} />
-                          {formatFecha(r.fecha)}
-                          {r.hora && ` · ${r.hora}`}
-                        </span>
-                        {r.red && <span>· {r.red.nombre}</span>}
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2 flex-shrink-0">
-                      {r.jitsiRoomId && (
-                        <CopyLinkButton roomId={r.jitsiRoomId} />
-                      )}
-                      <Button
-                        size="sm"
-                        onClick={() => unirseReunion(r)}
-                        disabled={!r.jitsiRoomId}
-                        className="flex items-center gap-1.5"
-                      >
-                        <Video size={14} />
-                        Unirse
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        )}
+          <Video size={22} style={{ color: 'var(--color-accent-gold)' }} />
+        </div>
+        <div>
+          <h1 className="text-[20px] sm:text-[22px] font-bold" style={{ color: 'var(--color-text-primary)', fontFamily: 'var(--font-display)' }}>
+            Reuniones
+          </h1>
+          <p className="text-[12px]" style={{ color: 'var(--color-text-muted)' }}>
+            Videollamadas instantaneas &middot; Sin descargar nada
+          </p>
+        </div>
       </div>
 
-      {/* Past meetings */}
-      {anteriores.length > 0 && (
-        <div>
-          <h3
-            className="text-sm font-semibold uppercase tracking-wider mb-3"
-            style={{ color: 'var(--color-text-muted)' }}
+      {/* ===== PASO: INICIO ===== */}
+      {paso === 'inicio' && (
+        <>
+          {/* Big create button */}
+          <button
+            onClick={() => setPaso('crear')}
+            className="w-full rounded-2xl p-6 flex flex-col items-center gap-3 transition-all duration-200 cursor-pointer group"
+            style={{
+              background: 'linear-gradient(135deg, rgba(201,168,76,0.12), rgba(201,168,76,0.04))',
+              border: '2px dashed rgba(201,168,76,0.3)',
+            }}
           >
-            Reuniones Anteriores
-          </h3>
-          <div className="space-y-3">
-            {anteriores.map(r => (
-              <Card key={r.id}>
-                <CardContent className="py-4">
-                  <div className="flex items-center justify-between gap-4">
-                    <div className="flex-1 min-w-0">
-                      <p
-                        className="font-medium truncate"
-                        style={{ color: 'var(--color-text-secondary)' }}
-                      >
-                        {r.titulo}
-                      </p>
-                      <p className="text-xs mt-0.5" style={{ color: 'var(--color-text-muted)' }}>
-                        {formatFecha(r.fecha)}
-                        {r.hora && ` · ${r.hora}`}
-                        {r.red && ` · ${r.red.nombre}`}
-                      </p>
+            <div
+              className="w-16 h-16 rounded-2xl flex items-center justify-center transition-transform duration-200 group-hover:scale-110"
+              style={{ background: 'var(--color-accent-gold-soft)' }}
+            >
+              <Video size={32} style={{ color: 'var(--color-accent-gold)' }} />
+            </div>
+            <div className="text-center">
+              <p className="text-[16px] font-bold" style={{ color: 'var(--color-accent-gold)' }}>
+                Crear Reunion
+              </p>
+              <p className="text-[13px] mt-1" style={{ color: 'var(--color-text-muted)' }}>
+                Toca para iniciar y compartir el link
+              </p>
+            </div>
+          </button>
+
+          {/* Proximas */}
+          {proximas.length > 0 && (
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-widest mb-3" style={{ color: 'var(--color-text-muted)' }}>
+                Proximas
+              </p>
+              <div className="space-y-2">
+                {proximas.map(r => (
+                  <ReunionCard key={r.id} reunion={r} onUnirse={() => {
+                    const url = getMeetingUrl(r)
+                    if (url) window.open(url, '_blank')
+                  }} onCompartir={() => {
+                    const url = getMeetingUrl(r)
+                    if (url) compartirWhatsApp(url, r.titulo, [])
+                  }} esHoy={esHoy(r.fecha)} formatFecha={formatFecha} />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Anteriores (colapsable) */}
+          {anteriores.length > 0 && (
+            <div>
+              <button
+                onClick={() => setShowAnteriores(!showAnteriores)}
+                className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest mb-3 cursor-pointer"
+                style={{ color: 'var(--color-text-muted)' }}
+              >
+                Anteriores ({anteriores.length})
+                {showAnteriores ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+              </button>
+              {showAnteriores && (
+                <div className="space-y-2">
+                  {anteriores.map(r => (
+                    <div
+                      key={r.id}
+                      className="rounded-xl p-3 flex items-center justify-between"
+                      style={{ background: 'var(--color-bg-surface)', border: '1px solid var(--color-border-subtle)' }}
+                    >
+                      <div className="min-w-0 flex-1">
+                        <p className="text-[13px] font-medium truncate" style={{ color: 'var(--color-text-secondary)' }}>{r.titulo}</p>
+                        <p className="text-[11px]" style={{ color: 'var(--color-text-muted)' }}>{formatFecha(r.fecha)}</p>
+                      </div>
+                      {r.grabacionUrl && (
+                        <a href={r.grabacionUrl} target="_blank" rel="noopener noreferrer">
+                          <Button variant="ghost" size="sm"><PlayCircle size={14} /></Button>
+                        </a>
+                      )}
                     </div>
-                    {r.grabacionUrl ? (
-                      <a
-                        href={r.grabacionUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        <Button variant="outline" size="sm" className="flex items-center gap-1.5">
-                          <PlayCircle size={14} />
-                          Grabacion
-                        </Button>
-                      </a>
-                    ) : (
-                      <span className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
-                        Sin grabacion
-                      </span>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {!loading && proximas.length === 0 && anteriores.length === 0 && (
+            <div className="text-center py-8">
+              <p className="text-[13px]" style={{ color: 'var(--color-text-muted)' }}>
+                Aun no hay reuniones. Crea la primera.
+              </p>
+            </div>
+          )}
+        </>
       )}
 
-      {/* Create meeting dialog */}
-      <Dialog
-        open={showCrear}
-        onClose={() => { setShowCrear(false); setNuevoTitulo('') }}
-        title="Nueva Reunion Rapida"
-      >
-        <div className="space-y-4">
-          <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
-            Se creara una sala de videollamada gratuita con Jitsi Meet. No se necesita cuenta.
-          </p>
+      {/* ===== PASO: CREAR ===== */}
+      {paso === 'crear' && (
+        <div className="space-y-5">
+          {/* Nombre */}
           <div>
-            <label
-              htmlFor="nuevo-titulo"
-              className="block text-sm font-medium mb-1.5"
-              style={{ color: 'var(--color-text-secondary)' }}
-            >
-              Nombre de la reunion
+            <label className="text-[13px] font-medium mb-2 block" style={{ color: 'var(--color-text-secondary)' }}>
+              Nombre de la reunion (opcional)
             </label>
             <input
-              id="nuevo-titulo"
               type="text"
-              value={nuevoTitulo}
-              onChange={e => setNuevoTitulo(e.target.value)}
-              placeholder="Ej: Reunion Liderazgo Abril"
-              onKeyDown={e => { if (e.key === 'Enter') crearReunionInstantanea() }}
-              className="w-full px-3 py-2 rounded-lg text-sm outline-none transition-colors"
+              value={titulo}
+              onChange={e => setTitulo(e.target.value)}
+              placeholder={`Reunion ${new Date().toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}`}
+              className="w-full px-4 py-3 rounded-xl text-[15px] outline-none"
               style={{
                 background: 'var(--color-bg-elevated)',
                 border: '1px solid var(--color-border-default)',
@@ -316,45 +272,268 @@ export default function ReunionesPage() {
               autoFocus
             />
           </div>
-          <div className="flex justify-end gap-2 pt-2">
-            <Button
-              variant="ghost"
-              onClick={() => { setShowCrear(false); setNuevoTitulo('') }}
-            >
-              Cancelar
-            </Button>
-            <Button
-              onClick={crearReunionInstantanea}
-              disabled={creando || !nuevoTitulo.trim()}
-              className="flex items-center gap-2"
-            >
-              <Video size={14} />
-              {creando ? 'Creando...' : 'Iniciar reunion'}
+
+          {/* A quienes invitar */}
+          <div>
+            <label className="text-[13px] font-medium mb-3 block" style={{ color: 'var(--color-text-secondary)' }}>
+              Invitar a:
+            </label>
+            <div className="space-y-2">
+              {/* Todos */}
+              <button
+                onClick={() => setDestino('todos')}
+                className="w-full rounded-xl p-4 flex items-center gap-3 text-left cursor-pointer transition-all"
+                style={{
+                  background: destino === 'todos' ? 'var(--color-accent-gold-soft)' : 'var(--color-bg-surface)',
+                  border: destino === 'todos' ? '2px solid var(--color-accent-gold)' : '1px solid var(--color-border-subtle)',
+                }}
+              >
+                <Users size={20} style={{ color: destino === 'todos' ? 'var(--color-accent-gold)' : 'var(--color-text-muted)' }} />
+                <div>
+                  <p className="text-[14px] font-medium" style={{ color: 'var(--color-text-primary)' }}>Todos los hermanos</p>
+                  <p className="text-[12px]" style={{ color: 'var(--color-text-muted)' }}>{hermanos.length} personas</p>
+                </div>
+              </button>
+
+              {/* Por Red */}
+              <button
+                onClick={() => setDestino('red')}
+                className="w-full rounded-xl p-4 flex items-center gap-3 text-left cursor-pointer transition-all"
+                style={{
+                  background: destino === 'red' ? 'var(--color-accent-blue-soft)' : 'var(--color-bg-surface)',
+                  border: destino === 'red' ? '2px solid var(--color-accent-blue)' : '1px solid var(--color-border-subtle)',
+                }}
+              >
+                <Network size={20} style={{ color: destino === 'red' ? 'var(--color-accent-blue)' : 'var(--color-text-muted)' }} />
+                <div>
+                  <p className="text-[14px] font-medium" style={{ color: 'var(--color-text-primary)' }}>Solo una red</p>
+                  <p className="text-[12px]" style={{ color: 'var(--color-text-muted)' }}>Elige cual red invitar</p>
+                </div>
+              </button>
+
+              {/* Red selector */}
+              {destino === 'red' && (
+                <div className="grid grid-cols-3 gap-2 pl-2">
+                  {redes.map(r => (
+                    <button
+                      key={r.id}
+                      onClick={() => setRedSeleccionada(r.id)}
+                      className="rounded-lg p-3 text-center cursor-pointer transition-all"
+                      style={{
+                        background: redSeleccionada === r.id ? 'var(--color-accent-blue-soft)' : 'var(--color-bg-elevated)',
+                        border: redSeleccionada === r.id ? '2px solid var(--color-accent-blue)' : '1px solid var(--color-border-subtle)',
+                        color: redSeleccionada === r.id ? 'var(--color-accent-blue)' : 'var(--color-text-secondary)',
+                      }}
+                    >
+                      <p className="text-[13px] font-semibold">{r.nombre}</p>
+                      <p className="text-[11px]" style={{ color: 'var(--color-text-muted)' }}>{r._count?.miembros ?? '?'}</p>
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {/* Seleccionar individuales */}
+              <button
+                onClick={() => setDestino('seleccionar')}
+                className="w-full rounded-xl p-4 flex items-center gap-3 text-left cursor-pointer transition-all"
+                style={{
+                  background: destino === 'seleccionar' ? 'var(--color-accent-purple-soft)' : 'var(--color-bg-surface)',
+                  border: destino === 'seleccionar' ? '2px solid var(--color-accent-purple)' : '1px solid var(--color-border-subtle)',
+                }}
+              >
+                <Share2 size={20} style={{ color: destino === 'seleccionar' ? 'var(--color-accent-purple)' : 'var(--color-text-muted)' }} />
+                <div>
+                  <p className="text-[14px] font-medium" style={{ color: 'var(--color-text-primary)' }}>Elegir personas</p>
+                  <p className="text-[12px]" style={{ color: 'var(--color-text-muted)' }}>
+                    {hermanosSeleccionados.size > 0 ? `${hermanosSeleccionados.size} seleccionados` : 'Selecciona quienes invitar'}
+                  </p>
+                </div>
+              </button>
+
+              {/* Individual selector */}
+              {destino === 'seleccionar' && (
+                <div className="rounded-xl overflow-hidden" style={{ border: '1px solid var(--color-border-subtle)', maxHeight: 240, overflowY: 'auto' }}>
+                  {hermanos.map(h => (
+                    <button
+                      key={h.id}
+                      onClick={() => toggleHermano(h.id)}
+                      className="w-full flex items-center gap-3 px-4 py-3 text-left cursor-pointer transition-colors"
+                      style={{
+                        background: hermanosSeleccionados.has(h.id) ? 'var(--color-accent-purple-soft)' : 'transparent',
+                        borderBottom: '1px solid var(--color-border-subtle)',
+                      }}
+                    >
+                      <div
+                        className="w-5 h-5 rounded flex items-center justify-center flex-shrink-0"
+                        style={{
+                          background: hermanosSeleccionados.has(h.id) ? 'var(--color-accent-purple)' : 'var(--color-bg-elevated)',
+                          border: hermanosSeleccionados.has(h.id) ? 'none' : '1px solid var(--color-border-default)',
+                        }}
+                      >
+                        {hermanosSeleccionados.has(h.id) && <Check size={12} color="#fff" />}
+                      </div>
+                      <span className="text-[13px]" style={{ color: 'var(--color-text-primary)' }}>{h.user.name}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Action buttons */}
+          <div className="flex gap-3 pt-2">
+            <Button variant="ghost" onClick={resetCrear} className="flex-1">Cancelar</Button>
+            <Button onClick={crearReunion} disabled={creando} className="flex-1 flex items-center justify-center gap-2">
+              <Video size={16} />
+              {creando ? 'Creando...' : 'Crear y Compartir'}
             </Button>
           </div>
         </div>
-      </Dialog>
+      )}
+
+      {/* ===== PASO: COMPARTIR ===== */}
+      {paso === 'compartir' && reunionCreada && (
+        <div className="space-y-5">
+          {/* Success card */}
+          <div
+            className="rounded-2xl p-6 text-center"
+            style={{
+              background: 'linear-gradient(135deg, rgba(201,168,76,0.1), rgba(201,168,76,0.03))',
+              border: '1px solid rgba(201,168,76,0.2)',
+            }}
+          >
+            <div
+              className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4"
+              style={{ background: 'var(--color-accent-gold-soft)' }}
+            >
+              <Video size={32} style={{ color: 'var(--color-accent-gold)' }} />
+            </div>
+            <p className="text-[18px] font-bold mb-1" style={{ color: 'var(--color-text-primary)', fontFamily: 'var(--font-display)' }}>
+              {reunionCreada.titulo}
+            </p>
+            <p className="text-[13px]" style={{ color: 'var(--color-text-muted)' }}>
+              Reunion creada. Comparte el link.
+            </p>
+          </div>
+
+          {/* Link display */}
+          <div
+            className="rounded-xl p-4 flex items-center gap-3"
+            style={{ background: 'var(--color-bg-elevated)', border: '1px solid var(--color-border-subtle)' }}
+          >
+            <p className="text-[13px] flex-1 truncate" style={{ color: 'var(--color-text-secondary)', fontFamily: 'monospace' }}>
+              {getMeetingUrl(reunionCreada)}
+            </p>
+            <CopyButton text={getMeetingUrl(reunionCreada)} />
+          </div>
+
+          {/* Share buttons */}
+          <div className="space-y-3">
+            <button
+              onClick={() => {
+                const url = getMeetingUrl(reunionCreada)
+                const phones = getDestinatariosPhones()
+                compartirWhatsApp(url, reunionCreada.titulo, phones)
+              }}
+              className="w-full rounded-xl p-4 flex items-center gap-3 cursor-pointer transition-all"
+              style={{
+                background: 'rgba(37, 211, 102, 0.1)',
+                border: '1px solid rgba(37, 211, 102, 0.3)',
+              }}
+            >
+              <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: 'rgba(37,211,102,0.2)' }}>
+                <Share2 size={20} style={{ color: '#25D366' }} />
+              </div>
+              <div className="text-left">
+                <p className="text-[14px] font-semibold" style={{ color: '#25D366' }}>Compartir por WhatsApp</p>
+                <p className="text-[12px]" style={{ color: 'var(--color-text-muted)' }}>
+                  Enviar link a {destino === 'seleccionar' ? `${hermanosSeleccionados.size} personas` : destino === 'red' ? 'la red' : 'todos'}
+                </p>
+              </div>
+            </button>
+
+            <button
+              onClick={() => {
+                const url = getMeetingUrl(reunionCreada)
+                window.open(url, '_blank')
+              }}
+              className="w-full rounded-xl p-4 flex items-center gap-3 cursor-pointer transition-all"
+              style={{
+                background: 'var(--color-accent-gold-soft)',
+                border: '1px solid rgba(201,168,76,0.3)',
+              }}
+            >
+              <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: 'rgba(201,168,76,0.2)' }}>
+                <ExternalLink size={20} style={{ color: 'var(--color-accent-gold)' }} />
+              </div>
+              <div className="text-left">
+                <p className="text-[14px] font-semibold" style={{ color: 'var(--color-accent-gold)' }}>Unirme ahora</p>
+                <p className="text-[12px]" style={{ color: 'var(--color-text-muted)' }}>Abrir la reunion en otra ventana</p>
+              </div>
+            </button>
+          </div>
+
+          <Button variant="ghost" onClick={resetCrear} className="w-full">
+            Volver a Reuniones
+          </Button>
+        </div>
+      )}
     </div>
   )
 }
 
-function CopyLinkButton({ roomId }: { roomId: string }) {
-  const [copied, setCopied] = useState(false)
-  const link = typeof window !== 'undefined' ? `${window.location.origin}/sala/${roomId}` : `/sala/${roomId}`
+/* --- Sub-components --- */
 
+function ReunionCard({ reunion, onUnirse, onCompartir, esHoy, formatFecha }: {
+  reunion: Reunion; onUnirse: () => void; onCompartir: () => void; esHoy: boolean; formatFecha: (f: string) => string
+}) {
+  return (
+    <div
+      className="rounded-xl p-4"
+      style={{ background: 'var(--color-bg-surface)', border: '1px solid var(--color-border-subtle)' }}
+    >
+      <div className="flex items-start justify-between gap-3 mb-3">
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2">
+            <p className="text-[14px] font-semibold truncate" style={{ color: 'var(--color-text-primary)' }}>
+              {reunion.titulo}
+            </p>
+            {esHoy && <span className="badge-gold text-[10px]">HOY</span>}
+          </div>
+          <p className="text-[12px] flex items-center gap-1 mt-1" style={{ color: 'var(--color-text-muted)' }}>
+            <Clock size={11} /> {formatFecha(reunion.fecha)} {reunion.hora && `· ${reunion.hora}`}
+            {reunion.red && ` · ${reunion.red.nombre}`}
+          </p>
+        </div>
+      </div>
+      <div className="flex gap-2">
+        <Button size="sm" onClick={onUnirse} disabled={!reunion.jitsiRoomId} className="flex-1 flex items-center justify-center gap-1.5">
+          <Video size={14} /> Unirme
+        </Button>
+        <Button size="sm" variant="outline" onClick={onCompartir} disabled={!reunion.jitsiRoomId} className="flex items-center gap-1.5">
+          <Share2 size={14} /> Compartir
+        </Button>
+      </div>
+    </div>
+  )
+}
+
+function CopyButton({ text }: { text: string }) {
+  const [copied, setCopied] = useState(false)
   const copy = async () => {
     try {
-      await navigator.clipboard.writeText(link)
+      await navigator.clipboard.writeText(text)
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
-    } catch {
-      // fallback
-    }
+    } catch {}
   }
-
   return (
-    <Button variant="ghost" size="sm" onClick={copy} title="Copiar link de invitacion">
-      {copied ? <Check size={14} className="text-green-400" /> : <Copy size={14} />}
-    </Button>
+    <button
+      onClick={copy}
+      className="p-2 rounded-lg cursor-pointer transition-colors flex-shrink-0"
+      style={{ color: copied ? 'var(--color-accent-green)' : 'var(--color-text-muted)' }}
+    >
+      {copied ? <Check size={16} /> : <Copy size={16} />}
+    </button>
   )
 }

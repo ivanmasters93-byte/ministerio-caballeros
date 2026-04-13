@@ -89,7 +89,7 @@ export default function FinanzasPage() {
     await fetch('/api/finanzas', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ hermanoId: selectedHermano, monto, mes, anio, tipo: tipoCuota, concepto, creadoPor: 'admin' }),
+      body: JSON.stringify({ hermanoId: selectedHermano, monto: parseFloat(monto) || 10, mes, anio, tipo: tipoCuota, concepto, creadoPor: 'admin' }),
     })
     setSaving(false)
     setShowRegister(false)

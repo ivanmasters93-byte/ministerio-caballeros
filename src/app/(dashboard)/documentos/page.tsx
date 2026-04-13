@@ -75,8 +75,8 @@ export default function DocumentosPage() {
         setFormData({ titulo: '', descripcion: '', tipo: 'PDF', url: '', categoria: 'materiales' })
         setShowDialog(false)
       }
-    } catch (error) {
-      console.error('Error creating documento:', error)
+    } catch {
+      // handled silently; could show a toast here
     }
     setCreating(false)
   }

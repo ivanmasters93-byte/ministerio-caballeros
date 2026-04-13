@@ -72,8 +72,8 @@ export default function RolesPage() {
       if (res.ok) {
         setUsuarios(usuarios.map(u => u.id === userId ? { ...u, role: newRole } : u))
       }
-    } catch (error) {
-      console.error('Error updating role:', error)
+    } catch {
+      // handled silently
     }
   }
 
@@ -100,8 +100,8 @@ export default function RolesPage() {
       if (res.ok) {
         setExpandedUser(null)
       }
-    } catch (error) {
-      console.error('Error saving permissions:', error)
+    } catch {
+      // handled silently
     }
     setSavingPermisos(false)
   }

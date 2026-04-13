@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input'
 import { Select } from '@/components/ui/select'
 import { Table, TableHead, TableBody, TableRow, TableTh, TableTd } from '@/components/ui/table'
 import { Avatar } from '@/components/ui/avatar'
+import { Dialog } from '@/components/ui/dialog'
 import { EstadoBadge } from '@/components/hermanos/EstadoBadge'
 import { formatDateShort } from '@/lib/utils'
 import { Search, Plus, Eye, Phone, MessageCircle } from 'lucide-react'
@@ -24,6 +25,11 @@ interface Hermano {
   red?: { nombre?: string }
 }
 
+interface Red {
+  id: string
+  nombre: string
+}
+
 function formatPhone(phone?: string) {
   if (!phone) return ''
   return phone.replace(/\D/g, '')
@@ -35,13 +41,85 @@ export default function HermanosPage() {
   const [search, setSearch] = useState('')
   const [filterEstado, setFilterEstado] = useState('')
 
-  useEffect(() => {
+  // Modal state
+  const [modalOpen, setModalOpen] = useState(false)
+  const [redes, setRedes] = useState<Red[]>([])
+  const [saving, setSaving] = useState(false)
+  const [saveError, setSaveError] = useState('')
+  const [form, setForm] = useState({
+    name: '',
+    email: '',
+    telefono: '',
+    redId: '',
+    fechaNacimiento: '',
+    direccion: '',
+    ocupacion: '',
+    estadoCivil: '',
+  })
+
+  const loadHermanos = () => {
     const params = new URLSearchParams()
     if (filterEstado) params.set('estado', filterEstado)
     fetch(`/api/hermanos?${params}`)
       .then(r => r.json())
-      .then(data => { setHermanos(Array.isArray(data) ? data : (data?.data ?? [])); setLoading(false) })
-  }, [filterEstado])
+      .then(data => {
+        setHermanos(Array.isArray(data) ? data : (data?.data ?? []))
+        setLoading(false)
+      })
+      .catch(() => setLoading(false))
+  }
+
+  useEffect(() => {
+    loadHermanos()
+  }, [filterEstado]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const openModal = () => {
+    if (redes.length === 0) {
+      fetch('/api/redes')
+        .then(r => r.json())
+        .then(data => setRedes(Array.isArray(data) ? data : (data?.data ?? [])))
+        .catch(() => {})
+    }
+    setForm({ name: '', email: '', telefono: '', redId: '', fechaNacimiento: '', direccion: '', ocupacion: '', estadoCivil: '' })
+    setSaveError('')
+    setModalOpen(true)
+  }
+
+  const handleSave = async () => {
+    if (!form.name.trim() || !form.email.trim()) return
+    setSaving(true)
+    setSaveError('')
+    try {
+      const body: Record<string, unknown> = {
+        name: form.name.trim(),
+        email: form.email.trim(),
+      }
+      if (form.telefono) body.phone = form.telefono
+      if (form.redId) body.redId = form.redId
+      if (form.fechaNacimiento) body.fechaNacimiento = form.fechaNacimiento
+      if (form.direccion) body.direccion = form.direccion
+      if (form.ocupacion) body.ocupacion = form.ocupacion
+      if (form.estadoCivil) body.estadoCivil = form.estadoCivil
+
+      const res = await fetch('/api/hermanos', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      })
+      if (res.ok) {
+        setModalOpen(false)
+        setLoading(true)
+        loadHermanos()
+      } else {
+        const err = await res.json()
+        setSaveError(err.error ?? 'Error al guardar')
+      }
+    } catch {
+      setSaveError('Error de conexión')
+    } finally {
+      setSaving(false)
+    }
+  }
 
   const filtered = hermanos.filter(h =>
     (h.user?.name ?? '').toLowerCase().includes(search.toLowerCase()) ||
@@ -55,7 +133,7 @@ export default function HermanosPage() {
           <h2 className="text-2xl font-bold text-gray-900">Hermanos</h2>
           <p className="text-gray-500 text-sm">{hermanos.length} miembros registrados</p>
         </div>
-        <Button size="sm"><Plus size={14} className="mr-1" /> Nuevo Hermano</Button>
+        <Button size="sm" onClick={openModal}><Plus size={14} className="mr-1" /> Nuevo Hermano</Button>
       </div>
 
       <Card>
@@ -157,6 +235,105 @@ export default function HermanosPage() {
           )}
         </CardContent>
       </Card>
+
+      {/* Nuevo Hermano Modal */}
+      <Dialog open={modalOpen} onClose={() => setModalOpen(false)} title="Nuevo Hermano">
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Nombre *</label>
+              <Input
+                value={form.name}
+                onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+                placeholder="Nombre completo"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Email *</label>
+              <Input
+                type="email"
+                value={form.email}
+                onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
+                placeholder="correo@ejemplo.com"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Teléfono</label>
+              <Input
+                value={form.telefono}
+                onChange={e => setForm(f => ({ ...f, telefono: e.target.value }))}
+                placeholder="+507 6000-0000"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Red</label>
+              <Select value={form.redId} onChange={e => setForm(f => ({ ...f, redId: e.target.value }))}>
+                <option value="">Sin red asignada</option>
+                {redes.map(r => (
+                  <option key={r.id} value={r.id}>{r.nombre}</option>
+                ))}
+              </Select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Fecha de Nacimiento</label>
+              <Input
+                type="date"
+                value={form.fechaNacimiento}
+                onChange={e => setForm(f => ({ ...f, fechaNacimiento: e.target.value }))}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Estado Civil</label>
+              <Select value={form.estadoCivil} onChange={e => setForm(f => ({ ...f, estadoCivil: e.target.value }))}>
+                <option value="">Seleccionar...</option>
+                <option value="SOLTERO">Soltero</option>
+                <option value="CASADO">Casado</option>
+                <option value="DIVORCIADO">Divorciado</option>
+                <option value="VIUDO">Viudo</option>
+              </Select>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Ocupación</label>
+            <Input
+              value={form.ocupacion}
+              onChange={e => setForm(f => ({ ...f, ocupacion: e.target.value }))}
+              placeholder="Profesión u oficio"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Dirección</label>
+            <Input
+              value={form.direccion}
+              onChange={e => setForm(f => ({ ...f, direccion: e.target.value }))}
+              placeholder="Dirección de residencia"
+            />
+          </div>
+
+          {saveError && (
+            <p className="text-sm text-red-600 bg-red-50 px-3 py-2 rounded-lg">{saveError}</p>
+          )}
+
+          <div className="flex gap-3 pt-2">
+            <Button variant="outline" onClick={() => setModalOpen(false)} className="flex-1">Cancelar</Button>
+            <Button
+              onClick={handleSave}
+              disabled={saving || !form.name.trim() || !form.email.trim()}
+              className="flex-1"
+            >
+              {saving ? 'Guardando...' : 'Registrar Hermano'}
+            </Button>
+          </div>
+        </div>
+      </Dialog>
     </div>
   )
 }

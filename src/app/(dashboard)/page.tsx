@@ -28,6 +28,8 @@ import {
   Palette,
   MessageCircle,
   Eye,
+  Send,
+  Radio,
 } from 'lucide-react'
 
 /* ------------------------------------------------------------------ */
@@ -325,6 +327,8 @@ export default function DashboardPage() {
     { label: 'Enviar Mensaje', icon: MessageSquare, color: 'var(--color-accent-blue)', soft: 'var(--color-accent-blue-soft)', href: '/whatsapp' },
     { label: 'Leer Biblia', icon: BookOpen, color: 'var(--color-accent-gold)', soft: 'var(--color-accent-gold-soft)', href: '/biblia' },
     { label: 'Nueva Predica', icon: Mic, color: 'var(--color-accent-purple)', soft: 'var(--color-accent-purple-soft)', href: '/predicas/nueva' },
+    { label: 'Predica en Vivo', icon: Radio, color: 'var(--color-accent-red)', soft: 'var(--color-accent-red-soft)', href: '/predicas/en-vivo' },
+    { label: 'Enviar Versiculo', icon: Send, color: 'var(--color-accent-green)', soft: 'var(--color-accent-green-soft)', href: '/hermanos/enviar-versiculo' },
     { label: 'Crear Flyer', icon: Palette, color: 'var(--color-accent-green)', soft: 'var(--color-accent-green-soft)', href: '/flyers' },
   ]
 

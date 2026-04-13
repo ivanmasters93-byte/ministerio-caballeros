@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import bcryptjs from 'bcryptjs';
 import { randomBytes } from 'crypto';
-import { sendWelcomeEmail } from '@/lib/mailgun';
+import { sendEmail } from '@/lib/email'
+import { welcomeEmail } from '@/lib/email-templates';
 
 interface RegistroData {
   nombre: string;
@@ -157,12 +158,12 @@ export async function POST(request: NextRequest) {
 
     // Enviar email de bienvenida
     try {
-      await sendWelcomeEmail({
-        email: user.email,
-        name: user.name,
-        temporalPassword,
-        red: body.red
-      });
+      const html = welcomeEmail(user.name, body.red, user.email, temporalPassword)
+      await sendEmail({
+        to: user.email,
+        subject: '¡Bienvenido a GEDEONES GP! - Tu Registro fue Exitoso',
+        html,
+      })
     } catch (emailError) {
       console.error('Error enviando email:', emailError);
       // No fallar si hay error en email, solo registrar

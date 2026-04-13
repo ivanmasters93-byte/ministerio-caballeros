@@ -58,21 +58,18 @@ export default function AsistenteIAPage() {
         body: JSON.stringify({ message: messageText }),
       })
 
-      if (res.ok) {
-        const data = await res.json()
-        const aiMessage: Message = {
-          id: crypto.randomUUID(),
-          content: data.response,
-          isUser: false,
-          timestamp: new Date(),
-        }
-        setMessages(prev => [...prev, aiMessage])
+      const data = await res.json()
+      const aiMessage: Message = {
+        id: crypto.randomUUID(),
+        content: res.ok ? data.response : 'Lo siento, hubo un error procesando tu mensaje. Intenta de nuevo.',
+        isUser: false,
+        timestamp: new Date(),
       }
-    } catch (error) {
-      console.error('Error sending message:', error)
+      setMessages(prev => [...prev, aiMessage])
+    } catch {
       const errorMessage: Message = {
         id: crypto.randomUUID(),
-        content: 'Lo siento, hubo un error procesando tu mensaje. Intenta de nuevo.',
+        content: 'Lo siento, hubo un error de conexión. Intenta de nuevo.',
         isUser: false,
         timestamp: new Date(),
       }

@@ -24,6 +24,8 @@ import {
   Mic,
   Crown,
   Cross,
+  Mail,
+  Radio,
 } from 'lucide-react'
 import { Logo } from '@/components/ui/logo'
 
@@ -64,12 +66,14 @@ const ministerioItems: NavItem[] = [
 const recursosItems: NavItem[] = [
   { href: '/documentos', label: 'Documentos', icon: BookOpen },
   { href: '/predicas', label: 'Predicas', icon: Mic },
+  { href: '/predicas/en-vivo', label: 'Predica en Vivo', icon: Radio },
 ]
 
 const herramientasItems: NavItem[] = [
   { href: '/reuniones', label: 'Reuniones', icon: Video },
   { href: '/asistente-ia', label: 'Asistente IA', icon: Bot },
   { href: '/whatsapp', label: 'WhatsApp', icon: MessageSquare },
+  { href: '/email', label: 'Correo', icon: Mail },
   { href: '/flyers', label: 'Flyers', icon: Palette },
   { href: '/roles', label: 'Roles y Permisos', icon: Shield },
 ]

@@ -213,14 +213,14 @@ model Anuncio {
 model Asistencia {
   id        String   @id @default(cuid())
   eventoId  String
-  redId     String
+  redId     String?
   fecha     DateTime
   total     Int      @default(0)
   presentes Int      @default(0)
   createdAt DateTime @default(now())
 
   evento   Evento              @relation(fields: [eventoId], references: [id])
-  red      Red                 @relation(fields: [redId], references: [id])
+  red      Red?                @relation(fields: [redId], references: [id])
   detalles AsistenciaDetalle[]
 
   @@index([fecha])

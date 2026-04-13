@@ -48,7 +48,7 @@ export const GET = withErrorHandling(async (req: NextRequest) => {
 })
 
 export const POST = withErrorHandling(async (req: NextRequest) => {
-  await requirePermiso(RECURSOS.SEGUIMIENTO, ACCIONES.CREAR)
+  const session = await requirePermiso(RECURSOS.SEGUIMIENTO, ACCIONES.CREAR)
 
   const body = await req.json()
   const validation = validateBody(createSeguimientoSchema, body)
@@ -56,12 +56,15 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
 
   const { hermanoId, tipo, descripcion, responsableId, estado, proximoContacto, privado } = validation.data
 
+  // Use the provided responsableId or fall back to the current user
+  const finalResponsableId = responsableId || session.user.id
+
   const seguimiento = await prisma.seguimiento.create({
     data: {
       hermanoId,
       tipo,
       descripcion,
-      responsableId,
+      responsableId: finalResponsableId,
       estado: estado || 'ABIERTO',
       proximoContacto: proximoContacto ? new Date(proximoContacto) : null,
       privado: privado || false,

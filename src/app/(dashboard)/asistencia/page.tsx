@@ -16,9 +16,18 @@ export default function AsistenciaPage() {
   const [saving, setSaving] = useState(false)
 
   useEffect(() => {
-    fetch('/api/eventos').then(r => r.json()).then(data => setEventos(Array.isArray(data) ? data : []))
-    fetch('/api/hermanos').then(r => r.json()).then(data => setHermanos(Array.isArray(data) ? data : []))
-    fetch('/api/asistencia').then(r => r.json()).then(data => setHistorial(Array.isArray(data) ? data : []))
+    fetch('/api/eventos')
+      .then(r => r.json())
+      .then(data => setEventos(Array.isArray(data) ? data : (data?.data ?? [])))
+      .catch(() => {})
+    fetch('/api/hermanos?limit=200')
+      .then(r => r.json())
+      .then(data => setHermanos(Array.isArray(data) ? data : (data?.data ?? [])))
+      .catch(() => {})
+    fetch('/api/asistencia')
+      .then(r => r.json())
+      .then(data => setHistorial(Array.isArray(data) ? data : (data?.data ?? [])))
+      .catch(() => {})
   }, [])
 
   const toggleAttendance = (id: string) => {
@@ -29,19 +38,30 @@ export default function AsistenciaPage() {
     if (!selectedEvento) return
     const evento = eventos.find(e => e.id === selectedEvento)
     if (!evento) return
+    if (hermanos.length === 0) return
     setSaving(true)
-    await fetch('/api/asistencia', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
+    try {
+      const body: Record<string, unknown> = {
         eventoId: selectedEvento,
-        redId: evento.redId || null,
         fecha: new Date().toISOString(),
         detalles: hermanos.map(h => ({ hermanoId: h.id, presente: !!attendance[h.id] })),
-      }),
-    })
-    setSaving(false)
-    alert('Asistencia guardada!')
+      }
+      if (evento.redId) body.redId = evento.redId
+      await fetch('/api/asistencia', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      })
+      // Refresh historial
+      fetch('/api/asistencia')
+        .then(r => r.json())
+        .then(data => setHistorial(Array.isArray(data) ? data : (data?.data ?? [])))
+        .catch(() => {})
+    } catch {
+      // handled silently
+    } finally {
+      setSaving(false)
+    }
   }
 
   const presentes = Object.values(attendance).filter(Boolean).length

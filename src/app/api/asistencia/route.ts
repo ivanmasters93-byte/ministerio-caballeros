@@ -58,7 +58,7 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
   const asistencia = await prisma.asistencia.create({
     data: {
       eventoId,
-      redId,
+      redId: redId ?? undefined,
       fecha: new Date(fecha),
       total: detalles.length,
       presentes: detalles.filter((d) => d.presente).length,
@@ -101,22 +101,24 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
 
   const hermanoActivosIds = new Set(hermanosDesdeMes.map((d) => d.hermanoId))
 
-  // Marcar como inactivos aquellos no registrados en el período
-  const hermanosFueraRed = await prisma.hermano.findMany({
-    where: {
-      user: { redes: { some: { redId } } },
-      id: { notIn: Array.from(hermanoActivosIds) },
-    },
-  })
-
-  const hermanosFueraRedIds = hermanosFueraRed
-    .filter((h) => h.estado !== 'INACTIVO')
-    .map((h) => h.id)
-  if (hermanosFueraRedIds.length > 0) {
-    await prisma.hermano.updateMany({
-      where: { id: { in: hermanosFueraRedIds } },
-      data: { estado: 'REQUIERE_SEGUIMIENTO' },
+  // Marcar como inactivos aquellos no registrados en el período (solo si hay redId)
+  if (redId) {
+    const hermanosFueraRed = await prisma.hermano.findMany({
+      where: {
+        user: { redes: { some: { redId } } },
+        id: { notIn: Array.from(hermanoActivosIds) },
+      },
     })
+
+    const hermanosFueraRedIds = hermanosFueraRed
+      .filter((h) => h.estado !== 'INACTIVO')
+      .map((h) => h.id)
+    if (hermanosFueraRedIds.length > 0) {
+      await prisma.hermano.updateMany({
+        where: { id: { in: hermanosFueraRedIds } },
+        data: { estado: 'REQUIERE_SEGUIMIENTO' },
+      })
+    }
   }
 
   return jsonResponse(asistencia, 201)

@@ -81,8 +81,8 @@ export default function WhatsappPage() {
       })
       // Immediately poll to update state
       await pollQR()
-    } catch (error) {
-      console.error('Connection action failed:', error)
+    } catch {
+      // handled silently
     }
     setActionLoading(false)
   }
@@ -111,8 +111,8 @@ export default function WhatsappPage() {
         setMessages(prev => [...prev, newMessage])
         setFormData({ hermano: '', mensaje: '' })
       }
-    } catch (error) {
-      console.error('Error sending message:', error)
+    } catch {
+      // handled silently
     }
     setSending(false)
   }
