@@ -1,5 +1,6 @@
 import { WhatsAppAdapter, SendMessageResult, ConnectionStatus, WhatsAppMessage, TemplateMessage, InteractiveMessagePayload, MetaBusinessAPIConfig } from './types'
 import { MockWhatsAppAdapter } from './mock'
+import { getConnection } from './connection'
 
 interface MetaApiResponse {
   messages?: Array<{ id: string }>
@@ -13,6 +14,12 @@ export function getWhatsAppAdapter(): WhatsAppAdapter {
   if (adapterInstance) return adapterInstance
 
   const provider = process.env.WHATSAPP_PROVIDER || 'mock'
+
+  if (provider === 'baileys') {
+    const connection = getConnection()
+    adapterInstance = connection.getAdapter()
+    return adapterInstance
+  }
 
   if (provider === 'meta' && process.env.WHATSAPP_API_KEY && process.env.WHATSAPP_PHONE_NUMBER_ID) {
     adapterInstance = new MetaWhatsAppAdapter({

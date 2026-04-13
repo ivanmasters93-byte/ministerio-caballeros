@@ -90,7 +90,7 @@ export async function sendEventReminder(
       </div>
       <p>¡Esperamos contar con tu presencia!</p>
       <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;">
-      <p style="color: #999; font-size: 12px;">Ministerio de Caballeros</p>
+      <p style="color: #999; font-size: 12px;">GEDEONES - Ministerio de Caballeros</p>
     </div>
   `;
 
@@ -118,7 +118,7 @@ export async function sendAnnouncement(
         ${content}
       </div>
       <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;">
-      <p style="color: #999; font-size: 12px;">Ministerio de Caballeros</p>
+      <p style="color: #999; font-size: 12px;">GEDEONES - Ministerio de Caballeros</p>
     </div>
   `;
 
@@ -150,7 +150,7 @@ export async function sendPrayerRequestNotification(
       </div>
       <p>Por favor, incluye esta petición en tus oraciones.</p>
       <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;">
-      <p style="color: #999; font-size: 12px;">Ministerio de Caballeros</p>
+      <p style="color: #999; font-size: 12px;">GEDEONES - Ministerio de Caballeros</p>
     </div>
   `;
 
@@ -195,7 +195,7 @@ export async function sendAttendanceReport(
         <p><strong>Porcentaje:</strong> ${attendanceData.percentage.toFixed(1)}%</p>
       </div>
       <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;">
-      <p style="color: #999; font-size: 12px;">Ministerio de Caballeros</p>
+      <p style="color: #999; font-size: 12px;">GEDEONES - Ministerio de Caballeros</p>
     </div>
   `;
 
@@ -221,7 +221,7 @@ export async function sendWeeklyDigest(
 ) {
   const html = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-      <h2>Resumen Semanal - Ministerio de Caballeros</h2>
+      <h2>Resumen Semanal - GEDEONES</h2>
       <p>Hola ${leaderName},</p>
       <p>Aquí está tu resumen de actividades semanal:</p>
       <div style="background: #f9f9f9; padding: 20px; border-radius: 8px; margin: 20px 0;">
@@ -232,13 +232,13 @@ export async function sendWeeklyDigest(
       </div>
       <p>Continúa el excelente trabajo en el ministerio!</p>
       <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;">
-      <p style="color: #999; font-size: 12px;">Ministerio de Caballeros</p>
+      <p style="color: #999; font-size: 12px;">GEDEONES - Ministerio de Caballeros</p>
     </div>
   `;
 
   return sendEmail({
     to: leaderEmail,
-    subject: 'Resumen Semanal - Ministerio de Caballeros',
+    subject: 'Resumen Semanal - GEDEONES',
     html,
   });
 }

@@ -64,7 +64,7 @@ export async function sendEventReminder(
       </div>
       <p>¡Esperamos contar con tu presencia!</p>
       <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;">
-      <p style="color: #999; font-size: 12px;">Ministerio de Caballeros</p>
+      <p style="color: #999; font-size: 12px;">GEDEONES - Ministerio de Caballeros</p>
     </div>
   `;
 
@@ -92,7 +92,7 @@ export async function sendAnnouncement(
         ${content}
       </div>
       <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;">
-      <p style="color: #999; font-size: 12px;">Ministerio de Caballeros</p>
+      <p style="color: #999; font-size: 12px;">GEDEONES - Ministerio de Caballeros</p>
     </div>
   `;
 
@@ -124,7 +124,7 @@ export async function sendPrayerRequestNotification(
       </div>
       <p>Por favor, incluye esta petición en tus oraciones.</p>
       <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;">
-      <p style="color: #999; font-size: 12px;">Ministerio de Caballeros</p>
+      <p style="color: #999; font-size: 12px;">GEDEONES - Ministerio de Caballeros</p>
     </div>
   `;
 
@@ -169,7 +169,7 @@ export async function sendAttendanceReport(
         <p><strong>Porcentaje:</strong> ${attendanceData.percentage.toFixed(1)}%</p>
       </div>
       <hr style="border: none; border-top: 1px solid #ddd; margin: 30px 0;">
-      <p style="color: #999; font-size: 12px;">Ministerio de Caballeros</p>
+      <p style="color: #999; font-size: 12px;">GEDEONES - Ministerio de Caballeros</p>
     </div>
   `;
 

@@ -40,8 +40,8 @@ export default function LoginPage() {
           <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4">
             <span className="text-blue-900 font-bold text-3xl">✝</span>
           </div>
-          <h1 className="text-3xl font-bold text-white">Ministerio</h1>
-          <p className="text-blue-300 text-lg">de Caballeros</p>
+          <h1 className="text-3xl font-bold text-white">GEDEONES</h1>
+          <p className="text-blue-300 text-lg">Ministerio de Caballeros</p>
         </div>
 
         {/* Login card */}
@@ -84,7 +84,7 @@ export default function LoginPage() {
           </form>
 
           <p className="text-center text-xs text-gray-400 mt-6">
-            Demo: admin@ministerio.com / admin123
+            Demo: admin@gedeones.com / admin123
           </p>
         </div>
       </div>

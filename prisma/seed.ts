@@ -1,11 +1,7 @@
 import { PrismaClient, Role, TipoRed, EstadoHermano, TipoEvento, TipoAnuncio, Prioridad, TipoSeguimiento, EstadoCaso, EstadoPeticion, TipoDocumento, TipoVisita, EstadoCuota } from '@prisma/client'
-import { PrismaBetterSqlite3 } from '@prisma/adapter-better-sqlite3'
 import bcrypt from 'bcryptjs'
-import path from 'path'
 
-const dbPath = path.resolve(process.cwd(), 'dev.db')
-const adapter = new PrismaBetterSqlite3({ url: `file:${dbPath}` })
-const prisma = new PrismaClient({ adapter })
+const prisma = new PrismaClient()
 
 // Helper to generate realistic Spanish/Hispanic names
 const hermanoNames = [
@@ -39,11 +35,11 @@ async function main() {
 
   // ---- USERS - LEADERS ----
   const javier = await prisma.user.upsert({
-    where: { email: 'admin@ministerio.com' },
+    where: { email: 'admin@gedeones.com' },
     update: {},
     create: {
       name: 'Javier Rodríguez',
-      email: 'admin@ministerio.com',
+      email: 'admin@gedeones.com',
       password: passwordHash,
       role: Role.LIDER_GENERAL,
       phone: '+50760000001',
@@ -51,11 +47,11 @@ async function main() {
   })
 
   const carlos = await prisma.user.upsert({
-    where: { email: 'carlos@ministerio.com' },
+    where: { email: 'carlos@gedeones.com' },
     update: {},
     create: {
       name: 'Carlos Mendoza',
-      email: 'carlos@ministerio.com',
+      email: 'carlos@gedeones.com',
       password: passwordHash,
       role: Role.LIDER_RED,
       phone: '+50760000002',
@@ -63,11 +59,11 @@ async function main() {
   })
 
   const pedro = await prisma.user.upsert({
-    where: { email: 'pedro@ministerio.com' },
+    where: { email: 'pedro@gedeones.com' },
     update: {},
     create: {
       name: 'Pedro Alvarado',
-      email: 'pedro@ministerio.com',
+      email: 'pedro@gedeones.com',
       password: passwordHash,
       role: Role.LIDER_RED,
       phone: '+50760000003',
@@ -75,11 +71,11 @@ async function main() {
   })
 
   const roberto = await prisma.user.upsert({
-    where: { email: 'roberto@ministerio.com' },
+    where: { email: 'roberto@gedeones.com' },
     update: {},
     create: {
       name: 'Roberto Sánchez',
-      email: 'roberto@ministerio.com',
+      email: 'roberto@gedeones.com',
       password: passwordHash,
       role: Role.LIDER_RED,
       phone: '+50760000004',
@@ -87,11 +83,11 @@ async function main() {
   })
 
   const miguel = await prisma.user.upsert({
-    where: { email: 'miguel@ministerio.com' },
+    where: { email: 'miguel@gedeones.com' },
     update: {},
     create: {
       name: 'Miguel Torres',
-      email: 'miguel@ministerio.com',
+      email: 'miguel@gedeones.com',
       password: passwordHash,
       role: Role.LIDER_RED,
       phone: '+50760000005',
@@ -99,11 +95,11 @@ async function main() {
   })
 
   const antonio = await prisma.user.upsert({
-    where: { email: 'antonio@ministerio.com' },
+    where: { email: 'antonio@gedeones.com' },
     update: {},
     create: {
       name: 'Antonio Flores',
-      email: 'antonio@ministerio.com',
+      email: 'antonio@gedeones.com',
       password: passwordHash,
       role: Role.LIDER_RED,
       phone: '+50760000006',
@@ -111,11 +107,11 @@ async function main() {
   })
 
   const juan = await prisma.user.upsert({
-    where: { email: 'juan@ministerio.com' },
+    where: { email: 'juan@gedeones.com' },
     update: {},
     create: {
       name: 'Juan Herrera',
-      email: 'juan@ministerio.com',
+      email: 'juan@gedeones.com',
       password: passwordHash,
       role: Role.LIDER_RED,
       phone: '+50760000007',
@@ -123,11 +119,11 @@ async function main() {
   })
 
   const david = await prisma.user.upsert({
-    where: { email: 'secretario@ministerio.com' },
+    where: { email: 'secretario@gedeones.com' },
     update: {},
     create: {
       name: 'David López',
-      email: 'secretario@ministerio.com',
+      email: 'secretario@gedeones.com',
       password: passwordHash,
       role: Role.SECRETARIO,
       phone: '+50760000008',
@@ -135,11 +131,11 @@ async function main() {
   })
 
   const felipe = await prisma.user.upsert({
-    where: { email: 'asistente@ministerio.com' },
+    where: { email: 'asistente@gedeones.com' },
     update: {},
     create: {
       name: 'Felipe Morales',
-      email: 'asistente@ministerio.com',
+      email: 'asistente@gedeones.com',
       password: passwordHash,
       role: Role.ASISTENTE,
       phone: '+50760000009',
@@ -193,7 +189,7 @@ async function main() {
   // Generate 40+ hermano users distributed by age groups
   for (let i = 0; i < hermanoNames.length; i++) {
     const name = hermanoNames[i]
-    const email = `hermano${i + 1}@ministerio.com`
+    const email = `hermano${i + 1}@gedeones.com`
     const occupation = hermanoOccupations[i % hermanoOccupations.length]
     const estadoCivil = hermanoEstadosCiviles[i % hermanoEstadosCiviles.length]
 

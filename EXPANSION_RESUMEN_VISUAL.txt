@@ -1,0 +1,267 @@
+================================================================================
+                    EXPANSIÓN GEDEONES - RESUMEN VISUAL
+================================================================================
+
+¿QUÉ QUIERES AGREGAR?
+
+1. 📱 APP MÓVIL
+   └─ Para que hermanos revisen todo desde celular
+   └─ Funciona sin internet (offline)
+   └─ Tiempo: 2 semanas
+   └─ Costo: $0
+
+2. 📖 BIBLIA INTEGRADA
+   └─ Consultar versículos, lectura diaria
+   └─ Búsqueda rápida
+   └─ Tiempo: 1 semana
+   └─ Costo: $0
+
+3. 📹 VIDEO LLAMADAS (Estilo Zoom)
+   └─ Reuniones en vivo sin descargar app
+   └─ Grabación automática
+   └─ 500+ personas simultáneamente
+   └─ Tiempo: 1 semana
+   └─ Costo: $0
+
+4. 🎨 EDITOR DE FLYERS
+   └─ Líderes crean afiches para eventos
+   └─ Plantillas personalizadas
+   └─ Descargan PDF/imagen
+   └─ Tiempo: 2 semanas
+   └─ Costo: $0
+
+5. 🎤 TRANSCRIPCIÓN DE PRÉDICAS
+   └─ Pastor predica → Sistema transcribe automático
+   └─ Texto de la prédica disponible
+   └─ Tiempo: 1 semana
+   └─ Costo: $0
+
+6. 📝 RESÚMENES AUTOMÁTICOS
+   └─ De la prédica salen puntos clave automáticos
+   └─ Se envía resumen a hermanos
+   └─ Preguntas reflexivas incluidas
+   └─ Tiempo: 3-4 días (después de prédica)
+   └─ Costo: $0
+
+================================================================================
+COSTO TOTAL
+================================================================================
+
+Hoy:           $0/mes
+Con expansión: $0/mes (seguiría siendo gratis)
+
+(Si crece mucho después, máximo $50-100/mes en servicios premium)
+
+================================================================================
+TIEMPO POR FEATURE
+================================================================================
+
+APP MÓVIL          ████████░░ 2 semanas
+BIBLIA             ██░░░░░░░░ 1 semana
+VIDEO LLAMADAS     ██░░░░░░░░ 1 semana
+FLYERS             ████████░░ 2 semanas
+TRANSCRIPCIÓN      ██░░░░░░░░ 1 semana
+RESÚMENES          ███░░░░░░░ 3 días
+
+TOTAL (todas):     ██████████ 8-10 semanas
+
+================================================================================
+¿POR DÓNDE EMPEZAMOS?
+================================================================================
+
+OPCIÓN A: PRIMERO LO MÁS USADO (Recomendado)
+┌─────────────────────────────────────────┐
+│ FASE 1 (Semana 1-3): APP MÓVIL + BIBLIA│
+│                                         │
+│ ✅ Hermanos revisan todo desde celular │
+│ ✅ Consultan biblia en cualquier lado  │
+│ ✅ Sin necesidad descargar app          │
+│                                         │
+│ Luego:                                  │
+│ FASE 2 (Semana 4-6): VIDEO + FLYERS    │
+│ FASE 3 (Semana 7-10): PRÉDICAS         │
+└─────────────────────────────────────────┘
+
+OPCIÓN B: PRIMERO PARA LÍDERES
+┌─────────────────────────────────────────┐
+│ FASE 1: FLYERS + VIDEO LLAMADAS         │
+│                                         │
+│ ✅ Líderes crean afiches rápido         │
+│ ✅ Reuniones en vivo sin complicación   │
+│                                         │
+│ Luego: App móvil y biblia               │
+└─────────────────────────────────────────┘
+
+OPCIÓN C: PRIMERO PARA PASTOR
+┌─────────────────────────────────────────┐
+│ FASE 1: TRANSCRIPCIÓN + RESÚMENES       │
+│                                         │
+│ ✅ Pastor predica                       │
+│ ✅ Sistema transcribe automático        │
+│ ✅ Hermanos reciben resumen             │
+│                                         │
+│ Luego: Video + móvil                    │
+└─────────────────────────────────────────┘
+
+================================================================================
+¿QUÉ RECOMIENDO?
+================================================================================
+
+📱 MÓVIL + 📖 BIBLIA PRIMERO
+
+Por qué:
+  ✓ Usado todos los días
+  ✓ Impacto inmediato
+  ✓ Fácil de implementar
+  ✓ Base para agregar más después
+
+Resultado en 3 semanas:
+  ✅ Hermanos usan app desde celular
+  ✅ Consultan biblia sin conexión
+  ✅ Ven eventos y recordatorios
+  ✅ Revisan peticiones de oración
+  ✅ Hablan con asistente IA
+
+Después agregamos:
+  ✓ Video llamadas
+  ✓ Flyers
+  ✓ Transcripción de prédicas
+
+================================================================================
+HERRAMIENTAS GRATIS QUE USARÍAMOS
+================================================================================
+
+APP MÓVIL:
+  └─ Misma tecnología que ya tenemos (Next.js)
+  └─ Optimización para celular
+  └─ PWA (Progressive Web App)
+  └─ Gratis
+
+BIBLIA:
+  └─ API gratis: https://api.scriptures.com
+  └─ 43,000 versículos en español
+  └─ Búsqueda incluida
+  └─ Gratis
+
+VIDEO:
+  └─ Jitsi Meet (open source)
+  └─ Gratis sin límite
+  └─ Soporta 500+ personas
+  └─ Grabación automática
+  └─ Gratis
+
+FLYERS:
+  └─ Canva API (tier gratis)
+  └─ Plantillas profesionales
+  └─ Descarga PDF/imagen
+  └─ Gratis (5 diseños/mes)
+
+TRANSCRIPCIÓN:
+  └─ Whisper (OpenAI)
+  └─ Ejecutado localmente
+  └─ Gratis sin límite
+  └─ Funciona con español
+
+RESÚMENES:
+  └─ Groq LLM (tier gratis)
+  └─ 15,000 tokens/hora gratis
+  └─ Muy rápido
+  └─ Gratis
+
+================================================================================
+FLUXO EJEMPLO: PRÉDICA EN VIVO
+================================================================================
+
+VIERNES 19:00
+  │
+  ├─ Pastor predica (en vivo por Jitsi)
+  │
+  ├─ 45 hermanos ven en vivo
+  │
+  ├─ Audio se graba automáticamente
+  │
+  ├─ Whisper transcribe la prédica
+  │  (mientras predica o después)
+  │
+  ├─ Groq genera resumen automático
+  │  • 3-4 puntos clave
+  │  • 2-3 preguntas reflexivas
+  │
+  └─ SÁBADO MAÑANA
+     ├─ Hermanos reciben email con:
+     │  ├─ Resumen completo
+     │  ├─ Puntos clave
+     │  ├─ Preguntas
+     │  └─ Link a grabación
+     │
+     └─ Pueden leer/consultar desde app móvil
+
+================================================================================
+IMPACTO
+================================================================================
+
+Para HERMANOS:
+  ✅ Usan celular (no necesitan computadora)
+  ✅ Consultan biblia en cualquier lado
+  ✅ Ven eventos próximos
+  ✅ Participan en video llamadas
+  ✅ Reciben resúmenes de prédicas
+  ✅ Leen completo de prédicas transcriptas
+  ✅ Tienen acceso 24/7
+
+Para LÍDERES:
+  ✅ Crean flyers en minutos
+  ✅ Transmiten reuniones en vivo
+  ✅ Ven asistencia automática
+  ✅ Reportes de seguimiento
+  ✅ Control total desde celular
+
+Para PASTOR:
+  ✅ Predica sin preocuparse por tecnología
+  ✅ Sistema transcribe automático
+  ✅ Sistema genera resumen
+  ✅ Hermanos reciben todo
+  ✅ Se crea archivo de prédicas
+
+Para MINISTERIO:
+  ✅ Mejor comunicación
+  ✅ Hermanos más conectados
+  ✅ Valor educativo increased (prédicas)
+  ✅ Crecimiento ministerial
+  ✅ $0 de inversión
+
+================================================================================
+DECISIÓN
+================================================================================
+
+¿CUÁL ES TU PRIORIDAD?
+
+A) APP MÓVIL + BIBLIA         (Empezar aquí - Recomendado)
+   ├─ Tiempo: 3 semanas
+   └─ Impacto: Hermanos usan día a día
+
+B) VIDEO + FLYERS              (Para líderes)
+   ├─ Tiempo: 3 semanas
+   └─ Impacto: Comunicación mejorada
+
+C) PRÉDICAS INTELIGENTES        (Para pastor + hermanos)
+   ├─ Tiempo: 4 semanas
+   └─ Impacto: Educativo + recordatorio
+
+D) TODAS SIMULTÁNEAMENTE        (Agresivo)
+   ├─ Tiempo: 10 semanas
+   └─ Riesgo: Bugs, complicaciones
+
+E) OTRA PRIORIDAD              (Dime cuál)
+
+================================================================================
+
+Una vez decidas, te muestro:
+1. Plan detallado
+2. Código que necesitamos
+3. Pasos exactos para implementar
+4. Fecha de entrega
+
+¿CUÁL QUIERES PRIMERO?
+
+================================================================================

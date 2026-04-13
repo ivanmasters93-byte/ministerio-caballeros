@@ -49,7 +49,7 @@ export default function DashboardPage() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-gray-900">Panel General</h2>
-          <p className="text-gray-500 text-sm">Ministerio de Caballeros — Vista General</p>
+          <p className="text-gray-500 text-sm">GEDEONES — Ministerio de Caballeros</p>
         </div>
         <div className="flex gap-2">
           <Link href="/hermanos"><Button variant="outline" size="sm">+ Hermano</Button></Link>

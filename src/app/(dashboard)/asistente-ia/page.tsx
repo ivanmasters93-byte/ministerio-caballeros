@@ -94,7 +94,7 @@ export default function AsistenteIAPage() {
               </div>
               <h3 className="text-xl font-bold text-gray-900 mb-2">Asistente de IA</h3>
               <p className="text-gray-600 text-sm max-w-sm mb-6">
-                Bienvenido al asistente inteligente del Ministerio de Caballeros. Puedo ayudarte a gestionar hermanos, eventos, redes y más.
+                Bienvenido al asistente inteligente de GEDEONES. Puedo ayudarte a gestionar hermanos, eventos, redes y más.
               </p>
 
               <div className="w-full max-w-sm space-y-2">
