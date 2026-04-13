@@ -1,9 +1,9 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { ChevronDown, ArrowRight, ArrowLeft, Check, Loader2 } from 'lucide-react'
+import { ArrowLeft, Check, Loader2, User, Phone as PhoneIcon, Mail, MapPin, Briefcase, Heart, Users } from 'lucide-react'
 
-type Step = 'welcome' | 'vision' | 'identity' | 'connect' | 'belong' | 'sending' | 'done'
+type Step = 'datos' | 'confirmar' | 'sending' | 'listo'
 
 interface FormData {
   nombre: string
@@ -16,10 +16,16 @@ interface FormData {
   red: 'MENOR' | 'MEDIA' | 'MAYOR' | ''
 }
 
-const CIVIL_OPTIONS = ['Soltero', 'Casado', 'Divorciado', 'Viudo']
+const CIVIL_OPTIONS = ['Soltero', 'Casado', 'Divorciado', 'Viudo', 'Union libre']
+
+const RED_OPTIONS: { value: 'MENOR' | 'MEDIA' | 'MAYOR'; label: string; range: string }[] = [
+  { value: 'MENOR', label: 'Red Menor', range: '18 - 30 anios' },
+  { value: 'MEDIA', label: 'Red Media', range: '31 - 40 anios' },
+  { value: 'MAYOR', label: 'Red Mayor', range: '41+ anios' },
+]
 
 export default function RegistroHermanos() {
-  const [step, setStep] = useState<Step>('welcome')
+  const [step, setStep] = useState<Step>('datos')
   const [formData, setFormData] = useState<FormData>({
     nombre: '', edad: '', telefono: '', email: '',
     direccion: '', ocupacion: '', estadoCivil: '', red: ''
@@ -50,31 +56,34 @@ export default function RegistroHermanos() {
       setStep(next)
       setFadeIn(true)
       containerRef.current?.scrollTo({ top: 0, behavior: 'smooth' })
-    }, 300)
+    }, 200)
   }
 
-  const validate = (fields: (keyof FormData)[]) => {
+  const validate = (): boolean => {
+    const fields: (keyof FormData)[] = ['nombre', 'edad', 'telefono', 'email', 'direccion', 'ocupacion', 'estadoCivil']
+    const labels: Record<string, string> = {
+      nombre: 'nombre completo', edad: 'edad', telefono: 'telefono',
+      email: 'email', direccion: 'direccion', ocupacion: 'ocupacion',
+      estadoCivil: 'estado civil'
+    }
     for (const f of fields) {
       if (!formData[f]?.trim()) {
-        const labels: Record<string, string> = {
-          nombre: 'nombre', edad: 'edad', telefono: 'telefono',
-          email: 'email', direccion: 'direccion', ocupacion: 'ocupacion',
-          estadoCivil: 'estado civil'
-        }
         setError(`Completa tu ${labels[f] || f}`)
         return false
       }
     }
-    if (fields.includes('email') && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       setError('Email no valido')
       return false
     }
-    if (fields.includes('edad')) {
-      const age = parseInt(formData.edad)
-      if (isNaN(age) || age < 18 || age > 100) {
-        setError('Edad debe ser entre 18 y 100')
-        return false
-      }
+    const age = parseInt(formData.edad)
+    if (isNaN(age) || age < 18 || age > 100) {
+      setError('Edad debe ser entre 18 y 100')
+      return false
+    }
+    if (!formData.red) {
+      setError('Selecciona una red')
+      return false
     }
     return true
   }
@@ -91,321 +100,465 @@ export default function RegistroHermanos() {
         const data = await res.json()
         throw new Error(data.message || 'Error en el registro')
       }
-      setTimeout(() => transition('done'), 1500)
+      setTimeout(() => transition('listo'), 1200)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Intenta de nuevo')
-      transition('belong')
+      transition('confirmar')
     }
   }
 
   const redName = formData.red === 'MENOR' ? 'Red Menor' : formData.red === 'MEDIA' ? 'Red Media' : formData.red === 'MAYOR' ? 'Red Mayor' : ''
-  const redRange = formData.red === 'MENOR' ? '18 — 30' : formData.red === 'MEDIA' ? '31 — 40' : formData.red === 'MAYOR' ? '41 — 75' : ''
 
   return (
-    <div ref={containerRef} className="min-h-screen bg-[#0a0e1a] text-white overflow-y-auto">
-      {/* Ambient background */}
-      <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-blue-600/[0.04] rounded-full blur-[120px]" />
-        <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-amber-500/[0.03] rounded-full blur-[100px]" />
+    <div
+      ref={containerRef}
+      className="min-h-screen overflow-y-auto"
+      style={{
+        background: 'var(--color-bg-base, #0a0e1a)',
+        color: 'var(--color-text-primary, #f0f0f5)',
+      }}
+    >
+      {/* Header bar */}
+      <div
+        className="sticky top-0 z-20 px-6 py-4"
+        style={{
+          background: 'var(--color-bg-surface, #12162a)',
+          borderBottom: '1px solid var(--color-border-subtle, rgba(255,255,255,0.06))',
+        }}
+      >
+        <div className="max-w-lg mx-auto flex items-center justify-between">
+          <div>
+            <p
+              className="text-[10px] tracking-[0.3em] uppercase"
+              style={{ color: 'var(--color-text-muted, rgba(255,255,255,0.3))' }}
+            >
+              Ministerio de Caballeros
+            </p>
+            <h1
+              className="text-[18px] font-bold tracking-tight"
+              style={{ color: 'var(--color-accent-gold, #c9a84c)' }}
+            >
+              GEDEONES
+            </h1>
+          </div>
+          {/* Step indicator */}
+          {step !== 'sending' && step !== 'listo' && (
+            <div className="flex items-center gap-2">
+              {['datos', 'confirmar'].map((s, i) => (
+                <div
+                  key={s}
+                  className="h-1 rounded-full transition-all duration-200"
+                  style={{
+                    width: s === step ? '24px' : '8px',
+                    background: s === step
+                      ? 'var(--color-accent-gold, #c9a84c)'
+                      : i < ['datos', 'confirmar'].indexOf(step)
+                        ? 'rgba(201,168,76,0.4)'
+                        : 'rgba(255,255,255,0.08)',
+                  }}
+                />
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
-      <div className={`relative z-10 transition-all duration-500 ease-out ${fadeIn ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+      <div className={`relative z-10 transition-all duration-200 ease-out ${fadeIn ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}`}>
 
-        {/* ═══════════════ WELCOME ═══════════════ */}
-        {step === 'welcome' && (
-          <div className="min-h-screen flex flex-col items-center justify-center px-6">
-            <div className="max-w-lg text-center space-y-8">
-              {/* Cross mark */}
-              <div className="w-px h-16 bg-gradient-to-b from-transparent via-white/20 to-transparent mx-auto" />
-
-              <div className="space-y-3">
-                <p className="text-white/40 text-xs tracking-[0.4em] uppercase">Ministerio de Caballeros</p>
-                <h1 className="text-5xl sm:text-7xl font-extralight tracking-tight">
-                  GEDEONES
-                </h1>
-                <div className="w-12 h-px bg-amber-500/60 mx-auto" />
-              </div>
-
-              <p className="text-white/50 text-lg font-light leading-relaxed max-w-sm mx-auto">
-                Una comunidad de hombres comprometidos con la fe, el servicio y el crecimiento espiritual.
-              </p>
-
-              <div className="grid grid-cols-3 gap-6 pt-4 max-w-xs mx-auto">
-                <div className="text-center">
-                  <p className="text-2xl font-light text-white/80">3</p>
-                  <p className="text-[10px] text-white/30 uppercase tracking-wider mt-1">Redes</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-2xl font-light text-white/80">120+</p>
-                  <p className="text-[10px] text-white/30 uppercase tracking-wider mt-1">Hermanos</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-2xl font-light text-white/80">1</p>
-                  <p className="text-[10px] text-white/30 uppercase tracking-wider mt-1">Familia</p>
-                </div>
-              </div>
-
-              <button
-                onClick={() => transition('vision')}
-                className="group mt-8 flex flex-col items-center gap-2"
-              >
-                <span className="text-white/40 text-xs tracking-widest uppercase">Conoce mas</span>
-                <ChevronDown className="w-5 h-5 text-white/30 group-hover:text-white/60 animate-bounce transition" />
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* ═══════════════ VISION ═══════════════ */}
-        {step === 'vision' && (
-          <div className="min-h-screen flex flex-col items-center justify-center px-6">
-            <div className="max-w-lg space-y-12">
-              <div className="space-y-6">
-                <p className="text-amber-500/70 text-xs tracking-[0.3em] uppercase">Nuestra Vision</p>
-                <h2 className="text-3xl sm:text-4xl font-extralight leading-snug">
-                  Hombres que edifican<br />
-                  <span className="text-white/50">hogares, iglesia y sociedad.</span>
+        {/* =================== STEP 1: DATOS =================== */}
+        {step === 'datos' && (
+          <div className="px-6 py-8">
+            <div className="w-full max-w-lg mx-auto space-y-6">
+              <div>
+                <h2
+                  className="text-[22px] font-bold"
+                  style={{ color: 'var(--color-text-primary, #f0f0f5)' }}
+                >
+                  Registro
                 </h2>
-              </div>
-
-              <div className="space-y-6">
-                {[
-                  { title: 'Comunidad', desc: 'Reuniones semanales, retiros y eventos que fortalecen los lazos entre hermanos.' },
-                  { title: 'Crecimiento', desc: 'Estudios biblicos, capacitaciones y recursos para tu desarrollo espiritual.' },
-                  { title: 'Servicio', desc: 'Oportunidades de servir a otros y marcar una diferencia en tu entorno.' },
-                ].map((item, i) => (
-                  <div key={i} className="flex gap-4 items-start">
-                    <div className="w-px h-12 bg-amber-500/30 flex-shrink-0 mt-1" />
-                    <div>
-                      <p className="text-sm font-medium text-white/80">{item.title}</p>
-                      <p className="text-sm text-white/35 leading-relaxed mt-1">{item.desc}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <div className="flex items-center gap-4 pt-4">
-                <button onClick={() => transition('welcome')} className="text-white/20 hover:text-white/50 transition">
-                  <ArrowLeft className="w-5 h-5" />
-                </button>
-                <button
-                  onClick={() => transition('identity')}
-                  className="flex-1 py-4 border border-white/10 rounded-xl text-sm tracking-wide text-white/60 hover:text-white hover:border-white/25 hover:bg-white/[0.03] transition-all"
+                <p
+                  className="text-[13px] mt-1"
+                  style={{ color: 'var(--color-text-secondary, rgba(255,255,255,0.5))' }}
                 >
-                  Quiero ser parte
-                  <ArrowRight className="w-4 h-4 inline ml-2 opacity-50" />
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* ═══════════════ IDENTITY (personal data) ═══════════════ */}
-        {step === 'identity' && (
-          <div className="min-h-screen flex flex-col items-center justify-center px-6 py-16">
-            <div className="w-full max-w-lg space-y-10">
-              <div>
-                <p className="text-amber-500/70 text-xs tracking-[0.3em] uppercase mb-3">Paso 1 de 3</p>
-                <h2 className="text-2xl font-extralight">Cuentanos sobre ti</h2>
-                <p className="text-white/30 text-sm mt-2">Tu informacion esta protegida y solo sera visible para el liderazgo.</p>
+                  Completa tus datos para unirte a GEDEONES
+                </p>
               </div>
 
-              <div className="space-y-5">
-                <InputField label="Nombre completo" value={formData.nombre} onChange={v => update('nombre', v)} placeholder="Tu nombre" />
-                <div className="grid grid-cols-2 gap-4">
-                  <InputField label="Edad" value={formData.edad} onChange={v => update('edad', v)} placeholder="Ej: 28" type="number" />
-                  <InputField label="Telefono" value={formData.telefono} onChange={v => update('telefono', v)} placeholder="+507..." type="tel" />
+              <div className="space-y-4">
+                {/* Nombre */}
+                <InputField
+                  icon={User}
+                  label="Nombre completo"
+                  value={formData.nombre}
+                  onChange={v => update('nombre', v)}
+                  placeholder="Tu nombre completo"
+                />
+
+                {/* Edad + Telefono */}
+                <div className="grid grid-cols-2 gap-3">
+                  <InputField
+                    label="Edad"
+                    value={formData.edad}
+                    onChange={v => update('edad', v)}
+                    placeholder="Ej: 28"
+                    type="number"
+                  />
+                  <InputField
+                    icon={PhoneIcon}
+                    label="Telefono"
+                    value={formData.telefono}
+                    onChange={v => update('telefono', v)}
+                    placeholder="+507..."
+                    type="tel"
+                  />
                 </div>
-                <InputField label="Email" value={formData.email} onChange={v => update('email', v)} placeholder="tu@email.com" type="email" />
-              </div>
 
-              {/* Auto-detected red */}
-              {formData.red && (
-                <div className="flex items-center gap-3 p-4 rounded-xl bg-white/[0.03] border border-white/[0.06]">
-                  <div className="w-2 h-2 rounded-full bg-amber-500/60" />
-                  <p className="text-sm text-white/40">
-                    Por tu edad, perteneces a la <span className="text-white/70 font-medium">{redName}</span> <span className="text-white/25">({redRange} anios)</span>
-                  </p>
-                </div>
-              )}
+                {/* Email */}
+                <InputField
+                  icon={Mail}
+                  label="Email"
+                  value={formData.email}
+                  onChange={v => update('email', v)}
+                  placeholder="tu@email.com"
+                  type="email"
+                />
 
-              {error && <p className="text-red-400/80 text-sm">{error}</p>}
+                {/* Direccion */}
+                <InputField
+                  icon={MapPin}
+                  label="Direccion"
+                  value={formData.direccion}
+                  onChange={v => update('direccion', v)}
+                  placeholder="Tu area o barrio"
+                />
 
-              <div className="flex items-center gap-4 pt-2">
-                <button onClick={() => transition('vision')} className="text-white/20 hover:text-white/50 transition">
-                  <ArrowLeft className="w-5 h-5" />
-                </button>
-                <button
-                  onClick={() => validate(['nombre', 'edad', 'telefono', 'email']) && transition('connect')}
-                  className="flex-1 py-4 bg-white/[0.06] border border-white/10 rounded-xl text-sm tracking-wide text-white/70 hover:text-white hover:bg-white/[0.1] transition-all"
-                >
-                  Continuar
-                  <ArrowRight className="w-4 h-4 inline ml-2 opacity-40" />
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+                {/* Ocupacion */}
+                <InputField
+                  icon={Briefcase}
+                  label="Ocupacion"
+                  value={formData.ocupacion}
+                  onChange={v => update('ocupacion', v)}
+                  placeholder="A que te dedicas"
+                />
 
-        {/* ═══════════════ CONNECT (additional data) ═══════════════ */}
-        {step === 'connect' && (
-          <div className="min-h-screen flex flex-col items-center justify-center px-6 py-16">
-            <div className="w-full max-w-lg space-y-10">
-              <div>
-                <p className="text-amber-500/70 text-xs tracking-[0.3em] uppercase mb-3">Paso 2 de 3</p>
-                <h2 className="text-2xl font-extralight">Un poco mas</h2>
-                <p className="text-white/30 text-sm mt-2">Esto nos ayuda a conocerte mejor y conectarte con hermanos afines.</p>
-              </div>
-
-              <div className="space-y-5">
-                <InputField label="Direccion" value={formData.direccion} onChange={v => update('direccion', v)} placeholder="Tu area o barrio" />
-                <InputField label="Ocupacion" value={formData.ocupacion} onChange={v => update('ocupacion', v)} placeholder="A que te dedicas" />
-
+                {/* Estado civil */}
                 <div>
-                  <label className="block text-[11px] text-white/30 uppercase tracking-wider mb-2">Estado civil</label>
-                  <div className="grid grid-cols-2 gap-2">
+                  <label
+                    className="flex items-center gap-2 text-[11px] uppercase tracking-wider mb-2"
+                    style={{ color: 'var(--color-text-muted, rgba(255,255,255,0.3))' }}
+                  >
+                    <Heart size={12} />
+                    Estado civil
+                  </label>
+                  <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
                     {CIVIL_OPTIONS.map(opt => (
                       <button
                         key={opt}
                         onClick={() => update('estadoCivil', opt)}
-                        className={`py-3 rounded-xl text-sm transition-all ${
-                          formData.estadoCivil === opt
-                            ? 'bg-white/10 border border-white/20 text-white'
-                            : 'bg-white/[0.02] border border-white/[0.06] text-white/40 hover:text-white/60 hover:border-white/10'
-                        }`}
+                        className="py-3 rounded-xl text-[13px] transition-all duration-150"
+                        style={{
+                          background: formData.estadoCivil === opt
+                            ? 'rgba(255,255,255,0.1)'
+                            : 'rgba(255,255,255,0.02)',
+                          border: formData.estadoCivil === opt
+                            ? '1px solid rgba(255,255,255,0.2)'
+                            : '1px solid rgba(255,255,255,0.06)',
+                          color: formData.estadoCivil === opt
+                            ? 'var(--color-text-primary, #f0f0f5)'
+                            : 'var(--color-text-secondary, rgba(255,255,255,0.4))',
+                          minHeight: '44px',
+                        }}
                       >
                         {opt}
                       </button>
                     ))}
                   </div>
                 </div>
+
+                {/* Red selection */}
+                <div>
+                  <label
+                    className="flex items-center gap-2 text-[11px] uppercase tracking-wider mb-2"
+                    style={{ color: 'var(--color-text-muted, rgba(255,255,255,0.3))' }}
+                  >
+                    <Users size={12} />
+                    Red
+                    {formData.edad && formData.red && (
+                      <span
+                        className="normal-case tracking-normal text-[11px] ml-1"
+                        style={{ color: 'var(--color-accent-gold, #c9a84c)' }}
+                      >
+                        (sugerida por tu edad)
+                      </span>
+                    )}
+                  </label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {RED_OPTIONS.map(opt => (
+                      <button
+                        key={opt.value}
+                        onClick={() => update('red', opt.value)}
+                        className="py-3 px-2 rounded-xl text-center transition-all duration-150"
+                        style={{
+                          background: formData.red === opt.value
+                            ? 'rgba(201,168,76,0.12)'
+                            : 'rgba(255,255,255,0.02)',
+                          border: formData.red === opt.value
+                            ? '1px solid rgba(201,168,76,0.3)'
+                            : '1px solid rgba(255,255,255,0.06)',
+                          minHeight: '44px',
+                        }}
+                      >
+                        <p
+                          className="text-[13px] font-medium"
+                          style={{
+                            color: formData.red === opt.value
+                              ? 'var(--color-accent-gold, #c9a84c)'
+                              : 'var(--color-text-primary, #f0f0f5)',
+                          }}
+                        >
+                          {opt.label}
+                        </p>
+                        <p
+                          className="text-[10px] mt-0.5"
+                          style={{ color: 'var(--color-text-muted, rgba(255,255,255,0.3))' }}
+                        >
+                          {opt.range}
+                        </p>
+                      </button>
+                    ))}
+                  </div>
+                </div>
               </div>
 
-              {error && <p className="text-red-400/80 text-sm">{error}</p>}
+              {error && (
+                <p className="text-[13px] px-3 py-2 rounded-lg" style={{ color: '#f87171', background: 'rgba(248,113,113,0.08)' }}>
+                  {error}
+                </p>
+              )}
 
-              <div className="flex items-center gap-4 pt-2">
-                <button onClick={() => transition('identity')} className="text-white/20 hover:text-white/50 transition">
-                  <ArrowLeft className="w-5 h-5" />
-                </button>
-                <button
-                  onClick={() => validate(['direccion', 'ocupacion', 'estadoCivil']) && transition('belong')}
-                  className="flex-1 py-4 bg-white/[0.06] border border-white/10 rounded-xl text-sm tracking-wide text-white/70 hover:text-white hover:bg-white/[0.1] transition-all"
-                >
-                  Casi listo
-                  <ArrowRight className="w-4 h-4 inline ml-2 opacity-40" />
-                </button>
-              </div>
+              <button
+                onClick={() => validate() && transition('confirmar')}
+                className="w-full py-4 rounded-xl text-[14px] font-semibold tracking-wide transition-all duration-200"
+                style={{
+                  background: 'linear-gradient(135deg, rgba(201,168,76,0.8), rgba(201,168,76,0.6))',
+                  color: '#fff',
+                  minHeight: '48px',
+                }}
+              >
+                Revisar datos
+              </button>
             </div>
           </div>
         )}
 
-        {/* ═══════════════ BELONG (confirm) ═══════════════ */}
-        {step === 'belong' && (
-          <div className="min-h-screen flex flex-col items-center justify-center px-6 py-16">
-            <div className="w-full max-w-lg space-y-10">
+        {/* =================== STEP 2: CONFIRMAR =================== */}
+        {step === 'confirmar' && (
+          <div className="px-6 py-8">
+            <div className="w-full max-w-lg mx-auto space-y-6">
               <div>
-                <p className="text-amber-500/70 text-xs tracking-[0.3em] uppercase mb-3">Paso 3 de 3</p>
-                <h2 className="text-2xl font-extralight">Confirma tus datos</h2>
+                <h2
+                  className="text-[22px] font-bold"
+                  style={{ color: 'var(--color-text-primary, #f0f0f5)' }}
+                >
+                  Confirma tus datos
+                </h2>
+                <p
+                  className="text-[13px] mt-1"
+                  style={{ color: 'var(--color-text-secondary, rgba(255,255,255,0.5))' }}
+                >
+                  Verifica que todo este correcto
+                </p>
               </div>
 
-              <div className="space-y-3">
+              <div
+                className="rounded-xl p-5 space-y-3"
+                style={{
+                  background: 'var(--color-bg-surface, #12162a)',
+                  border: '1px solid var(--color-border-subtle, rgba(255,255,255,0.06))',
+                }}
+              >
                 <SummaryRow label="Nombre" value={formData.nombre} />
                 <SummaryRow label="Edad" value={`${formData.edad} anios`} />
                 <SummaryRow label="Telefono" value={formData.telefono} />
                 <SummaryRow label="Email" value={formData.email} />
-                <div className="w-full h-px bg-white/[0.05] my-1" />
+                <div style={{ height: '1px', background: 'rgba(255,255,255,0.05)', margin: '4px 0' }} />
                 <SummaryRow label="Direccion" value={formData.direccion} />
                 <SummaryRow label="Ocupacion" value={formData.ocupacion} />
                 <SummaryRow label="Estado civil" value={formData.estadoCivil} />
-                <div className="w-full h-px bg-white/[0.05] my-1" />
-                <SummaryRow label="Red asignada" value={`${redName} (${redRange})`} highlight />
+                <div style={{ height: '1px', background: 'rgba(255,255,255,0.05)', margin: '4px 0' }} />
+                <SummaryRow label="Red asignada" value={redName} highlight />
               </div>
 
-              {error && <p className="text-red-400/80 text-sm">{error}</p>}
+              {error && (
+                <p className="text-[13px] px-3 py-2 rounded-lg" style={{ color: '#f87171', background: 'rgba(248,113,113,0.08)' }}>
+                  {error}
+                </p>
+              )}
 
-              <div className="flex items-center gap-4 pt-2">
-                <button onClick={() => transition('connect')} className="text-white/20 hover:text-white/50 transition">
-                  <ArrowLeft className="w-5 h-5" />
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => transition('datos')}
+                  className="flex items-center justify-center w-12 h-12 rounded-xl transition-colors"
+                  style={{
+                    background: 'rgba(255,255,255,0.04)',
+                    border: '1px solid rgba(255,255,255,0.08)',
+                    color: 'var(--color-text-secondary, rgba(255,255,255,0.5))',
+                    minHeight: '48px',
+                    minWidth: '48px',
+                  }}
+                >
+                  <ArrowLeft size={18} />
                 </button>
                 <button
                   onClick={submit}
-                  className="flex-1 py-4 bg-gradient-to-r from-amber-600/80 to-amber-500/80 rounded-xl text-sm font-medium tracking-wide text-white hover:from-amber-600 hover:to-amber-500 transition-all shadow-lg shadow-amber-900/20"
+                  className="flex-1 py-4 rounded-xl text-[14px] font-semibold tracking-wide transition-all duration-200"
+                  style={{
+                    background: 'linear-gradient(135deg, rgba(201,168,76,0.9), rgba(201,168,76,0.7))',
+                    color: '#fff',
+                    minHeight: '48px',
+                  }}
                 >
-                  Unirme a GEDEONES
+                  Confirmar Registro
                 </button>
               </div>
             </div>
           </div>
         )}
 
-        {/* ═══════════════ SENDING ═══════════════ */}
+        {/* =================== SENDING =================== */}
         {step === 'sending' && (
-          <div className="min-h-screen flex flex-col items-center justify-center px-6">
-            <div className="text-center space-y-6">
-              <Loader2 className="w-8 h-8 text-amber-500/60 animate-spin mx-auto" />
-              <p className="text-white/40 text-sm tracking-wide">Registrando...</p>
+          <div className="min-h-[80vh] flex flex-col items-center justify-center px-6">
+            <div className="text-center space-y-4">
+              <Loader2
+                className="w-8 h-8 animate-spin mx-auto"
+                style={{ color: 'var(--color-accent-gold, #c9a84c)' }}
+              />
+              <p
+                className="text-[14px] tracking-wide"
+                style={{ color: 'var(--color-text-secondary, rgba(255,255,255,0.4))' }}
+              >
+                Registrando...
+              </p>
             </div>
           </div>
         )}
 
-        {/* ═══════════════ DONE ═══════════════ */}
-        {step === 'done' && (
-          <div className="min-h-screen flex flex-col items-center justify-center px-6">
-            <div className="max-w-lg text-center space-y-8">
-              <div className="w-16 h-16 rounded-full border border-green-500/30 bg-green-500/10 flex items-center justify-center mx-auto">
-                <Check className="w-7 h-7 text-green-400" />
+        {/* =================== STEP 3: LISTO =================== */}
+        {step === 'listo' && (
+          <div className="min-h-[80vh] flex flex-col items-center justify-center px-6">
+            <div className="max-w-lg text-center space-y-6">
+              {/* Animated checkmark */}
+              <div
+                className="w-16 h-16 rounded-full flex items-center justify-center mx-auto"
+                style={{
+                  border: '2px solid rgba(74,222,128,0.3)',
+                  background: 'rgba(74,222,128,0.08)',
+                  animation: 'checkPop 0.4s ease-out',
+                }}
+              >
+                <Check className="w-7 h-7" style={{ color: '#4ade80' }} />
               </div>
 
-              <div className="space-y-3">
-                <h2 className="text-3xl font-extralight">Bienvenido, {formData.nombre.split(' ')[0]}</h2>
-                <p className="text-white/40 text-sm leading-relaxed max-w-sm mx-auto">
-                  Ya formas parte de GEDEONES. Tu lider de red se pondra en contacto contigo pronto.
+              <div className="space-y-2">
+                <h2
+                  className="text-[26px] font-bold"
+                  style={{ color: 'var(--color-text-primary, #f0f0f5)' }}
+                >
+                  Bienvenido a GEDEONES, {formData.nombre.split(' ')[0]}
+                </h2>
+                <p
+                  className="text-[14px] leading-relaxed max-w-sm mx-auto"
+                  style={{ color: 'var(--color-text-secondary, rgba(255,255,255,0.5))' }}
+                >
+                  Tu lider de red se pondra en contacto contigo pronto.
                 </p>
               </div>
 
-              <div className="p-5 rounded-xl bg-white/[0.03] border border-white/[0.06] text-left space-y-3 max-w-xs mx-auto">
-                <p className="text-[11px] text-white/30 uppercase tracking-wider">Tu red</p>
-                <p className="text-lg font-light text-white/80">{redName}</p>
-                <p className="text-sm text-white/30">{redRange} anios</p>
+              <div
+                className="rounded-xl p-5 text-left space-y-2 max-w-xs mx-auto"
+                style={{
+                  background: 'var(--color-bg-surface, #12162a)',
+                  border: '1px solid var(--color-border-subtle, rgba(255,255,255,0.06))',
+                }}
+              >
+                <p
+                  className="text-[11px] uppercase tracking-wider"
+                  style={{ color: 'var(--color-text-muted, rgba(255,255,255,0.3))' }}
+                >
+                  Red asignada
+                </p>
+                <p
+                  className="text-[18px] font-semibold"
+                  style={{ color: 'var(--color-accent-gold, #c9a84c)' }}
+                >
+                  {redName}
+                </p>
               </div>
 
-              <p className="text-white/20 text-xs">
-                Revisa tu email para acceder a la plataforma
+              <p
+                className="text-[12px]"
+                style={{ color: 'var(--color-text-muted, rgba(255,255,255,0.25))' }}
+              >
+                Recibiras un email con tu acceso
               </p>
             </div>
           </div>
         )}
       </div>
 
-      {/* Subtle progress dots */}
-      {!['welcome', 'sending', 'done'].includes(step) && (
-        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 flex gap-2 z-20">
-          {['vision', 'identity', 'connect', 'belong'].map((s, i) => (
-            <div
-              key={s}
-              className={`h-1 rounded-full transition-all duration-300 ${
-                s === step ? 'w-6 bg-amber-500/50' : i < ['vision', 'identity', 'connect', 'belong'].indexOf(step) ? 'w-1.5 bg-white/20' : 'w-1.5 bg-white/[0.06]'
-              }`}
-            />
-          ))}
-        </div>
-      )}
+      {/* Inline keyframes for check animation */}
+      <style>{`
+        @keyframes checkPop {
+          0% { transform: scale(0.5); opacity: 0; }
+          60% { transform: scale(1.15); }
+          100% { transform: scale(1); opacity: 1; }
+        }
+      `}</style>
     </div>
   )
 }
 
-function InputField({ label, value, onChange, placeholder, type = 'text' }: {
-  label: string; value: string; onChange: (v: string) => void; placeholder: string; type?: string
+/* ------------------------------------------------------------------ */
+/*  Sub-components                                                     */
+/* ------------------------------------------------------------------ */
+
+function InputField({ label, value, onChange, placeholder, type = 'text', icon: Icon }: {
+  label: string
+  value: string
+  onChange: (v: string) => void
+  placeholder: string
+  type?: string
+  icon?: React.ComponentType<{ size?: number; className?: string }>
 }) {
   return (
     <div>
-      <label className="block text-[11px] text-white/30 uppercase tracking-wider mb-2">{label}</label>
+      <label
+        className="flex items-center gap-2 text-[11px] uppercase tracking-wider mb-2"
+        style={{ color: 'var(--color-text-muted, rgba(255,255,255,0.3))' }}
+      >
+        {Icon && <Icon size={12} />}
+        {label}
+      </label>
       <input
         type={type}
         value={value}
         onChange={e => onChange(e.target.value)}
         placeholder={placeholder}
-        className="w-full bg-white/[0.03] border border-white/[0.08] rounded-xl px-4 py-3.5 text-sm text-white placeholder:text-white/15 focus:outline-none focus:border-white/20 focus:bg-white/[0.05] transition-all"
+        className="w-full rounded-xl px-4 py-3.5 text-[14px] transition-all duration-150 outline-none"
+        style={{
+          background: 'rgba(255,255,255,0.03)',
+          border: '1px solid rgba(255,255,255,0.08)',
+          color: 'var(--color-text-primary, #f0f0f5)',
+          minHeight: '44px',
+        }}
+        onFocus={e => {
+          e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)'
+          e.currentTarget.style.background = 'rgba(255,255,255,0.05)'
+        }}
+        onBlur={e => {
+          e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'
+          e.currentTarget.style.background = 'rgba(255,255,255,0.03)'
+        }}
       />
     </div>
   )
@@ -413,9 +566,24 @@ function InputField({ label, value, onChange, placeholder, type = 'text' }: {
 
 function SummaryRow({ label, value, highlight }: { label: string; value: string; highlight?: boolean }) {
   return (
-    <div className="flex items-center justify-between py-2">
-      <span className="text-[11px] text-white/25 uppercase tracking-wider">{label}</span>
-      <span className={`text-sm ${highlight ? 'text-amber-400/80 font-medium' : 'text-white/60'}`}>{value}</span>
+    <div className="flex items-center justify-between py-1.5">
+      <span
+        className="text-[11px] uppercase tracking-wider"
+        style={{ color: 'var(--color-text-muted, rgba(255,255,255,0.25))' }}
+      >
+        {label}
+      </span>
+      <span
+        className="text-[13px]"
+        style={{
+          color: highlight
+            ? 'var(--color-accent-gold, #c9a84c)'
+            : 'var(--color-text-secondary, rgba(255,255,255,0.6))',
+          fontWeight: highlight ? 600 : 400,
+        }}
+      >
+        {value}
+      </span>
     </div>
   )
 }

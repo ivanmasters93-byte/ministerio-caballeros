@@ -10,7 +10,6 @@ export const GET = withErrorHandling(async (_req: NextRequest) => {
   const redes = await prisma.red.findMany({
     include: {
       lideres: true,
-      miembros: { include: { user: true } },
       _count: { select: { miembros: true, eventos: true } },
       eventos: {
         where: { fecha: { gte: new Date() } },

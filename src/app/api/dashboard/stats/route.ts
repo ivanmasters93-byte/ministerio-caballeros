@@ -2,14 +2,22 @@ import { NextRequest } from 'next/server'
 import prisma from '@/lib/prisma'
 import { withErrorHandling, requireAuth, jsonResponse } from '@/lib/api-helpers'
 
+let statsCache: { data: unknown; timestamp: number } | null = null
+const CACHE_TTL = 30_000 // 30 seconds
+
 export const GET = withErrorHandling(async (req: NextRequest) => {
   // Dashboard is publicly readable for authenticated users
   await requireAuth()
 
-  const now = new Date()
-  const in7Days = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000)
-  const in30Days = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000)
-  const last30Days = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
+  const now = Date.now()
+  if (statsCache && (now - statsCache.timestamp) < CACHE_TTL) {
+    return jsonResponse(statsCache.data)
+  }
+
+  const currentDate = new Date()
+  const in7Days = new Date(currentDate.getTime() + 7 * 24 * 60 * 60 * 1000)
+  const in30Days = new Date(currentDate.getTime() + 30 * 24 * 60 * 60 * 1000)
+  const last30Days = new Date(currentDate.getTime() - 30 * 24 * 60 * 60 * 1000)
 
   const [
     totalHermanos,
@@ -31,8 +39,8 @@ export const GET = withErrorHandling(async (req: NextRequest) => {
     prisma.hermano.count({ where: { estado: 'ACTIVO' } }),
     prisma.hermano.count({ where: { estado: 'INACTIVO' } }),
     prisma.red.count(),
-    prisma.evento.count({ where: { fecha: { gte: now, lte: in7Days } } }),
-    prisma.evento.count({ where: { fecha: { gte: now, lte: in30Days } } }),
+    prisma.evento.count({ where: { fecha: { gte: currentDate, lte: in7Days } } }),
+    prisma.evento.count({ where: { fecha: { gte: currentDate, lte: in30Days } } }),
     prisma.peticionOracion.count({ where: { estado: { in: ['ACTIVA', 'EN_ORACION'] } } }),
     prisma.hermano.count({ where: { estado: 'REQUIERE_SEGUIMIENTO' } }),
     prisma.anuncio.count({ where: { activo: true } }),
@@ -43,7 +51,7 @@ export const GET = withErrorHandling(async (req: NextRequest) => {
       include: { red: true },
     }),
     prisma.evento.findMany({
-      where: { fecha: { gte: now } },
+      where: { fecha: { gte: currentDate } },
       orderBy: { fecha: 'asc' },
       take: 5,
       include: { red: true },
@@ -61,7 +69,7 @@ export const GET = withErrorHandling(async (req: NextRequest) => {
     }),
   ])
 
-  return jsonResponse({
+  const result = {
     hermanos: {
       total: totalHermanos,
       activos: hermanosActivos,
@@ -90,5 +98,8 @@ export const GET = withErrorHandling(async (req: NextRequest) => {
       cuotasPendientes,
       recaudadoUltimo30: totalRecaudadoUltimo30._sum.monto || 0,
     },
-  })
+  }
+
+  statsCache = { data: result, timestamp: Date.now() }
+  return jsonResponse(result)
 })

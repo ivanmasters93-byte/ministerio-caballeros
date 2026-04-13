@@ -136,6 +136,9 @@ model Hermano {
   seguimientos      Seguimiento[]
   asistencias       AsistenciaDetalle[]
   cuotas            Cuota[]
+
+  @@index([estado])
+  @@index([ultimaAsistencia])
 }
 
 model Evento {
@@ -159,6 +162,8 @@ model Evento {
   anuncios    Anuncio[]
   asistencias Asistencia[]
   predicas    Predica[]
+
+  @@index([fecha])
 }
 
 model Predica {
@@ -200,6 +205,9 @@ model Anuncio {
 
   red    Red?    @relation(fields: [redId], references: [id])
   evento Evento? @relation(fields: [eventoId], references: [id])
+
+  @@index([activo])
+  @@index([expiraEn])
 }
 
 model Asistencia {
@@ -214,6 +222,8 @@ model Asistencia {
   evento   Evento              @relation(fields: [eventoId], references: [id])
   red      Red                 @relation(fields: [redId], references: [id])
   detalles AsistenciaDetalle[]
+
+  @@index([fecha])
 }
 
 model AsistenciaDetalle {
@@ -240,6 +250,9 @@ model Seguimiento {
   updatedAt       DateTime        @updatedAt
 
   hermano Hermano @relation(fields: [hermanoId], references: [id])
+
+  @@index([estado])
+  @@index([proximoContacto])
 }
 
 model Visita {
@@ -265,6 +278,8 @@ model PeticionOracion {
   updatedAt   DateTime       @updatedAt
 
   hermano Hermano @relation(fields: [hermanoId], references: [id])
+
+  @@index([estado])
 }
 
 model Documento {
@@ -315,6 +330,9 @@ model Cuota {
   redId       String?
   creadoPor   String
   createdAt   DateTime    @default(now())
+
+  @@index([mes, anio])
+  @@index([estado])
 }
 
 model MetaFinanciera {
@@ -376,6 +394,8 @@ model MensajeWhatsApp {
   messageId String?  // ID del proveedor
   userId    String?  // Hermano asociado si se identifica
   createdAt DateTime @default(now())
+
+  @@index([createdAt])
 }
 
 model EmbeddingDocumento {

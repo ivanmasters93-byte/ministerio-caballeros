@@ -77,14 +77,13 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
     },
   })
 
-  // Update hermanos who were present
-  for (const detalle of detalles) {
-    if (detalle.presente) {
-      await prisma.hermano.update({
-        where: { id: detalle.hermanoId },
-        data: { ultimaAsistencia: new Date(fecha) },
-      })
-    }
+  // Batch update hermanos who were present
+  const presenteHermanoIds = detalles.filter((d) => d.presente).map((d) => d.hermanoId)
+  if (presenteHermanoIds.length > 0) {
+    await prisma.hermano.updateMany({
+      where: { id: { in: presenteHermanoIds } },
+      data: { ultimaAsistencia: new Date(fecha) },
+    })
   }
 
   // Check for inactivity and update state
@@ -110,13 +109,14 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
     },
   })
 
-  for (const hermano of hermanosFueraRed) {
-    if (hermano.estado !== 'INACTIVO') {
-      await prisma.hermano.update({
-        where: { id: hermano.id },
-        data: { estado: 'REQUIERE_SEGUIMIENTO' },
-      })
-    }
+  const hermanosFueraRedIds = hermanosFueraRed
+    .filter((h) => h.estado !== 'INACTIVO')
+    .map((h) => h.id)
+  if (hermanosFueraRedIds.length > 0) {
+    await prisma.hermano.updateMany({
+      where: { id: { in: hermanosFueraRedIds } },
+      data: { estado: 'REQUIERE_SEGUIMIENTO' },
+    })
   }
 
   return jsonResponse(asistencia, 201)

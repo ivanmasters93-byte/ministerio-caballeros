@@ -25,10 +25,8 @@ import {
   BookOpen,
   Mic,
   Palette,
-  Sparkles,
-  Copy,
-  Check,
   MessageCircle,
+  Eye,
 } from 'lucide-react'
 
 /* ------------------------------------------------------------------ */
@@ -107,6 +105,13 @@ interface DashboardStats {
   }
 }
 
+interface RedSummary {
+  id: string
+  nombre: string
+  tipo: string
+  _count?: { miembros: number; eventos: number }
+}
+
 /* ------------------------------------------------------------------ */
 /*  Helpers                                                            */
 /* ------------------------------------------------------------------ */
@@ -136,6 +141,12 @@ const CASO_ESTADO_BADGE: Record<string, string> = {
   ABIERTO: 'badge-red',
   EN_PROCESO: 'badge-amber',
   CERRADO: 'badge-green',
+}
+
+const RED_TYPE_BADGE: Record<string, { color: string; soft: string }> = {
+  MENOR: { color: 'var(--color-accent-green)', soft: 'var(--color-accent-green-soft)' },
+  MEDIA: { color: 'var(--color-accent-blue)', soft: 'var(--color-accent-blue-soft)' },
+  MAYOR: { color: 'var(--color-accent-purple)', soft: 'var(--color-accent-purple-soft)' },
 }
 
 function CasoIcon({ tipo }: { tipo: string }) {
@@ -187,6 +198,7 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true)
   const [hermanosAlerta, setHermanosAlerta] = useState<HermanoAlerta[]>([])
   const [peticionesUrgentes, setPeticionesUrgentes] = useState<PeticionUrgente[]>([])
+  const [redes, setRedes] = useState<RedSummary[]>([])
 
   useEffect(() => {
     fetch('/api/dashboard/stats')
@@ -220,6 +232,14 @@ export default function DashboardPage() {
         setPeticionesUrgentes(list.filter((p: PeticionUrgente) => p.prioridad === 'URGENTE'))
       })
       .catch(() => {})
+
+    // Fetch redes for summary section
+    fetch('/api/redes')
+      .then(r => r.json())
+      .then(data => {
+        if (Array.isArray(data)) setRedes(data)
+      })
+      .catch(() => {})
   }, [])
 
   const hour = new Date().getHours()
@@ -240,10 +260,7 @@ export default function DashboardPage() {
   if (loading) {
     return (
       <div className="space-y-6 sm:space-y-8">
-        {/* Greeting - renders immediately */}
         <GreetingBar greeting={greeting} todayLabel={todayLabel} />
-
-        {/* Skeleton stat cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {[0, 1, 2, 3].map((i) => (
             <div
@@ -320,12 +337,12 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6 sm:space-y-8">
-      {/* ========== SECTION 1: GREETING ========== */}
+      {/* ========== GREETING ========== */}
       <div className="slide-up">
         <GreetingBar greeting={greeting} todayLabel={todayLabel} />
       </div>
 
-      {/* ========== SECTION 1b: ATENCION PASTORAL ========== */}
+      {/* ========== ATENCION PASTORAL ========== */}
       {tieneAtencionPastoral && (
         <div className="slide-up" style={{ animationDelay: '80ms' }}>
           <div className="rounded-xl border-2 border-amber-300 bg-amber-50 p-5">
@@ -345,7 +362,6 @@ export default function DashboardPage() {
               </Link>
             </div>
 
-            {/* Hermanos requiring attention */}
             {hermanosAlerta.length > 0 && (
               <div className="space-y-2 mb-4">
                 {hermanosAlerta.slice(0, 6).map(h => {
@@ -395,7 +411,6 @@ export default function DashboardPage() {
               </div>
             )}
 
-            {/* Urgent prayer requests */}
             {peticionesUrgentes.length > 0 && (
               <div>
                 <p className="text-[12px] font-semibold text-red-700 uppercase tracking-wide mb-2">Peticiones Urgentes</p>
@@ -440,7 +455,7 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {/* ========== SECTION 2: QUICK STATS ========== */}
+      {/* ========== QUICK STATS ========== */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {statCards.map((card, i) => (
           <Link key={card.label} href={card.href} className="group">
@@ -481,7 +496,66 @@ export default function DashboardPage() {
         ))}
       </div>
 
-      {/* ========== SECTION 3: ACTION REQUIRED ========== */}
+      {/* ========== RESUMEN DE REDES ========== */}
+      {redes.length > 0 && (
+        <div className="slide-up" style={{ animationDelay: '350ms' }}>
+          <h3
+            className="text-[16px] font-semibold mb-3"
+            style={{ color: 'var(--color-text-primary)' }}
+          >
+            Resumen de Redes
+          </h3>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            {redes.map((red) => {
+              const badge = RED_TYPE_BADGE[red.tipo] ?? { color: 'var(--color-accent-gold)', soft: 'var(--color-accent-gold-soft)' }
+              const miembros = red._count?.miembros ?? 0
+              return (
+                <Link
+                  key={red.id}
+                  href={`/redes/${red.id}`}
+                  className="dark-card p-4 flex items-center gap-4 transition-all duration-200 hover:border-[var(--color-border-strong)]"
+                >
+                  <div
+                    className="flex items-center justify-center w-10 h-10 rounded-lg shrink-0"
+                    style={{ background: badge.soft }}
+                  >
+                    <Users size={18} style={{ color: badge.color }} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p
+                      className="text-[14px] font-medium truncate"
+                      style={{ color: 'var(--color-text-primary)' }}
+                    >
+                      {red.nombre}
+                    </p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span
+                        className="text-[11px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded"
+                        style={{ background: badge.soft, color: badge.color }}
+                      >
+                        {red.tipo}
+                      </span>
+                      <span
+                        className="text-[12px]"
+                        style={{ color: 'var(--color-text-secondary)' }}
+                      >
+                        {miembros} miembro{miembros !== 1 ? 's' : ''}
+                      </span>
+                    </div>
+                  </div>
+                  <Eye
+                    size={16}
+                    className="shrink-0"
+                    style={{ color: 'var(--color-text-muted)' }}
+                  />
+                </Link>
+              )
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* ========== ACTION REQUIRED ========== */}
       {requierenAtencion > 0 && (
         <div
           className="slide-up"
@@ -513,7 +587,6 @@ export default function DashboardPage() {
               </Link>
             </div>
 
-            {/* Action items row */}
             <div className="flex flex-wrap gap-3 mt-3">
               {(stats?.hermanos?.requierenSeguimiento ?? 0) > 0 && (
                 <Link
@@ -556,7 +629,7 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {/* ========== SECTION 4: EVENTS + ANNOUNCEMENTS ========== */}
+      {/* ========== EVENTS + ANNOUNCEMENTS ========== */}
       <div
         className="grid grid-cols-1 lg:grid-cols-5 gap-4 sm:gap-6 slide-up"
         style={{ animationDelay: '500ms' }}
@@ -594,7 +667,6 @@ export default function DashboardPage() {
             </div>
           ) : (
             <div className="relative">
-              {/* Connecting line */}
               <div
                 className="absolute left-[23px] top-6 bottom-6 w-px"
                 style={{ background: 'var(--color-border-subtle)' }}
@@ -609,7 +681,6 @@ export default function DashboardPage() {
                       key={evento.id}
                       className="flex items-start gap-4 relative"
                     >
-                      {/* Date pill */}
                       <div
                         className="flex flex-col items-center justify-center min-w-[48px] w-12 h-14 rounded-lg z-10 shrink-0"
                         style={{
@@ -631,7 +702,6 @@ export default function DashboardPage() {
                         </span>
                       </div>
 
-                      {/* Event details */}
                       <div className="flex-1 min-w-0 pt-0.5">
                         <p
                           className="text-[14px] font-medium truncate"
@@ -773,64 +843,11 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* ========== SECTION 5: GEDEONES 2.0 — NUEVAS HERRAMIENTAS ========== */}
-      <div
-        className="slide-up"
-        style={{ animationDelay: '550ms' }}
-      >
-        {/* Versículo del Día */}
-        <VersiculoDelDiaCard />
-
-        {/* Quick access to new features */}
-        <div className="mt-6">
-          <h3
-            className="text-[16px] font-semibold mb-4"
-            style={{ color: 'var(--color-text-primary)' }}
-          >
-            Gedeones 2.0
-          </h3>
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-            <GedeoneFeatureCard
-              href="/biblia"
-              icon={BookOpen}
-              title="Biblia"
-              description="Lee, busca versiculos y sigue tu plan de lectura diaria"
-              accentColor="var(--color-accent-gold)"
-              accentSoft="var(--color-accent-gold-soft)"
-            />
-            <GedeoneFeatureCard
-              href="/reuniones"
-              icon={Video}
-              title="Reuniones en Vivo"
-              description="Videollamadas gratis con Jitsi Meet integrado"
-              accentColor="var(--color-accent-blue)"
-              accentSoft="var(--color-accent-blue-soft)"
-            />
-            <GedeoneFeatureCard
-              href="/predicas"
-              icon={Mic}
-              title="Predicas"
-              description="Transcripcion y resumenes automaticos de sermones"
-              accentColor="var(--color-accent-purple)"
-              accentSoft="var(--color-accent-purple-soft)"
-            />
-            <GedeoneFeatureCard
-              href="/flyers"
-              icon={Palette}
-              title="Editor de Flyers"
-              description="Crea afiches profesionales para tus eventos en minutos"
-              accentColor="var(--color-accent-green)"
-              accentSoft="var(--color-accent-green-soft)"
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* ========== SECTION 6: SEGUIMIENTO PASTORAL ========== */}
+      {/* ========== SEGUIMIENTO PASTORAL ========== */}
       {casosAbiertos.length > 0 && (
         <div
           className="slide-up"
-          style={{ animationDelay: '650ms' }}
+          style={{ animationDelay: '600ms' }}
         >
           <div className="flex items-center justify-between mb-4">
             <h3
@@ -906,10 +923,10 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {/* ========== SECTION 7: QUICK ACTIONS ========== */}
+      {/* ========== QUICK ACTIONS ========== */}
       <div
         className="slide-up"
-        style={{ animationDelay: '750ms' }}
+        style={{ animationDelay: '700ms' }}
       >
         <h3
           className="text-[16px] font-semibold mb-4"
@@ -947,173 +964,6 @@ export default function DashboardPage() {
 }
 
 /* ------------------------------------------------------------------ */
-/*  Sub-components                                                     */
-/* ------------------------------------------------------------------ */
-
-/* ------------------------------------------------------------------ */
-/*  Gedeones 2.0 Feature Card                                         */
-/* ------------------------------------------------------------------ */
-
-function GedeoneFeatureCard({
-  href,
-  icon: Icon,
-  title,
-  description,
-  accentColor,
-  accentSoft,
-}: {
-  href: string
-  icon: React.ComponentType<{ size?: number; style?: React.CSSProperties }>
-  title: string
-  description: string
-  accentColor: string
-  accentSoft: string
-}) {
-  return (
-    <Link href={href} className="group">
-      <div
-        className="dark-card p-5 transition-all duration-200 hover:border-[var(--color-border-strong)] h-full"
-      >
-        <div className="flex items-start gap-3 mb-3">
-          <div
-            className="flex items-center justify-center w-10 h-10 rounded-lg shrink-0 transition-transform duration-200 group-hover:scale-110"
-            style={{ background: accentSoft }}
-          >
-            <Icon size={20} style={{ color: accentColor }} />
-          </div>
-          <div className="flex items-center gap-1.5">
-            <h4
-              className="text-[14px] font-semibold"
-              style={{ color: 'var(--color-text-primary)' }}
-            >
-              {title}
-            </h4>
-            <Sparkles size={12} style={{ color: accentColor }} />
-          </div>
-        </div>
-        <p
-          className="text-[12px] leading-relaxed"
-          style={{ color: 'var(--color-text-secondary)' }}
-        >
-          {description}
-        </p>
-        <div
-          className="mt-3 flex items-center gap-1 text-[12px] font-medium opacity-0 group-hover:opacity-100 transition-opacity"
-          style={{ color: accentColor }}
-        >
-          Abrir <ChevronRight size={12} />
-        </div>
-      </div>
-    </Link>
-  )
-}
-
-/* ------------------------------------------------------------------ */
-/*  Versículo del Día Card                                             */
-/* ------------------------------------------------------------------ */
-
-function VersiculoDelDiaCard() {
-  const [copied, setCopied] = useState(false)
-
-  // Deterministic verse of the day (same algorithm as the API)
-  const today = new Date()
-  const start = new Date(today.getFullYear(), 0, 0)
-  const diff = today.getTime() - start.getTime()
-  const dayOfYear = Math.floor(diff / 86400000)
-
-  // Curated verses inline (subset — full list is in the biblia module)
-  const versiculos = [
-    { referencia: 'Juan 3:16', texto: 'Porque de tal manera amo Dios al mundo, que ha dado a su Hijo unigenito, para que todo aquel que en el cree, no se pierda, mas tenga vida eterna.' },
-    { referencia: 'Salmos 23:1', texto: 'Jehova es mi pastor; nada me faltara.' },
-    { referencia: 'Filipenses 4:13', texto: 'Todo lo puedo en Cristo que me fortalece.' },
-    { referencia: 'Jeremias 29:11', texto: 'Porque yo se los pensamientos que tengo acerca de vosotros, dice Jehova, pensamientos de paz, y no de mal, para daros el fin que esperais.' },
-    { referencia: 'Romanos 8:28', texto: 'Y sabemos que a los que aman a Dios, todas las cosas les ayudan a bien, esto es, a los que conforme a su proposito son llamados.' },
-    { referencia: 'Proverbios 3:5-6', texto: 'Fiate de Jehova de todo tu corazon, y no te apoyes en tu propia prudencia. Reconocelo en todos tus caminos, y el enderezara tus veredas.' },
-    { referencia: 'Isaias 40:31', texto: 'Pero los que esperan a Jehova tendran nuevas fuerzas; levantaran alas como las aguilas; correran, y no se cansaran; caminaran, y no se fatigaran.' },
-    { referencia: 'Josue 1:9', texto: 'Mira que te mando que te esfuerces y seas valiente; no temas ni desmayes, porque Jehova tu Dios estara contigo en dondequiera que vayas.' },
-    { referencia: '2 Timoteo 1:7', texto: 'Porque no nos ha dado Dios espiritu de cobardía, sino de poder, de amor y de dominio propio.' },
-    { referencia: 'Salmos 46:10', texto: 'Estad quietos, y conoced que yo soy Dios; sere exaltado entre las naciones; enaltecido sere en la tierra.' },
-    { referencia: 'Mateo 11:28', texto: 'Venid a mi todos los que estais trabajados y cargados, y yo os hare descansar.' },
-    { referencia: 'Salmos 119:105', texto: 'Lampara es a mis pies tu palabra, y lumbrera a mi camino.' },
-  ]
-
-  const verse = versiculos[dayOfYear % versiculos.length]
-
-  const handleCopy = () => {
-    navigator.clipboard.writeText(`"${verse.texto}" — ${verse.referencia}`)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
-  }
-
-  return (
-    <div
-      className="rounded-xl p-5 relative overflow-hidden"
-      style={{
-        background: 'linear-gradient(135deg, rgba(201,168,76,0.08) 0%, rgba(30,64,175,0.06) 100%)',
-        border: '1px solid rgba(201,168,76,0.15)',
-      }}
-    >
-      {/* Decorative element */}
-      <div
-        className="absolute top-0 right-0 w-32 h-32 rounded-full opacity-[0.04]"
-        style={{
-          background: 'var(--color-accent-gold)',
-          transform: 'translate(30%, -30%)',
-        }}
-      />
-
-      <div className="flex items-start justify-between gap-4 relative z-10">
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-3">
-            <BookOpen size={16} style={{ color: 'var(--color-accent-gold)' }} />
-            <span
-              className="text-[12px] font-semibold uppercase tracking-wider"
-              style={{ color: 'var(--color-accent-gold)' }}
-            >
-              Versiculo del Dia
-            </span>
-          </div>
-          <p
-            className="text-[15px] leading-relaxed italic"
-            style={{ color: 'var(--color-text-primary)' }}
-          >
-            &ldquo;{verse.texto}&rdquo;
-          </p>
-          <p
-            className="text-[13px] font-semibold mt-2"
-            style={{ color: 'var(--color-accent-gold)' }}
-          >
-            — {verse.referencia}
-          </p>
-        </div>
-
-        <button
-          onClick={handleCopy}
-          className="shrink-0 flex items-center justify-center w-8 h-8 rounded-lg transition-all"
-          style={{
-            background: copied ? 'var(--color-accent-green-soft)' : 'rgba(201,168,76,0.1)',
-            color: copied ? 'var(--color-accent-green)' : 'var(--color-accent-gold)',
-          }}
-          title="Copiar versiculo"
-        >
-          {copied ? <Check size={14} /> : <Copy size={14} />}
-        </button>
-      </div>
-
-      <div className="mt-3 relative z-10">
-        <Link
-          href="/biblia"
-          className="text-[12px] font-medium flex items-center gap-1 transition-opacity hover:opacity-80"
-          style={{ color: 'var(--color-accent-gold)' }}
-        >
-          Abrir Biblia <ChevronRight size={12} />
-        </Link>
-      </div>
-    </div>
-  )
-}
-
-/* ------------------------------------------------------------------ */
 /*  Greeting Bar                                                       */
 /* ------------------------------------------------------------------ */
 
@@ -1126,7 +976,6 @@ function GreetingBar({
 }) {
   const [dropdownOpen, setDropdownOpen] = useState(false)
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     if (!dropdownOpen) return
     const handler = (e: MouseEvent) => {
@@ -1169,7 +1018,6 @@ function GreetingBar({
           Nuevo
         </button>
 
-        {/* Dropdown — click/tap to open */}
         {dropdownOpen && (
           <div
             className="absolute right-0 top-full mt-2 w-48 rounded-xl p-1.5 z-50 fade-in"
