@@ -160,7 +160,7 @@ export default function LiderazgoPage() {
     fetchData()
   }, [fetchData])
 
-  // Fetch available lideres (users with LIDER_RED role)
+  // Fetch all users as candidates for leader assignment
   const openEditDialog = async (red: RedLiderazgo) => {
     setEditingRed(red)
     setSaveError(null)
@@ -168,8 +168,9 @@ export default function LiderazgoPage() {
     try {
       const res = await fetch('/api/roles')
       const users: LiderUser[] = await res.json()
-      const lideres = Array.isArray(users) ? users.filter(u => u.role === 'LIDER_RED') : []
-      setAvailableLideres(lideres)
+      // Show ALL users — when assigned, their role will be updated to LIDER_RED
+      const candidates = Array.isArray(users) ? users : []
+      setAvailableLideres(candidates)
       setSelectedLider1(red.lideres[0]?.id ?? '')
       setSelectedLider2(red.lideres[1]?.id ?? '')
     } catch {
@@ -516,9 +517,12 @@ export default function LiderazgoPage() {
 
           {availableLideres.length === 0 && (
             <p className="text-xs text-center py-2" style={{ color: 'var(--color-text-muted)' }}>
-              No hay usuarios con rol Líder de Red disponibles.
+              No hay hermanos registrados aun. Comparte el link de registro primero.
             </p>
           )}
+          <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
+            Al asignar un hermano como lider, su rol se actualizara automaticamente.
+          </p>
 
           {saveError && (
             <p className="text-sm px-3 py-2 rounded-lg" style={{ background: 'var(--color-accent-red-soft)', color: 'var(--color-accent-red)' }}>

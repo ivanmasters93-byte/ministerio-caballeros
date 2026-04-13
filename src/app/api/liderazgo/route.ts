@@ -92,7 +92,7 @@ export const PUT = withErrorHandling(async (req: NextRequest) => {
   const red = await prisma.red.findUnique({ where: { id: redId } })
   if (!red) throw new NotFoundError('Red no encontrada')
 
-  // Verify all liderIds exist and have LIDER_RED role
+  // Verify all liderIds exist and auto-promote to LIDER_RED
   if (liderIds.length > 0) {
     const users = await prisma.user.findMany({
       where: { id: { in: liderIds } },
@@ -101,9 +101,13 @@ export const PUT = withErrorHandling(async (req: NextRequest) => {
     if (users.length !== liderIds.length) {
       return errorResponse('Uno o más usuarios no existen')
     }
-    const nonLideres = users.filter(u => u.role !== 'LIDER_RED')
-    if (nonLideres.length > 0) {
-      return errorResponse('Todos los usuarios asignados deben tener el rol de Líder de Red')
+    // Auto-promote: change role to LIDER_RED for anyone who isn't already
+    const toPromote = users.filter(u => u.role !== 'LIDER_RED' && u.role !== 'LIDER_GENERAL')
+    for (const u of toPromote) {
+      await prisma.user.update({
+        where: { id: u.id },
+        data: { role: 'LIDER_RED' },
+      })
     }
   }
 
