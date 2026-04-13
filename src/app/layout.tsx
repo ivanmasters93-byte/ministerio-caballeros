@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import Script from 'next/script'
 import './globals.css'
+import { Providers } from './providers'
 
 export const metadata: Metadata = {
   title: 'GEDEONES - Centro de Mando',
@@ -50,6 +51,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="msapplication-TileColor" content="#0c0e14" />
       </head>
       <body className="antialiased">
+        <Providers>
         {children}
         <Script
           id="register-sw"
@@ -70,6 +72,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             `,
           }}
         />
+        </Providers>
       </body>
     </html>
   )
