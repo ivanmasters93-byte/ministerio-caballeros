@@ -9,6 +9,9 @@ import {
   NotFoundError,
 } from '@/lib/api-helpers'
 
+// System admin account — hidden from all ministry-facing listings
+const SYSTEM_ADMIN_EMAILS = ['ivanmasters93@gmail.com']
+
 // ============================================================
 // GET /api/liderazgo
 // Returns the full leadership structure: lider general,
@@ -18,10 +21,10 @@ import {
 export const GET = withErrorHandling(async (_req: NextRequest) => {
   await requireAuth()
 
-  // Fetch single leader by role helper
+  // Fetch single leader by role helper — excludes system admin account
   const findByRole = (role: string) =>
     prisma.user.findFirst({
-      where: { role: role as never },
+      where: { role: role as never, email: { notIn: SYSTEM_ADMIN_EMAILS } },
       select: { id: true, name: true, email: true, phone: true, role: true },
     })
 
