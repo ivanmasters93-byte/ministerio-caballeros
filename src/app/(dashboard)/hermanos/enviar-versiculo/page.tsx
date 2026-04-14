@@ -209,22 +209,23 @@ export default function EnviarVersiculoPage() {
     if (!mensajeFinal || destinatarios.length === 0) return
     setGuardando(true)
     try {
-      // Save as an anuncio (notification to the group)
-      await fetch('/api/anuncios', {
+      const res = await fetch('/api/versiculos/enviar', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          mensaje: mensajeFinal,
           titulo: versiculoSeleccionado
-            ? `Versículo: ${versiculoSeleccionado.referencia}`
-            : 'Mensaje enviado',
-          contenido: mensajeFinal,
-          prioridad: 'NORMAL',
-          activo: true,
+            ? `Versiculo: ${versiculoSeleccionado.referencia}`
+            : 'Mensaje del liderazgo',
+          hermanoIds: [...seleccionados],
+          tipo: 'versiculo',
         }),
       })
-      setGuardadoOk(true)
+      if (res.ok) {
+        setGuardadoOk(true)
+      }
     } catch {
-      // silent — WhatsApp links still work
+      // silent
     } finally {
       setGuardando(false)
     }
@@ -847,10 +848,10 @@ export default function EnviarVersiculoPage() {
               <div className="flex items-center justify-between gap-4">
                 <div>
                   <p className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>
-                    Guardar en el sistema
+                    Enviar internamente
                   </p>
                   <p className="text-xs" style={{ color: 'var(--color-text-muted)' }}>
-                    Registra este mensaje como anuncio interno
+                    Notifica a los destinatarios dentro de la app
                   </p>
                 </div>
                 {guardadoOk ? (
@@ -872,7 +873,7 @@ export default function EnviarVersiculoPage() {
                     className="flex items-center gap-2"
                   >
                     <Send size={14} />
-                    {guardando ? 'Guardando...' : 'Guardar'}
+                    {guardando ? 'Enviando...' : 'Enviar Internamente'}
                   </Button>
                 )}
               </div>

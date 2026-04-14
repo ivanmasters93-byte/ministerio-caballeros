@@ -5,6 +5,7 @@ import { LogOut, Menu, Search, X } from 'lucide-react'
 import { signOut } from 'next-auth/react'
 import { Avatar } from '@/components/ui/avatar'
 import { Logo } from '@/components/ui/logo'
+import { NotificationBell } from '@/components/layout/NotificationBell'
 import { getRoleLabel } from '@/lib/utils'
 import Link from 'next/link'
 
@@ -97,6 +98,9 @@ export function Header({ user, title, onMenuToggle }: HeaderProps) {
             </button>
           )}
         </div>
+
+        {/* Notification Bell */}
+        <NotificationBell />
 
         {/* Divider — hidden on mobile */}
         <div

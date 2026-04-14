@@ -364,6 +364,7 @@ export default function DashboardPage() {
   const [hermanosAlerta, setHermanosAlerta] = useState<HermanoAlerta[]>([])
   const [peticionesUrgentes, setPeticionesUrgentes] = useState<PeticionUrgente[]>([])
   const [redes, setRedes] = useState<RedSummary[]>([])
+  const [versiculosRecientes, setVersiculosRecientes] = useState<{ id: string; titulo?: string; mensaje: string; createdAt: string; metadatos?: string }[]>([])
 
   // Fetch stats + auto-refresh every 30s
   const fetchStats = () => {
@@ -410,6 +411,18 @@ export default function DashboardPage() {
       .then(r => r.json())
       .then(data => {
         if (Array.isArray(data)) setRedes(data)
+      })
+      .catch(() => {})
+
+    // Fetch recent versiculos from notifications
+    fetch('/api/notificaciones')
+      .then(r => r.json())
+      .then(data => {
+        const all = data.notificaciones || []
+        const verses = all
+          .filter((n: { tipo: string; userId: string | null }) => n.tipo === 'versiculo' && n.userId === null)
+          .slice(0, 3)
+        setVersiculosRecientes(verses)
       })
       .catch(() => {})
   }, [])
@@ -1205,6 +1218,82 @@ export default function DashboardPage() {
                     {timeAgo(caso.createdAt)}
                   </span>
                 </Link>
+              )
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* ========== VERSICULOS RECIENTES ========== */}
+      {versiculosRecientes.length > 0 && (
+        <div className="slide-up" style={{ animationDelay: '650ms' }}>
+          <div className="flex items-center justify-between mb-4">
+            <h3
+              className="text-[16px] font-semibold"
+              style={{ color: 'var(--color-text-primary)' }}
+            >
+              Versiculos Recientes
+            </h3>
+            <Link
+              href="/hermanos/enviar-versiculo"
+              className="text-[13px] font-medium flex items-center gap-1 transition-colors hover:opacity-80"
+              style={{ color: 'var(--color-accent-gold)' }}
+            >
+              Enviar nuevo <ChevronRight size={14} />
+            </Link>
+          </div>
+          <div className="space-y-3">
+            {versiculosRecientes.map((v) => {
+              let destinatarios = 0
+              let remitente = ''
+              try {
+                const meta = v.metadatos ? JSON.parse(v.metadatos) : {}
+                destinatarios = meta.destinatarios || 0
+                remitente = meta.remitente || ''
+              } catch { /* ignore */ }
+              return (
+                <div
+                  key={v.id}
+                  className="dark-card p-4 flex items-start gap-3"
+                >
+                  <div
+                    className="flex items-center justify-center w-9 h-9 rounded-lg shrink-0"
+                    style={{ background: 'var(--color-accent-gold-soft)' }}
+                  >
+                    <BookOpen size={18} style={{ color: 'var(--color-accent-gold)' }} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    {v.titulo && (
+                      <p
+                        className="text-[14px] font-medium truncate"
+                        style={{ color: 'var(--color-text-primary)' }}
+                      >
+                        {v.titulo}
+                      </p>
+                    )}
+                    <p
+                      className="text-[13px] line-clamp-2 mt-0.5"
+                      style={{ color: 'var(--color-text-secondary)' }}
+                    >
+                      {v.mensaje}
+                    </p>
+                    <div className="flex items-center gap-3 mt-1.5">
+                      <span className="text-[11px]" style={{ color: 'var(--color-text-muted)' }}>
+                        {timeAgo(v.createdAt)}
+                      </span>
+                      {remitente && (
+                        <span className="text-[11px]" style={{ color: 'var(--color-text-muted)' }}>
+                          por {remitente}
+                        </span>
+                      )}
+                      {destinatarios > 0 && (
+                        <span className="text-[11px]" style={{ color: 'var(--color-text-muted)' }}>
+                          {destinatarios} destinatario{destinatarios !== 1 ? 's' : ''}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
               )
             })}
           </div>

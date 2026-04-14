@@ -96,14 +96,15 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  redes          RedMember[]
-  lideredRed     Red[]            @relation("LiderRed")
-  hermano        Hermano?
-  permisos       Permiso[]
-  notificaciones Notificacion[]
-  predicas       Predica[]
-  chatRooms      ChatRoomMember[]
-  chatMessages   ChatMessage[]
+  redes              RedMember[]
+  lideredRed         Red[]            @relation("LiderRed")
+  hermano            Hermano?
+  permisos           Permiso[]
+  notificaciones     Notificacion[]
+  pushSubscriptions  PushSubscription[]
+  predicas           Predica[]
+  chatRooms          ChatRoomMember[]
+  chatMessages       ChatMessage[]
 }
 
 model Red {
@@ -156,9 +157,11 @@ model Evento {
   jitsiEnabled Boolean    @default(false)
   grabacionUrl String?
   redId        String?
-  esRecurrente Boolean    @default(false)
-  patron       String?
-  createdAt    DateTime   @default(now())
+  esRecurrente    Boolean    @default(false)
+  patron          String?
+  reminder24hSent Boolean    @default(false)
+  reminder1hSent  Boolean    @default(false)
+  createdAt       DateTime   @default(now())
 
   red         Red?         @relation(fields: [redId], references: [id])
   anuncios    Anuncio[]
@@ -200,6 +203,7 @@ model Anuncio {
   paraTodasRedes Boolean     @default(false)
   redId          String?
   eventoId       String?
+  imagenUrl      String?
   publicadoEn    DateTime    @default(now())
   expiraEn       DateTime?
   activo         Boolean     @default(true)
@@ -375,15 +379,28 @@ enum EstadoPredica {
 
 model Notificacion {
   id        String   @id @default(cuid())
-  tipo      String   // 'ausencia', 'seguimiento', 'evento', 'anuncio', 'financiero'
+  tipo      String   // 'ausencia', 'seguimiento', 'evento', 'anuncio', 'financiero', 'versiculo'
   severidad String   // 'info', 'warning', 'critical'
+  titulo    String?
   mensaje   String
+  metadatos String?  // JSON string for extra data
   leida     Boolean  @default(false)
   userId    String?  // destinatario (null = para todos los líderes)
   relatedId String?  // id del recurso relacionado
   createdAt DateTime @default(now())
 
   user User? @relation(fields: [userId], references: [id])
+}
+
+model PushSubscription {
+  id        String   @id @default(cuid())
+  userId    String
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model MensajeWhatsApp {

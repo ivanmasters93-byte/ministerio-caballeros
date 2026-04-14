@@ -57,6 +57,7 @@ export const createAnuncioSchema = z.object({
   redId: z.string().optional(),
   eventoId: z.string().optional(),
   expiraEn: z.string().optional(),
+  imagenUrl: z.string().optional(),
 })
 
 export const updateAnuncioSchema = createAnuncioSchema.partial().extend({

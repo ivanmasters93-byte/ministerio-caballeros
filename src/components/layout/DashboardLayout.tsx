@@ -3,6 +3,7 @@
 import { Sidebar } from './Sidebar'
 import { Header } from './Header'
 import { InstallPrompt } from '@/components/pwa/InstallPrompt'
+import { PushSubscriber } from '@/components/pwa/PushSubscriber'
 import { ChatNotificationProvider } from '@/components/chat/ChatNotification'
 import { useEffect, useState } from 'react'
 
@@ -111,6 +112,7 @@ export function DashboardLayout({ children, user, title }: DashboardLayoutProps)
       </div>
 
       <InstallPrompt />
+      <PushSubscriber />
     </div>
   )
 }

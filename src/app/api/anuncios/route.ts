@@ -4,6 +4,7 @@ import { withErrorHandling, requirePermiso, jsonResponse, errorResponse, getPagi
 import { RECURSOS, ACCIONES } from '@/lib/permissions'
 import { createAnuncioSchema, validateBody } from '@/lib/validations'
 import { Prisma, TipoAnuncio } from '@prisma/client'
+import { sendPushToAll } from '@/lib/push'
 
 export const GET = withErrorHandling(async (req: NextRequest) => {
   await requirePermiso(RECURSOS.ANUNCIOS, ACCIONES.LEER)
@@ -77,7 +78,7 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
   const validation = validateBody(createAnuncioSchema, body)
   if (!validation.success) return errorResponse(validation.error)
 
-  const { titulo, contenido, tipo, prioridad, paraTodasRedes, redId, eventoId, expiraEn } = validation.data
+  const { titulo, contenido, tipo, prioridad, paraTodasRedes, redId, eventoId, expiraEn, imagenUrl } = validation.data
 
   const anuncio = await prisma.anuncio.create({
     data: {
@@ -89,10 +90,31 @@ export const POST = withErrorHandling(async (req: NextRequest) => {
       redId,
       eventoId,
       expiraEn: expiraEn ? new Date(expiraEn) : null,
+      imagenUrl: imagenUrl || null,
       activo: true,
     },
     include: { red: true, evento: true },
   })
+
+  // Create in-app notification for all users
+  await prisma.notificacion.create({
+    data: {
+      tipo: 'anuncio',
+      severidad: prioridad === 'URGENTE' ? 'critical' : 'info',
+      titulo: `Nuevo Anuncio: ${titulo}`,
+      mensaje: contenido,
+      userId: null, // null = visible to all
+      relatedId: anuncio.id,
+      metadatos: JSON.stringify({ tipo, prioridad, paraTodasRedes }),
+    },
+  })
+
+  // Send push notification to all subscribers (non-blocking)
+  sendPushToAll({
+    title: tipo === 'URGENTE' ? `URGENTE: ${titulo}` : titulo,
+    body: contenido,
+    url: '/anuncios',
+  }).catch(() => {}) // don't fail the request if push fails
 
   return jsonResponse(anuncio, 201)
 })
